@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Birapp">
 
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063069.png">
-  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3063/3063069.png">
+  <link rel="apple-touch-icon" href="./assets/icon-cheers.svg">
+  <link rel="icon" type="image/svg+xml" href="./assets/icon-cheers.svg">
   <link rel="manifest" href="./manifest.json">
 
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
@@ -58,15 +58,31 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
-    h1 {
-      font-size: 24px;
+
+
+    .brand-title {
+      font-size: 28px;
       font-weight: 800;
       letter-spacing: -0.5px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
     }
+
+    .brand-mark {
+      display: inline-flex;
+      width: 42px;
+      height: 42px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4F46E5 0%, #0EA5A4 100%);
+      box-shadow: 0 6px 14px rgba(79, 70, 229, 0.35);
+      font-size: 24px;
+      line-height: 1;
+    }
+
 
     .tabs {
       display: flex;
@@ -551,16 +567,9 @@
 
 <body>
   <header>
-    <h1>
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-        stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17" />
-        <path d="M11 2v4a2 2 0 0 0 2 2h4" />
-        <path d="M12 2v20" />
-        <rect width="10" height="14" x="7" y="8" rx="2" />
-        <path d="M7 8V6a4 4 0 0 1 8 0v2" />
-      </svg>
-      Birapp
+    <h1 class="brand-title">
+      <span class="brand-mark" aria-hidden="true">🍻</span>
+      <span>Birapp</span>
     </h1>
   </header>
 
