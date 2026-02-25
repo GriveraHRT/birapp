@@ -731,8 +731,8 @@
     });
 
     async function apiGet(action) {
-      const url = `${WEBAPP_URL}?action=${encodeURIComponent(action)}`;
-      const response = await fetch(url, { method: "GET" });
+      const url = `${WEBAPP_URL}?action=${encodeURIComponent(action)}&_ts=${Date.now()}`;
+      const response = await fetch(url, { method: "GET", cache: "no-store" });
       return parseApiResponse(response);
     }
 
@@ -752,11 +752,19 @@
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${raw.slice(0, 120)}`);
       }
+
+      let parsed;
       try {
-        return JSON.parse(raw);
+        parsed = JSON.parse(raw);
       } catch (e) {
         throw new Error("La respuesta del backend no es JSON. Verifica doGet/doPost en Apps Script.");
       }
+
+      if (parsed && typeof parsed === "object" && parsed.error) {
+        throw new Error(parsed.message || "Error de backend");
+      }
+
+      return parsed;
     }
 
     function handleImageUpload(e) {
@@ -882,7 +890,6 @@
         list.appendChild(item);
       });
 
-      loadSuggestions();
     }
 
     function filterBeers() {

@@ -58,3 +58,11 @@ function doPost(e) {
 1. Subir estos archivos al repo.
 2. Activar GitHub Pages (branch principal, carpeta `/root`).
 3. Re-deploy del Apps Script como Web App con acceso adecuado.
+
+
+## Troubleshooting rápido
+
+- Si al guardar aparece "guardado exitosamente" pero luego el historial queda vacío, normalmente el backend respondió un objeto de error en lugar del arreglo de cervezas.
+- Con este frontend, `POST` debe leer `payload` desde `e.parameter.payload` (form-urlencoded), no solo `e.postData.contents`.
+- Verifica además que el deployment activo sea la versión nueva del script (`Deploy > Manage deployments > Edit > Deploy`).
+- Si ves historial desactualizado, revisa `sw.js`: no debe cachear requests del API (`action=...`) y conviene versionar `CACHE_NAME` cuando cambias lógica de cache.

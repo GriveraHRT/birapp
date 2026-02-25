@@ -1,8 +1,9 @@
-const CACHE_NAME = "birapp-v1";
-const APP_SHELL = ["./", "./index.html", "./manifest.json"];
+const CACHE_NAME = "birapp-static-v2";
+const APP_SHELL = ["./", "./index.html", "./manifest.json", "./assets/icon-cheers.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -11,18 +12,29 @@ self.addEventListener("activate", (event) => {
       Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
     )
   );
+  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  const { request } = event;
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+
+  // Nunca cachear llamadas API ni requests cross-origin (Apps Script / Google Fonts / etc)
+  if (url.origin !== self.location.origin || url.searchParams.has("action")) {
+    return;
+  }
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
+    caches.match(request).then((cached) => {
       if (cached) return cached;
-      return fetch(event.request)
+
+      return fetch(request)
         .then((response) => {
+          if (!response || response.status !== 200) return response;
           const cloned = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned));
           return response;
         })
         .catch(() => caches.match("./index.html"));
