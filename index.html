@@ -737,10 +737,12 @@
     }
 
     async function apiPost(action, payload = {}) {
+      const requestPayload = JSON.stringify({ action, ...payload });
+      const body = new URLSearchParams({ payload: requestPayload });
+
       const response = await fetch(WEBAPP_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, ...payload })
+        body
       });
       return parseApiResponse(response);
     }
@@ -921,7 +923,13 @@
     function onFailure(error) {
       document.getElementById("btnSubmit").innerText = "Guardar Registro";
       document.getElementById("btnSubmit").disabled = false;
-      alert("Error: " + error.message);
+
+      const msg = (error && error.message) ? error.message : "Error de red";
+      const hint = msg.includes("Failed to fetch") || msg.includes("NetworkError")
+        ? "No se pudo conectar al backend. Revisa el despliegue de Apps Script (acceso Web App) y vuelve a intentar."
+        : msg;
+
+      alert("Error: " + hint);
     }
 
     function onSuccess(data) {

@@ -14,9 +14,10 @@ El frontend usa `fetch` con `action`:
 
 - `GET ?action=getCervezas`
 - `GET ?action=getSuggestions`
-- `POST { "action": "addCerveza", "data": {...} }`
-- `POST { "action": "updateCerveza", "data": {...} }`
-- `POST { "action": "deleteCerveza", "id": "..." }`
+- `POST` enviando `payload` (form-urlencoded) con JSON interno:
+  - `payload={"action":"addCerveza","data":{...}}`
+  - `payload={"action":"updateCerveza","data":{...}}`
+  - `payload={"action":"deleteCerveza","id":"..."}`
 
 Todas las respuestas deben ser JSON.
 
@@ -35,7 +36,11 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  const payload = JSON.parse(e.postData.contents || '{}');
+  const raw = (e.parameter && e.parameter.payload)
+    ? e.parameter.payload
+    : (e.postData && e.postData.contents) ? e.postData.contents : '{}';
+
+  const payload = JSON.parse(raw);
   const action = payload.action;
   let out;
 
