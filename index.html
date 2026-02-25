@@ -562,6 +562,77 @@
       color: var(--primary);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
+
+    .cropper-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.72);
+      z-index: 1200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .cropper-modal.show {
+      display: flex;
+    }
+
+    .cropper-card {
+      width: min(420px, 100%);
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .cropper-stage {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      background: #0f172a;
+      overflow: hidden;
+      position: relative;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .cropper-stage:active {
+      cursor: grabbing;
+    }
+
+    #cropperImage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      user-select: none;
+      -webkit-user-drag: none;
+      transform-origin: top left;
+      will-change: transform;
+    }
+
+    .cropper-controls {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cropper-controls input[type="range"] {
+      width: 100%;
+    }
+
+    .cropper-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .cropper-actions .btn {
+      width: auto;
+      flex: 1;
+      padding: 13px 16px;
+    }
   </style>
 </head>
 
@@ -695,6 +766,24 @@
     </div>
   </div>
 
+  <div id="cropperModal" class="cropper-modal" role="dialog" aria-modal="true" aria-labelledby="cropperTitle">
+    <div class="cropper-card">
+      <h3 id="cropperTitle" style="font-size:18px; font-weight:800; margin-bottom:4px;">Encuadra tu foto</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Arrastra para mover y usa el zoom para ajustar lo que se verá en la miniatura.</p>
+      <div class="cropper-stage" id="cropperStage">
+        <img id="cropperImage" alt="Recorte de foto">
+      </div>
+      <div class="cropper-controls">
+        <label for="cropZoom" style="margin:0; font-size:13px;">Zoom</label>
+        <input id="cropZoom" type="range" min="1" max="3" step="0.01" value="1">
+      </div>
+      <div class="cropper-actions">
+        <button type="button" class="btn btn-delete" style="margin-top:0;" onclick="closeCropper()">Cancelar</button>
+        <button type="button" class="btn" onclick="applyCrop()">Usar foto</button>
+      </div>
+    </div>
+  </div>
+
   <nav class="tabs">
     <button class="tab-btn active" id="tab-nueva" onclick="switchTab('nueva-cata')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -715,6 +804,16 @@
   <script>
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwosRVbZN3CCzeGJFDruvvvj5Z9aqYHl-36_dTAN7Z03Jxbt6jl0-PfyiObo5FUiPomAA/exec";
     let cervezasData = [];
+    const cropState = {
+      image: null,
+      scale: 1,
+      minScale: 1,
+      offsetX: 0,
+      offsetY: 0,
+      dragging: false,
+      dragStartX: 0,
+      dragStartY: 0
+    };
 
     const defaultBeerSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M11 2v4a2 2 0 0 0 2 2h4"/><path d="M12 2v20"/><rect width="10" height="14" x="7" y="8" rx="2"/><path d="M7 8V6a4 4 0 0 1 8 0v2"/></svg>`;
 
@@ -722,6 +821,61 @@
       document.getElementById("fecha").valueAsDate = new Date();
       loadBeers();
       loadSuggestions();
+
+      const stage = document.getElementById("cropperStage");
+      const zoom = document.getElementById("cropZoom");
+
+      const startDrag = (x, y) => {
+        cropState.dragging = true;
+        cropState.dragStartX = x;
+        cropState.dragStartY = y;
+      };
+
+      const moveDrag = (x, y) => {
+        if (!cropState.dragging || !cropState.image) return;
+        cropState.offsetX += x - cropState.dragStartX;
+        cropState.offsetY += y - cropState.dragStartY;
+        cropState.dragStartX = x;
+        cropState.dragStartY = y;
+        renderCropper();
+      };
+
+      const stopDrag = () => {
+        cropState.dragging = false;
+      };
+
+      stage.addEventListener("mousedown", (ev) => startDrag(ev.clientX, ev.clientY));
+      window.addEventListener("mousemove", (ev) => moveDrag(ev.clientX, ev.clientY));
+      window.addEventListener("mouseup", stopDrag);
+
+      stage.addEventListener("touchstart", (ev) => {
+        const t = ev.touches[0];
+        if (!t) return;
+        startDrag(t.clientX, t.clientY);
+      }, { passive: true });
+
+      stage.addEventListener("touchmove", (ev) => {
+        const t = ev.touches[0];
+        if (!t) return;
+        moveDrag(t.clientX, t.clientY);
+      }, { passive: true });
+
+      stage.addEventListener("touchend", stopDrag);
+
+      zoom.addEventListener("input", (ev) => {
+        if (!cropState.image) return;
+        const stageSize = stage.clientWidth;
+        const previous = cropState.scale;
+        const next = parseFloat(ev.target.value);
+
+        const centerX = (stageSize / 2 - cropState.offsetX) / previous;
+        const centerY = (stageSize / 2 - cropState.offsetY) / previous;
+
+        cropState.scale = next;
+        cropState.offsetX = stageSize / 2 - centerX * cropState.scale;
+        cropState.offsetY = stageSize / 2 - centerY * cropState.scale;
+        renderCropper();
+      });
 
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./sw.js").catch((err) => {
@@ -772,28 +926,87 @@
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function (event) {
-        const img = new Image();
-        img.onload = function () {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 500;
-          const scaleSize = MAX_WIDTH / img.width;
-          canvas.width = MAX_WIDTH;
-          canvas.height = img.height * scaleSize;
-
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-          document.getElementById('imageBase64').value = compressedBase64;
-
-          const preview = document.getElementById('imagePreview');
-          preview.src = compressedBase64;
-          preview.style.display = 'block';
-        };
-        img.src = event.target.result;
-      };
+      reader.onload = (event) => openCropper(event.target.result);
       reader.readAsDataURL(file);
+    }
+
+    function openCropper(src) {
+      const modal = document.getElementById("cropperModal");
+      const stage = document.getElementById("cropperStage");
+      const imgEl = document.getElementById("cropperImage");
+      const zoom = document.getElementById("cropZoom");
+
+      const img = new Image();
+      img.onload = () => {
+        cropState.image = img;
+        const stageSize = stage.clientWidth;
+        cropState.minScale = Math.max(stageSize / img.width, stageSize / img.height);
+        cropState.scale = cropState.minScale;
+        cropState.offsetX = (stageSize - img.width * cropState.scale) / 2;
+        cropState.offsetY = (stageSize - img.height * cropState.scale) / 2;
+
+        zoom.min = String(cropState.minScale);
+        zoom.max = String(Math.max(cropState.minScale * 3, cropState.minScale + 0.5));
+        zoom.value = String(cropState.scale);
+
+        imgEl.src = src;
+        renderCropper();
+        modal.classList.add("show");
+      };
+      img.src = src;
+    }
+
+    function closeCropper() {
+      document.getElementById("cropperModal").classList.remove("show");
+      document.getElementById("imageInput").value = "";
+      cropState.dragging = false;
+    }
+
+    function clampCropOffsets() {
+      const stage = document.getElementById("cropperStage");
+      const stageSize = stage.clientWidth;
+      const width = cropState.image.width * cropState.scale;
+      const height = cropState.image.height * cropState.scale;
+
+      const minX = Math.min(0, stageSize - width);
+      const minY = Math.min(0, stageSize - height);
+      cropState.offsetX = Math.min(0, Math.max(minX, cropState.offsetX));
+      cropState.offsetY = Math.min(0, Math.max(minY, cropState.offsetY));
+    }
+
+    function renderCropper() {
+      const imgEl = document.getElementById("cropperImage");
+      if (!cropState.image || !imgEl) return;
+
+      clampCropOffsets();
+      imgEl.style.width = `${cropState.image.width}px`;
+      imgEl.style.height = `${cropState.image.height}px`;
+      imgEl.style.transform = `translate(${cropState.offsetX}px, ${cropState.offsetY}px) scale(${cropState.scale})`;
+    }
+
+    function applyCrop() {
+      if (!cropState.image) return;
+
+      const stage = document.getElementById("cropperStage");
+      const stageSize = stage.clientWidth;
+      const canvas = document.createElement("canvas");
+      canvas.width = 500;
+      canvas.height = 500;
+      const ctx = canvas.getContext("2d");
+
+      const sx = Math.max(0, (-cropState.offsetX) / cropState.scale);
+      const sy = Math.max(0, (-cropState.offsetY) / cropState.scale);
+      const sSize = stageSize / cropState.scale;
+
+      ctx.drawImage(cropState.image, sx, sy, sSize, sSize, 0, 0, 500, 500);
+
+      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.72);
+      document.getElementById("imageBase64").value = compressedBase64;
+
+      const preview = document.getElementById("imagePreview");
+      preview.src = compressedBase64;
+      preview.style.display = "block";
+      closeCropper();
     }
 
     function switchTab(tabId) {
