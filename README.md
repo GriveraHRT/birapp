@@ -66,3 +66,6 @@ function doPost(e) {
 - Con este frontend, `POST` debe leer `payload` desde `e.parameter.payload` (form-urlencoded), no solo `e.postData.contents`.
 - Verifica además que el deployment activo sea la versión nueva del script (`Deploy > Manage deployments > Edit > Deploy`).
 - Si ves historial desactualizado, revisa `sw.js`: no debe cachear requests del API (`action=...`) y conviene versionar `CACHE_NAME` cuando cambias lógica de cache.
+
+- Si agregas campos nuevos en el formulario (por ejemplo `° ALC` e `IBU`), actualiza también `HEADERS`, `addCerveza` y `updateCerveza` en Apps Script para guardar/leer esas columnas.
+- Google Sheets tiene límite de 50.000 caracteres por celda: las imágenes base64 deben comprimirse por debajo de ese umbral (el frontend ahora lo intenta automáticamente antes de guardar).

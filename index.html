@@ -689,6 +689,19 @@
 
           <div class="ratings-container">
             <div class="form-group">
+              <label>° ALC</label>
+              <input type="text" id="alc" placeholder="Ej. 5.2" inputmode="decimal">
+            </div>
+
+            <div class="form-group">
+              <label>IBU</label>
+              <input type="text" id="ibu" placeholder="Ej. 35" inputmode="numeric">
+            </div>
+          </div>
+
+
+          <div class="ratings-container">
+            <div class="form-group">
               <label>Nota Karina</label>
               <select id="notaKarina">
                 <option value="Sin puntuar">Sin puntuar</option>
@@ -814,6 +827,7 @@
       dragStartX: 0,
       dragStartY: 0
     };
+    const IMAGE_CELL_LIMIT = 49000;
 
     const defaultBeerSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M11 2v4a2 2 0 0 0 2 2h4"/><path d="M12 2v20"/><rect width="10" height="14" x="7" y="8" rx="2"/><path d="M7 8V6a4 4 0 0 1 8 0v2"/></svg>`;
 
@@ -989,20 +1003,33 @@
 
       const stage = document.getElementById("cropperStage");
       const stageSize = stage.clientWidth;
-      const canvas = document.createElement("canvas");
-      canvas.width = 500;
-      canvas.height = 500;
-      const ctx = canvas.getContext("2d");
-
       const sx = Math.max(0, (-cropState.offsetX) / cropState.scale);
       const sy = Math.max(0, (-cropState.offsetY) / cropState.scale);
       const sSize = stageSize / cropState.scale;
 
-      ctx.drawImage(cropState.image, sx, sy, sSize, sSize, 0, 0, 500, 500);
+      const canvas = document.createElement("canvas");
+      let outSize = 500;
+      let quality = 0.72;
+      let compressedBase64 = "";
 
-      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.72);
+      for (let i = 0; i < 10; i++) {
+        canvas.width = outSize;
+        canvas.height = outSize;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(cropState.image, sx, sy, sSize, sSize, 0, 0, outSize, outSize);
+        compressedBase64 = canvas.toDataURL("image/jpeg", quality);
+
+        if (compressedBase64.length <= IMAGE_CELL_LIMIT) break;
+        if (quality > 0.42) quality -= 0.1;
+        else outSize = Math.max(260, Math.round(outSize * 0.82));
+      }
+
+      if (!compressedBase64 || compressedBase64.length > IMAGE_CELL_LIMIT) {
+        alert("La imagen supera el límite de Google Sheets. Intenta encuadrar una zona más simple o usar una foto más liviana.");
+        return;
+      }
+
       document.getElementById("imageBase64").value = compressedBase64;
-
       const preview = document.getElementById("imagePreview");
       preview.src = compressedBase64;
       preview.style.display = "block";
@@ -1078,6 +1105,8 @@
         const cerveceria = beer["Cervecería"] || beer["cerveceria"] || "-";
         const estilo = beer["Estilo"] || beer["estilo"] || "-";
         const fecha = beer["Fecha"] || beer["fecha"] || "";
+        const alc = beer["° ALC"] || beer["ALC"] || "-";
+        const ibu = beer["IBU"] || "-";
         const imgBase64 = beer["Imagen"];
 
         let nK = beer["Nota Karina"] !== undefined ? beer["Nota Karina"] : "Sin puntuar";
@@ -1097,9 +1126,9 @@
 
         const item = document.createElement("div");
         item.className = "beer-item";
-        item.onclick = () => showDetails(beer, nombre, cerveceria, estilo, fecha, nK, nG, imgBase64);
+        item.onclick = () => showDetails(beer, nombre, cerveceria, estilo, fecha, alc, ibu, nK, nG, imgBase64);
 
-        item.innerHTML = `${mediaHtml}<div class="beer-content-flex"><div class="beer-info"><h3>${nombre}</h3><p>${cerveceria} • ${estilo}</p><p style="font-size:11px; margin-top:5px; opacity:0.8;">${fecha}</p></div><div class="beer-score"><span>Nota</span>${prom}</div></div>`;
+        item.innerHTML = `${mediaHtml}<div class="beer-content-flex"><div class="beer-info"><h3>${nombre}</h3><p>${cerveceria} • ${estilo}</p><p style="font-size:12px; margin-top:4px; opacity:0.85;">°ALC: ${alc} • IBU: ${ibu}</p><p style="font-size:11px; margin-top:5px; opacity:0.8;">${fecha}</p></div><div class="beer-score"><span>Nota</span>${prom}</div></div>`;
         list.appendChild(item);
       });
 
@@ -1125,11 +1154,20 @@
         nombre: document.getElementById("nombre").value,
         cerveceria: document.getElementById("cerveceria").value,
         estilo: document.getElementById("estilo").value,
+        alc: document.getElementById("alc").value,
+        ibu: document.getElementById("ibu").value,
         notaKarina: document.getElementById("notaKarina").value,
         notaGuillermo: document.getElementById("notaGuillermo").value,
         comentario: document.getElementById("comentario").value,
         imagen: document.getElementById("imageBase64").value
       };
+
+      if (data.imagen && data.imagen.length > IMAGE_CELL_LIMIT) {
+        document.getElementById("btnSubmit").innerText = "Guardar Registro";
+        document.getElementById("btnSubmit").disabled = false;
+        alert("Error: la imagen sigue siendo muy grande para Google Sheets. Intenta más zoom en el recorte o usa una foto más liviana.");
+        return;
+      }
 
       try {
         const action = data.id ? "updateCerveza" : "addCerveza";
@@ -1159,7 +1197,7 @@
       switchTab('historial');
     }
 
-    function showDetails(beer, nombre, cerveceria, estilo, fecha, nK, nG, imgBase64) {
+    function showDetails(beer, nombre, cerveceria, estilo, fecha, alc, ibu, nK, nG, imgBase64) {
       const detalleCard = document.getElementById("detalleCard");
       const imgHtml = imgBase64
         ? `<div class="detalle-header"><img src="${imgBase64}" class="detalle-img" style="display:block" alt="${nombre}"></div>`
@@ -1167,7 +1205,7 @@
 
       const encodedId = encodeURIComponent(beer.ID);
 
-      detalleCard.innerHTML = `${imgHtml}<div style="padding: 24px;"><h2 style="font-size: 24px; font-weight:800; margin-bottom: 4px; color: var(--text-main)">${nombre}</h2><h4 style="color: var(--primary); font-weight:600; font-size:15px; margin-bottom: 16px;">${cerveceria} • ${estilo}</h4><div class="detalle-box"><p style="color:var(--text-muted); font-size: 13px; font-weight:600;">FECHA DEL REGISTRO</p><p style="font-weight:700; color:var(--text-main); margin-bottom: 16px;">${fecha}</p><p style="color:var(--text-muted); font-size: 13px; font-weight:600; margin-bottom:8px;">PUNTUACIONES</p><div class="detalle-box-row" style="margin-top:0; padding-top:0; border-top:none;"><p style="font-weight:600;">👩🏻 Karina</p><div class="score-badge">${nK}</div></div><div class="detalle-box-row"><p style="font-weight:600;">👨🏻 Guillermo</p><div class="score-badge">${nG}</div></div></div><h4 style="color: var(--text-muted); font-size:13px; font-weight:600; margin-bottom:8px;">NOTAS DE CATA</h4><p style="margin-bottom:32px; color:var(--text-main); line-height:1.6; font-size:15px; background:var(--bg-color); padding:16px; border-radius:12px; border:1px solid var(--border);">${beer["Comentario"] || "<i>Sin notas adicionales escritas.</i>"}</p><div style="display:flex; gap:12px;"><button class="btn" style="flex:1" onclick="setupEdit('${encodedId}')">✏ Editar</button><button class="btn btn-delete" style="flex:1" onclick="deleteBeer('${encodedId}')">🗑 Borrar</button></div></div>`;
+      detalleCard.innerHTML = `${imgHtml}<div style="padding: 24px;"><h2 style="font-size: 24px; font-weight:800; margin-bottom: 4px; color: var(--text-main)">${nombre}</h2><h4 style="color: var(--primary); font-weight:600; font-size:15px; margin-bottom: 16px;">${cerveceria} • ${estilo}</h4><div class="detalle-box"><p style="color:var(--text-muted); font-size: 13px; font-weight:600;">FECHA DEL REGISTRO</p><p style="font-weight:700; color:var(--text-main); margin-bottom: 16px;">${fecha}</p><p style="color:var(--text-muted); font-size: 13px; font-weight:600; margin-bottom:8px;">DATOS TÉCNICOS</p><div class="detalle-box-row" style="margin-top:0; padding-top:0; border-top:none;"><p style="font-weight:600;">° ALC</p><div class="score-badge">${alc}</div></div><div class="detalle-box-row"><p style="font-weight:600;">IBU</p><div class="score-badge">${ibu}</div></div><p style="color:var(--text-muted); font-size: 13px; font-weight:600; margin-bottom:8px; margin-top:14px;">PUNTUACIONES</p><div class="detalle-box-row" style="margin-top:0; padding-top:0; border-top:none;"><p style="font-weight:600;">👩🏻 Karina</p><div class="score-badge">${nK}</div></div><div class="detalle-box-row"><p style="font-weight:600;">👨🏻 Guillermo</p><div class="score-badge">${nG}</div></div></div><h4 style="color: var(--text-muted); font-size:13px; font-weight:600; margin-bottom:8px;">NOTAS DE CATA</h4><p style="margin-bottom:32px; color:var(--text-main); line-height:1.6; font-size:15px; background:var(--bg-color); padding:16px; border-radius:12px; border:1px solid var(--border);">${beer["Comentario"] || "<i>Sin notas adicionales escritas.</i>"}</p><div style="display:flex; gap:12px;"><button class="btn" style="flex:1" onclick="setupEdit('${encodedId}')">✏ Editar</button><button class="btn btn-delete" style="flex:1" onclick="deleteBeer('${encodedId}')">🗑 Borrar</button></div></div>`;
       switchTab('detalles');
     }
 
@@ -1184,6 +1222,8 @@
       document.getElementById("nombre").value = beer["Nombre"] || "";
       document.getElementById("cerveceria").value = beer["Cervecería"] || "";
       document.getElementById("estilo").value = beer["Estilo"] || "";
+      document.getElementById("alc").value = beer["° ALC"] || beer["ALC"] || "";
+      document.getElementById("ibu").value = beer["IBU"] || "";
       document.getElementById("notaKarina").value = beer["Nota Karina"] || "Sin puntuar";
       document.getElementById("notaGuillermo").value = beer["Nota Guillermo"] || "Sin puntuar";
       document.getElementById("comentario").value = beer["Comentario"] || "";
