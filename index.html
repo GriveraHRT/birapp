@@ -1,150 +1,222 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 
 <head>
+  <base target="_top">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <meta name="theme-color" content="#4f46e5">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
+  <meta name="theme-color" content="#1C1410" id="metaThemeColor">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Birapp">
+  <title>Birapp — Bodega Cervecera</title>
 
+  <!-- Iconos y Manifiesto PWA para iOS y Android -->
   <link rel="apple-touch-icon" href="./assets/icon-cheers.svg">
   <link rel="icon" type="image/svg+xml" href="./assets/icon-cheers.svg">
   <link rel="manifest" href="./manifest.json">
 
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --primary: #4F46E5;
-      --primary-hover: #4338CA;
-      --accent: #0D9488;
-      --bg-color: #F8FAFC;
+      /* Tema Claro: Espuma, Malta & Ámbar Artesanal */
+      --bg-color: #FAF6F0;
+      --bg-gradient: radial-gradient(circle at 50% 0%, #FFFDF9 0%, #F5EDE0 100%);
       --surface: #FFFFFF;
-      --surface-hover: #F1F5F9;
-      --text-main: #0F172A;
-      --text-muted: #64748B;
-      --border: #E2E8F0;
-      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-      --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-      --danger: #EF4444;
-      --success: #10B981;
+      --surface-alt: #F4ECE1;
+      --surface-elevated: #FFFDF9;
+
+      --header-bg: linear-gradient(135deg, #231812 0%, #3A2518 100%);
+      --header-text: #FEF3C7;
+
+      --primary: #C86D14;
+      --primary-hover: #A8580B;
+      --primary-light: #FEF3C7;
+      --primary-Soft: rgba(200, 109, 20, 0.12);
+      --gold: #F59E0B;
+      --copper: #B45309;
+      --hop-green: #15803D;
+      --hop-bg: #DCFCE7;
+
+      --text-main: #1F1612;
+      --text-secondary: #4A3B32;
+      --text-muted: #7C6A5E;
+      --border: #E6DACB;
+      --border-strong: #D4C3AF;
+
+      --card-shadow: 0 8px 24px -6px rgba(35, 24, 18, 0.08), 0 2px 6px -1px rgba(35, 24, 18, 0.04);
+      --card-shadow-hover: 0 14px 28px -6px rgba(35, 24, 18, 0.14);
+
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+      --success: #16A34A;
+      --ai-accent: #7C3AED;
+      --ai-gradient: linear-gradient(135deg, #D97706 0%, #9333EA 100%);
+    }
+
+    [data-theme="dark"] {
+      /* Tema Oscuro: Taproom / Bar Cervecero Nocturno */
+      --bg-color: #120E0C;
+      --bg-gradient: radial-gradient(circle at 50% 0%, #1E1713 0%, #100C0A 100%);
+      --surface: #1C1613;
+      --surface-alt: #271F1A;
+      --surface-elevated: #241C18;
+
+      --header-bg: linear-gradient(135deg, #16110E 0%, #261C15 100%);
+      --header-text: #FDE68A;
+
+      --primary: #F59E0B;
+      --primary-hover: #D97706;
+      --primary-light: #3B2813;
+      --primary-Soft: rgba(245, 158, 11, 0.15);
+      --gold: #FBBF24;
+      --copper: #F59E0B;
+      --hop-green: #4ADE80;
+      --hop-bg: #143321;
+
+      --text-main: #F9F4EE;
+      --text-secondary: #D7C9BC;
+      --text-muted: #9A8879;
+      --border: #312721;
+      --border-strong: #46372E;
+
+      --card-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.45);
+      --card-shadow-hover: 0 14px 32px -6px rgba(0, 0, 0, 0.65);
+
+      --danger: #F87171;
+      --danger-bg: #351616;
+      --success: #4ADE80;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
     body {
+      background: var(--bg-gradient);
       background-color: var(--bg-color);
       color: var(--text-main);
-      padding-bottom: 90px;
+      padding-bottom: calc(92px + env(safe-area-inset-bottom));
+      min-height: 100vh;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
+    /* HEADER */
     header {
-      background-color: var(--surface);
-      color: var(--primary);
-      padding: 20px 20px 15px;
-      text-align: center;
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: calc(14px + env(safe-area-inset-top)) 18px 14px;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+      border-bottom: 1px solid rgba(251, 191, 36, 0.18);
     }
 
-
-
-    .brand-title {
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
+    .header-inner {
+      max-width: 600px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
       gap: 10px;
     }
 
-    .brand-mark {
-      display: inline-flex;
-      width: 42px;
-      height: 42px;
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+      display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #4F46E5 0%, #0EA5A4 100%);
-      box-shadow: 0 6px 14px rgba(79, 70, 229, 0.35);
-      font-size: 24px;
-      line-height: 1;
+      color: #FFFBEB;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);
     }
 
-
-    .tabs {
-      display: flex;
-      justify-content: space-around;
-      background: var(--surface);
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
-      z-index: 100;
-      padding-bottom: env(safe-area-inset-bottom);
+    .brand-text h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: #FFFBEB;
+      line-height: 1.05;
     }
 
-    .tab-btn {
-      flex: 1;
-      padding: 16px 0;
-      text-align: center;
-      background: none;
-      border: none;
-      font-size: 15px;
+    .brand-text span {
+      font-size: 11px;
+      color: #FCD34D;
       font-weight: 600;
-      color: var(--text-muted);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+      color: #FEF3C7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       transition: all 0.2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .tab-btn svg {
-      width: 24px;
-      height: 24px;
-      fill: currentColor;
-    }
-
-    .tab-btn.active {
-      color: var(--primary);
       position: relative;
     }
 
-    .tab-btn.active::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40px;
-      height: 3px;
-      background-color: var(--primary);
-      border-radius: 0 0 4px 4px;
+    .icon-btn:active {
+      transform: scale(0.93);
+      background: rgba(255, 255, 255, 0.18);
     }
 
+    .ai-status-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #9CA3AF;
+      border: 1.5px solid #231812;
+    }
+
+    .ai-status-dot.ready {
+      background: #22C55E;
+      box-shadow: 0 0 6px #22C55E;
+    }
+
+    /* MAIN CONTAINER */
     .container {
-      padding: 24px 20px;
+      padding: 18px 16px;
       max-width: 600px;
       margin: 0 auto;
     }
 
     .section {
       display: none;
-      animation: fadeIn 0.3s ease-out;
+      animation: fadeIn 0.25s ease-out;
     }
 
     .section.active {
@@ -154,9 +226,8 @@
     @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(6px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
@@ -165,102 +236,282 @@
 
     .card {
       background: var(--surface);
-      border-radius: 20px;
-      padding: 24px;
+      border-radius: 22px;
+      padding: 20px;
       box-shadow: var(--card-shadow);
-      margin-bottom: 24px;
-      border: 1px solid var(--border);
-    }
-
-    .form-group {
       margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 14px;
-      color: var(--text-main);
-    }
-
-    input[type="text"],
-    input[type="date"],
-    select,
-    textarea {
-      width: 100%;
-      padding: 14px 16px;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      font-size: 15px;
-      transition: all 0.2s;
-      background-color: var(--surface);
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
       color: var(--text-main);
-      appearance: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    select {
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-      background-repeat: no-repeat;
-      background-position: right 1rem center;
-      background-size: 1em;
+    /* PHOTO CAPTURE & PREVIEW MODULE */
+    .photo-module {
+      background: var(--surface-alt);
+      border: 1.5px dashed var(--border-strong);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 18px;
+      transition: all 0.2s;
     }
 
-    .image-upload-wrapper {
-      position: relative;
-      background-color: var(--surface-hover);
-      border: 2px dashed var(--border);
-      border-radius: 16px;
-      padding: 24px;
+    .photo-empty-state {
       text-align: center;
-      cursor: pointer;
-      overflow: hidden;
-      min-height: 140px;
+      padding: 6px 4px;
+    }
+
+    .photo-empty-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .photo-empty-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .photo-action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .photo-btn {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 13px 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+      transition: all 0.18s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .photo-btn.primary-cam {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--copper) 100%);
+      color: #FFFFFF;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(200, 109, 20, 0.3);
+    }
+
+    .photo-btn:active {
+      transform: scale(0.97);
+    }
+
+    .photo-btn input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .live-cam-link {
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* Active Photo Preview Card */
+    .photo-preview-card {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .photo-preview-card.visible {
+      display: flex;
+    }
+
+    .photo-preview-frame {
+      position: relative;
+      width: 100%;
+      max-width: 260px;
+      aspect-ratio: 4 / 5;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #14100E;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+      border: 2px solid var(--border-strong);
+    }
+
+    .photo-preview-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .photo-preview-toolbar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .mini-btn.danger {
+      color: var(--danger);
+      border-color: rgba(220, 38, 38, 0.3);
+    }
+
+    /* AI MAGIC BANNER / BUTTON */
+    .ai-magic-bar {
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-ai {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: none;
+      background: var(--ai-gradient);
+      color: #FFFFFF;
+      font-size: 14.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(147, 51, 234, 0.25);
       transition: all 0.2s;
     }
 
-    .image-upload-wrapper:hover {
-      border-color: var(--primary);
-      background-color: #EEF2FF;
+    .btn-ai:active {
+      transform: scale(0.98);
     }
 
-    .image-upload-wrapper img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .btn-ai:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    .ai-hint-caption {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .ai-badge-result {
       display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--primary-Soft);
+      border: 1px solid var(--primary);
+      color: var(--text-main);
+      font-size: 12.5px;
+      font-weight: 600;
     }
 
-    .image-upload-wrapper span {
-      position: relative;
-      z-index: 2;
-      color: var(--primary);
-      font-weight: 600;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 8px 16px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    .ai-badge-result.visible {
+      display: flex;
+    }
+
+    /* FORM CONTROLS */
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
     }
 
-    input[type="file"] {
-      position: absolute;
-      top: 0;
-      left: 0;
+    label .unit-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface-alt);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="password"],
+    select,
+    textarea {
       width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      z-index: 3;
+      padding: 13px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 13px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.2s;
+      background-color: var(--surface-elevated);
+      color: var(--text-main);
+      appearance: none;
     }
 
     input:focus,
@@ -268,20 +519,178 @@
     textarea:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+      box-shadow: 0 0 0 3.5px var(--primary-Soft);
     }
 
+    input.ai-filled,
+    textarea.ai-filled {
+      border-color: var(--gold);
+      background-color: var(--primary-Soft);
+      animation: pulseHighlight 1.2s ease;
+    }
+
+    @keyframes pulseHighlight {
+      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+      100% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+    }
+
+    /* TACTILE RATING CARDS FOR KARINA & GUILLERMO */
+    .taster-section-title {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin: 18px 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .live-avg-pill {
+      background: var(--primary-Soft);
+      color: var(--primary);
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .taster-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .taster-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .taster-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .taster-name {
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .taster-score-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-pill-lg {
+      background: var(--primary);
+      color: #FFF;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      min-width: 44px;
+      text-align: center;
+    }
+
+    .score-pill-lg.unrated {
+      background: var(--surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border-strong);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .taster-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-main);
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .step-btn:active {
+      transform: scale(0.92);
+      background: var(--primary-Soft);
+    }
+
+    .rating-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      border-radius: 99px;
+      background: var(--border-strong);
+      outline: none;
+    }
+
+    .rating-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: 3px solid #FFF;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    .taster-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .unrated-toggle {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* MAIN SUBMIT BUTTONS */
     .btn {
-      background-color: var(--primary);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--copper) 100%);
       color: #FFF;
       border: none;
-      padding: 16px 24px;
+      padding: 16px 22px;
       font-size: 16px;
-      font-weight: 700;
-      border-radius: 12px;
+      font-weight: 800;
+      border-radius: 14px;
       width: 100%;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+      box-shadow: 0 6px 16px rgba(200, 109, 20, 0.28);
       transition: all 0.2s;
       display: flex;
       justify-content: center;
@@ -290,308 +699,471 @@
     }
 
     .btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-main);
+      border: 1.5px solid var(--border-strong);
+      box-shadow: none;
     }
 
     .btn-delete {
-      background-color: var(--surface);
+      background: var(--danger-bg);
       color: var(--danger);
-      border: 1px solid var(--danger);
+      border: 1.5px solid rgba(220, 38, 38, 0.3);
       box-shadow: none;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
-    .btn-delete:active {
-      background-color: #FEF2F2;
-    }
-
-    .ratings-container {
-      display: flex;
-      gap: 16px;
-    }
-
-    .ratings-container>div {
-      flex: 1;
-    }
-
+    /* HISTORIAL SEARCH & FILTERS */
     .search-bar {
-      margin-bottom: 24px;
       position: relative;
+      margin-bottom: 12px;
     }
 
     .search-bar input {
-      border-radius: 100px;
+      border-radius: 16px;
       padding-left: 44px;
+      padding-right: 38px;
       background-color: var(--surface);
       box-shadow: var(--card-shadow);
-      border: none;
+      border: 1.5px solid var(--border);
     }
 
-    .search-bar::before {
-      content: "🔍";
+    .search-icon {
       position: absolute;
-      left: 16px;
+      left: 15px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 16px;
-      z-index: 10;
-      opacity: 0.5;
+      color: var(--text-muted);
+      pointer-events: none;
     }
 
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      scrollbar-width: none;
+    }
+
+    .filter-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      padding: 8px 13px;
+      border-radius: 99px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text-secondary);
+      font-size: 12.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip.active {
+      background: var(--primary);
+      color: #FFF;
+      border-color: var(--primary);
+      box-shadow: 0 3px 10px rgba(200, 109, 20, 0.25);
+    }
+
+    .subfilter-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .subfilter-row select {
+      padding: 9px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-radius: 11px;
+      background-color: var(--surface);
+    }
+
+    /* BEER LIST ITEMS */
     .beer-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
     .beer-item {
       background: var(--surface);
-      border-radius: 16px;
-      padding: 16px;
+      border-radius: 18px;
+      padding: 13px;
       box-shadow: var(--card-shadow);
       display: flex;
       align-items: center;
+      gap: 13px;
       cursor: pointer;
       border: 1px solid var(--border);
-      transition: all 0.2s;
-    }
-
-    .beer-item:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--card-shadow-hover);
-      border-color: #C7D2FE;
+      transition: all 0.18s;
     }
 
     .beer-item:active {
-      transform: scale(0.98);
+      transform: scale(0.985);
+    }
+
+    .beer-thumb-wrap {
+      width: 72px;
+      height: 84px;
+      border-radius: 13px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .beer-thumb {
-      width: 64px;
-      height: 64px;
-      border-radius: 12px;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      margin-right: 16px;
-      background-color: var(--bg-color);
-      border: 1px solid var(--border);
+      display: block;
     }
 
     .default-icon-container {
-      width: 64px;
-      height: 64px;
-      border-radius: 12px;
-      margin-right: 16px;
-      background-color: #EEF2FF;
+      width: 100%;
+      height: 100%;
       color: var(--primary);
       display: flex;
       justify-content: center;
       align-items: center;
-      border: 1px solid #E0E7FF;
-    }
-
-    .default-icon-container svg {
-      width: 32px;
-      height: 32px;
-      fill: currentColor;
+      background: var(--primary-Soft);
     }
 
     .beer-content-flex {
       flex: 1;
+      min-width: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
+    }
+
+    .beer-info {
+      min-width: 0;
+      flex: 1;
     }
 
     .beer-info h3 {
-      font-size: 16px;
-      margin-bottom: 4px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16.5px;
+      font-weight: 800;
       color: var(--text-main);
-      font-weight: 700;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .beer-info p {
+    .beer-info .brewery-line {
       font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 500;
+      color: var(--primary);
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
     }
 
-    .beer-score {
-      background: #EEF2FF;
-      padding: 10px;
-      border-radius: 12px;
+    .beer-meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .meta-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--surface-alt);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .meta-pill.hop {
+      background: var(--hop-bg);
+      color: var(--hop-green);
+      border-color: transparent;
+    }
+
+    .beer-score-box {
+      background: var(--primary-Soft);
+      border: 1px solid rgba(200, 109, 20, 0.25);
+      padding: 8px 10px;
+      border-radius: 14px;
+      text-align: center;
+      min-width: 62px;
+      flex-shrink: 0;
+    }
+
+    .beer-score-box .avg-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 19px;
       font-weight: 800;
       color: var(--primary);
-      text-align: center;
-      min-width: 64px;
+      line-height: 1.1;
     }
 
-    .beer-score span {
-      display: block;
+    .beer-score-box .sub-scores {
       font-size: 10px;
+      font-weight: 700;
       color: var(--text-muted);
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+
+    /* DETALLES VIEW */
+    .detalle-hero {
+      position: relative;
+      background: #14100E;
+      width: 100%;
+      max-height: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+
+    .detalle-hero img.hero-blur-bg {
+      position: absolute;
+      inset: -20px;
+      width: calc(100% + 40px);
+      height: calc(100% + 40px);
+      object-fit: cover;
+      filter: blur(22px) brightness(0.45);
+      z-index: 1;
+    }
+
+    .detalle-hero img.hero-main-img {
+      position: relative;
+      z-index: 2;
+      max-height: 350px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .zoom-hint-badge {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      z-index: 3;
+      background: rgba(0, 0, 0, 0.65);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 99px;
+      backdrop-filter: blur(4px);
+    }
+
+    .detalle-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .spec-box {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .spec-box .spec-label {
+      font-size: 10.5px;
       font-weight: 700;
       text-transform: uppercase;
-      margin-bottom: 2px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
     }
 
-    .loading {
-      text-align: center;
-      padding: 40px;
+    .spec-box .spec-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* STATS / RANKING SECTION */
+    .stats-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 15px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .kpi-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
       color: var(--primary);
-      font-weight: 600;
+      line-height: 1.1;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .duel-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .duel-person {
+      flex: 1;
+      background: var(--surface-alt);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    /* BOTTOM NAVIGATION */
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      background: var(--surface);
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 11px 0;
+      text-align: center;
+      background: none;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 3px;
+      position: relative;
     }
 
-    .spinner {
-      width: 30px;
-      height: 30px;
-      border: 3px solid #E0E7FF;
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    .tab-btn svg {
+      width: 22px;
+      height: 22px;
     }
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
+    .tab-btn.active {
+      color: var(--primary);
     }
 
-    #toast {
-      visibility: hidden;
-      min-width: 200px;
-      background-color: var(--text-main);
-      color: #fff;
-      text-align: center;
-      border-radius: 100px;
-      padding: 12px 24px;
-      position: fixed;
-      z-index: 1000;
-      bottom: 90px;
+    .tab-btn.active::before {
+      content: '';
+      position: absolute;
+      top: 0;
       left: 50%;
       transform: translateX(-50%);
-      font-weight: 600;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-      font-size: 14px;
+      width: 36px;
+      height: 3px;
+      background-color: var(--primary);
+      border-radius: 0 0 4px 4px;
     }
 
-    #toast.show {
-      visibility: visible;
-      animation: fadein 0.3s, fadeout 0.3s 2.5s;
-    }
-
-    @keyframes fadein {
-      from {
-        bottom: 70px;
-        opacity: 0;
-      }
-
-      to {
-        bottom: 90px;
-        opacity: 1;
-      }
-    }
-
-    @keyframes fadeout {
-      from {
-        bottom: 90px;
-        opacity: 1;
-      }
-
-      to {
-        bottom: 70px;
-        opacity: 0;
-      }
-    }
-
-    .detalle-header {
-      position: relative;
-      margin-bottom: -20px;
-    }
-
-    .detalle-img {
-      width: 100%;
-      height: 250px;
-      object-fit: cover;
-      border-radius: 20px;
-      display: none;
-    }
-
-    .detalle-icon-large {
-      width: 100%;
-      height: 200px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #EEF2FF;
-      border-radius: 20px;
-      color: var(--primary);
-      margin-bottom: 20px;
-    }
-
-    .detalle-icon-large svg {
-      width: 80px;
-      height: 80px;
-    }
-
-    .detalle-box {
-      background: var(--surface-hover);
-      padding: 16px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-      margin-top: 24px;
-    }
-
-    .detalle-box-row {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
-    .score-badge {
-      background: #FFF;
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-weight: 800;
-      color: var(--primary);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-
-    .cropper-modal {
+    /* MODALS (PHOTO CROPPER, LIVE CAMERA, AI CONFIG, LIGHTBOX, CONFIRM) */
+    .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.72);
-      z-index: 1200;
+      background: rgba(12, 9, 7, 0.82);
+      backdrop-filter: blur(5px);
+      z-index: 500;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 16px;
     }
 
-    .cropper-modal.show {
+    .modal-backdrop.open {
       display: flex;
     }
 
-    .cropper-card {
-      width: min(420px, 100%);
+    .modal-sheet {
       background: var(--surface);
-      border-radius: 20px;
-      padding: 16px;
-      box-shadow: var(--card-shadow-hover);
+      border: 1px solid var(--border-strong);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 460px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    /* CROPPER CANVAS AREA */
     .cropper-stage {
       width: 100%;
-      aspect-ratio: 1 / 1;
+      max-width: 300px;
+      aspect-ratio: 4 / 5;
+      margin: 0 auto;
       border-radius: 16px;
-      background: #0f172a;
       overflow: hidden;
+      background: #0F0C0A;
+      border: 2px solid var(--primary);
       position: relative;
       touch-action: none;
       cursor: grab;
@@ -601,154 +1173,321 @@
       cursor: grabbing;
     }
 
-    #cropperImage {
+    .cropper-stage canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .cropper-grid-overlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      user-select: none;
-      -webkit-user-drag: none;
-      transform-origin: top left;
-      will-change: transform;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+      background-size: 33.33% 33.33%;
     }
 
     .cropper-controls {
-      margin-top: 14px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
 
-    .cropper-controls input[type="range"] {
-      width: 100%;
-    }
-
-    .cropper-actions {
+    .cropper-row {
       display: flex;
+      align-items: center;
       gap: 10px;
-      margin-top: 8px;
     }
 
-    .cropper-actions .btn {
-      width: auto;
-      flex: 1;
-      padding: 13px 16px;
+    .cropper-toolbar-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* LOADING & TOAST */
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--primary);
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3.5px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #toast {
+      visibility: hidden;
+      min-width: 220px;
+      max-width: 90vw;
+      background-color: #1F1612;
+      color: #FEF3C7;
+      border: 1px solid #F59E0B;
+      text-align: center;
+      border-radius: 99px;
+      padding: 12px 20px;
+      position: fixed;
+      z-index: 1000;
+      bottom: calc(84px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+      font-size: 13.5px;
+    }
+
+    #toast.show {
+      visibility: visible;
+      animation: fadein 0.25s, fadeout 0.25s 2.9s;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translate(-50%, 12px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    @keyframes fadeout {
+      from { opacity: 1; transform: translate(-50%, 0); }
+      to { opacity: 0; transform: translate(-50%, 12px); }
     }
   </style>
 </head>
 
 <body>
+
   <header>
-    <h1 class="brand-title">
-      <span class="brand-mark" aria-hidden="true">🍻</span>
-      <span>Birapp</span>
-    </h1>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">
+          <!-- Jarra de Cerveza Espumosa SVG -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 11h1a3 3 0 0 1 0 6h-1" />
+            <path d="M9 12v6" />
+            <path d="M13 12v6" />
+            <path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z" />
+            <path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Birapp</h1>
+          <span>Karina & Guillermo</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="icon-btn" onclick="openAiModal()" title="Configurar IA Gratuita (Gemini)">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+          </svg>
+          <span class="ai-status-dot" id="aiStatusDot"></span>
+        </button>
+        <button type="button" class="icon-btn" onclick="toggleTheme()" id="themeToggleBtn" title="Cambiar modo claro/oscuro">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIcon">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+      </div>
+    </div>
   </header>
 
   <div class="container">
+
+    <!-- ================================================================== -->
+    <!-- SECCIÓN 1: NUEVA CATA / EDITAR REGISTRO                            -->
+    <!-- ================================================================== -->
     <div id="nueva-cata" class="section active">
       <div class="card">
-        <h2 style="margin-bottom: 20px; font-size: 20px; font-weight: 800;">Añadir Registro</h2>
+        <div class="section-title-row">
+          <h2 class="section-title" id="formTitle">🍺 Registrar Cerveza</h2>
+        </div>
+
         <form id="beerForm" onsubmit="saveBeer(event)">
           <input type="hidden" id="beerId">
           <input type="hidden" id="imageBase64">
+          <input type="hidden" id="removeImageFlag" value="false">
 
-          <div class="form-group image-upload-wrapper" id="imagePreviewContainer">
-            <span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-                <circle cx="12" cy="13" r="3" />
+          <!-- MÓDULO DE FOTOGRAFÍA Y ENCUADRE -->
+          <div class="photo-module">
+            <div class="photo-empty-state" id="photoEmptyState">
+              <div class="photo-empty-title">Foto de la Etiqueta o Cerveza</div>
+              <div class="photo-empty-sub">Toma una foto con la cámara o súbela de tu galería. Podrás encuadrarla y rellenar los datos con IA.</div>
+
+              <div class="photo-action-grid">
+                <label class="photo-btn primary-cam">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                    <circle cx="12" cy="13" r="3" />
+                  </svg>
+                  📸 Tomar Foto
+                  <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleFilePicked(event)">
+                </label>
+
+                <label class="photo-btn">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                    <circle cx="9" cy="9" r="2" />
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                  </svg>
+                  🖼️ Galería
+                  <input type="file" id="galleryInput" accept="image/*" onchange="handleFilePicked(event)">
+                </label>
+              </div>
+
+              <button type="button" class="live-cam-link" onclick="openLiveCameraModal()">
+                📹 ¿Problemas con la cámara? Abrir visor en vivo aquí
+              </button>
+            </div>
+
+            <!-- Vista previa cuando ya hay imagen cargada -->
+            <div class="photo-preview-card" id="photoPreviewCard">
+              <div class="photo-preview-frame" onclick="reopenCropper()">
+                <img id="imagePreview" src="" alt="Vista previa cerveza">
+              </div>
+              <div class="photo-preview-toolbar">
+                <button type="button" class="mini-btn" onclick="reopenCropper()">✂️ Ajustar Encuadre</button>
+                <label class="mini-btn" style="margin:0;">
+                  📸 Otra Foto
+                  <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleFilePicked(event)">
+                </label>
+                <label class="mini-btn" style="margin:0;">
+                  🖼️ Galería
+                  <input type="file" accept="image/*" style="display:none;" onchange="handleFilePicked(event)">
+                </label>
+                <button type="button" class="mini-btn danger" onclick="clearPhoto()">🗑 Quitar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- BARRA DE ESCANEO IA + BÚSQUEDA WEB -->
+          <div class="ai-magic-bar">
+            <button type="button" class="btn-ai" id="btnAnalyzeAi" onclick="triggerAiAnalysis()">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
               </svg>
-              Agregar Foto
-            </span>
-            <img id="imagePreview" src="" alt="Vista previa">
-            <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
+              <span id="btnAnalyzeAiText">✨ Autocompletar con IA + Web</span>
+            </button>
+            <div class="ai-hint-caption">
+              Lee el nombre en tu foto (o lo que escribas abajo) y busca en la web el <b>Estilo, ° ALC e IBU</b> reales.
+            </div>
+            <div class="ai-badge-result" id="aiResultBanner">
+              <span id="aiResultText">✨ Datos completados con Gemini</span>
+              <button type="button" class="unrated-toggle" onclick="document.getElementById('aiResultBanner').classList.remove('visible')">OK</button>
+            </div>
           </div>
 
           <div class="form-group">
-            <label>Fecha de Cata</label>
+            <label for="fecha">Fecha de Cata</label>
             <input type="date" id="fecha" required>
           </div>
 
           <div class="form-group">
-            <label>Nombre de la Cerveza</label>
-            <input type="text" id="nombre" placeholder="Ej. Stout Imperial" required>
+            <label for="nombre">Nombre de la Cerveza</label>
+            <input type="text" id="nombre" placeholder="Ej. Trauco, Belzeebú, Torobayo..." required>
           </div>
 
           <div class="form-group">
-            <label>Cervecería / Marca</label>
-            <input type="text" id="cerveceria" list="cerveceriasList" placeholder="Ej. Antares" required autocomplete="off">
+            <label for="cerveceria">Cervecería / Marca</label>
+            <input type="text" id="cerveceria" list="cerveceriasList" placeholder="Ej. Bundor, Kunstmann, Kross..." required autocomplete="off">
             <datalist id="cerveceriasList"></datalist>
           </div>
 
           <div class="form-group">
-            <label>Estilo / Tipo</label>
-            <input type="text" id="estilo" list="estilosList" placeholder="Ej. Stout, Porter, IPA" required autocomplete="off">
+            <label for="estilo">Estilo / Variedad</label>
+            <input type="text" id="estilo" list="estilosList" placeholder="Ej. Amber Lager, Hazy IPA, Stout..." required autocomplete="off">
             <datalist id="estilosList"></datalist>
           </div>
 
-          <div class="ratings-container">
+          <!-- FILA ° ALC E IBU (COLUMNAS REALES DE LA PLANILLA) -->
+          <div class="form-row-2">
             <div class="form-group">
-              <label>° ALC</label>
-              <input type="text" id="alc" placeholder="Ej. 5.2" inputmode="decimal">
+              <label for="alc">
+                <span>° ALC</span>
+                <span class="unit-badge">% Alcohol</span>
+              </label>
+              <input type="text" inputmode="decimal" id="alc" placeholder="Ej. 5.5">
             </div>
 
             <div class="form-group">
-              <label>IBU</label>
-              <input type="text" id="ibu" placeholder="Ej. 35" inputmode="numeric">
+              <label for="ibu">
+                <span>IBU</span>
+                <span class="unit-badge">Amargor</span>
+              </label>
+              <input type="text" inputmode="numeric" id="ibu" placeholder="Ej. 18">
             </div>
           </div>
 
+          <!-- PUNTUACIONES TÁCTILES DE KARINA Y GUILLERMO -->
+          <div class="taster-section-title">
+            <span>Puntuación de Cata (1 a 10)</span>
+            <span class="live-avg-pill" id="liveAvgBadge">Promedio: -</span>
+          </div>
 
-          <div class="ratings-container">
-            <div class="form-group">
-              <label>Nota Karina</label>
-              <select id="notaKarina">
-                <option value="Sin puntuar">Sin puntuar</option>
-                <option value="1">1 - Horrible</option>
-                <option value="2">2 - Muy mala</option>
-                <option value="3">3 - Mala</option>
-                <option value="4">4 - Floja</option>
-                <option value="5">5 - Regular</option>
-                <option value="6">6 - Aceptable</option>
-                <option value="7">7 - Buena</option>
-                <option value="8">8 - Muy buena</option>
-                <option value="9">9 - Excelente</option>
-                <option value="10">10 - Perfecta</option>
-              </select>
+          <input type="hidden" id="notaKarina" value="Sin puntuar">
+          <input type="hidden" id="notaGuillermo" value="Sin puntuar">
+
+          <div class="taster-cards">
+            <!-- Karina -->
+            <div class="taster-card">
+              <div class="taster-header">
+                <div class="taster-name">👩🏻 Karina</div>
+                <div class="taster-score-display">
+                  <span class="score-pill-lg unrated" id="displayKarina">Sin puntuar</span>
+                </div>
+              </div>
+              <div class="taster-controls">
+                <button type="button" class="step-btn" onclick="stepRating('Karina', -1)">−</button>
+                <input type="range" class="rating-slider" id="sliderKarina" min="1" max="10" step="1" value="7" oninput="onSliderChange('Karina', this.value)">
+                <button type="button" class="step-btn" onclick="stepRating('Karina', 1)">+</button>
+              </div>
+              <div class="taster-footer">
+                <span id="labelKarina">Toca + o desliza para puntuar</span>
+                <button type="button" class="unrated-toggle" onclick="setUnrated('Karina')">Dejar sin puntuar</button>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Nota Guillermo</label>
-              <select id="notaGuillermo">
-                <option value="Sin puntuar">Sin puntuar</option>
-                <option value="1">1 - Horrible</option>
-                <option value="2">2 - Muy mala</option>
-                <option value="3">3 - Mala</option>
-                <option value="4">4 - Floja</option>
-                <option value="5">5 - Regular</option>
-                <option value="6">6 - Aceptable</option>
-                <option value="7">7 - Buena</option>
-                <option value="8">8 - Muy buena</option>
-                <option value="9">9 - Excelente</option>
-                <option value="10">10 - Perfecta</option>
-              </select>
+            <!-- Guillermo -->
+            <div class="taster-card">
+              <div class="taster-header">
+                <div class="taster-name">👨🏻 Guillermo</div>
+                <div class="taster-score-display">
+                  <span class="score-pill-lg unrated" id="displayGuillermo">Sin puntuar</span>
+                </div>
+              </div>
+              <div class="taster-controls">
+                <button type="button" class="step-btn" onclick="stepRating('Guillermo', -1)">−</button>
+                <input type="range" class="rating-slider" id="sliderGuillermo" min="1" max="10" step="1" value="7" oninput="onSliderChange('Guillermo', this.value)">
+                <button type="button" class="step-btn" onclick="stepRating('Guillermo', 1)">+</button>
+              </div>
+              <div class="taster-footer">
+                <span id="labelGuillermo">Toca + o desliza para puntuar</span>
+                <button type="button" class="unrated-toggle" onclick="setUnrated('Guillermo')">Dejar sin puntuar</button>
+              </div>
             </div>
           </div>
 
           <div class="form-group">
-            <label>Notas y Comentarios</label>
-            <textarea id="comentario" rows="3" placeholder="Escribe aquí tus impresiones..."></textarea>
+            <label for="comentario">Notas de Cata y Comentarios</label>
+            <textarea id="comentario" rows="3" placeholder="Aroma, cuerpo, amargor, dónde la probaron..."></textarea>
           </div>
 
           <button type="submit" class="btn" id="btnSubmit">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-              <polyline points="17 21 17 13 7 13 7 21"></polyline>
-              <polyline points="7 3 7 8 15 8"></polyline>
-            </svg>
-            Guardar Registro
+            💾 Guardar Cerveza
           </button>
           <button type="button" class="btn btn-delete" id="btnCancelEdit" style="display:none;" onclick="cancelEdit()">
             Cancelar Edición
@@ -757,523 +1496,1590 @@
       </div>
     </div>
 
+    <!-- ================================================================== -->
+    <!-- SECCIÓN 2: HISTORIAL / BODEGA                                      -->
+    <!-- ================================================================== -->
     <div id="historial" class="section">
       <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Buscar por nombre, marca..." onkeyup="filterBeers()">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input type="text" id="searchInput" placeholder="Buscar por nombre, cervecería, estilo..." oninput="applyFiltersAndRender()">
       </div>
 
-      <div id="loading" class="loading" style="display: none;">
+      <!-- Chips de Ordenamiento Rápido -->
+      <div class="filter-chips">
+        <button type="button" class="chip active" data-sort="recent" onclick="setSortMode('recent', this)">🕒 Recientes</button>
+        <button type="button" class="chip" data-sort="best" onclick="setSortMode('best', this)">⭐ Mejor Nota</button>
+        <button type="button" class="chip" data-sort="karina" onclick="setSortMode('karina', this)">👩🏻 Top Karina</button>
+        <button type="button" class="chip" data-sort="guillermo" onclick="setSortMode('guillermo', this)">👨🏻 Top Guillermo</button>
+        <button type="button" class="chip" data-sort="alc" onclick="setSortMode('alc', this)">🔥 Mayor °ALC</button>
+      </div>
+
+      <!-- Selectores rápidos por Cervecería y Estilo -->
+      <div class="subfilter-row">
+        <select id="filterBrewery" onchange="applyFiltersAndRender()">
+          <option value="">🍺 Todas las cervecerías</option>
+        </select>
+        <select id="filterStyle" onchange="applyFiltersAndRender()">
+          <option value="">🌾 Todos los estilos</option>
+        </select>
+      </div>
+
+      <div id="loading" class="loading">
         <div class="spinner"></div>
-        Buscando registros...
+        Cargando tu bodega cervecera...
       </div>
 
       <div id="beerList" class="beer-list"></div>
     </div>
 
+    <!-- ================================================================== -->
+    <!-- SECCIÓN 3: DETALLES DE LA CERVEZA                                  -->
+    <!-- ================================================================== -->
     <div id="detalles" class="section">
-      <div class="card" id="detalleCard" style="padding: 0; overflow: hidden; border: none;"></div>
-      <button class="btn" onclick="switchTab('historial')"
-        style="background-color: var(--surface); color: var(--text-main); border: 1px solid var(--border); box-shadow: none;">
-        ⬅ Volver al Historial
+      <div class="card" id="detalleCard" style="padding: 0; overflow: hidden;"></div>
+      <button type="button" class="btn btn-secondary" onclick="switchTab('historial')">
+        ⬅ Volver a la Bodega
       </button>
     </div>
-  </div>
 
-  <div id="cropperModal" class="cropper-modal" role="dialog" aria-modal="true" aria-labelledby="cropperTitle">
-    <div class="cropper-card">
-      <h3 id="cropperTitle" style="font-size:18px; font-weight:800; margin-bottom:4px;">Encuadra tu foto</h3>
-      <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Arrastra para mover y usa el zoom para ajustar lo que se verá en la miniatura.</p>
-      <div class="cropper-stage" id="cropperStage">
-        <img id="cropperImage" alt="Recorte de foto">
-      </div>
-      <div class="cropper-controls">
-        <label for="cropZoom" style="margin:0; font-size:13px;">Zoom</label>
-        <input id="cropZoom" type="range" min="1" max="3" step="0.01" value="1">
-      </div>
-      <div class="cropper-actions">
-        <button type="button" class="btn btn-delete" style="margin-top:0;" onclick="closeCropper()">Cancelar</button>
-        <button type="button" class="btn" onclick="applyCrop()">Usar foto</button>
-      </div>
+    <!-- ================================================================== -->
+    <!-- SECCIÓN 4: ESTADÍSTICAS Y RANKING                                  -->
+    <!-- ================================================================== -->
+    <div id="estadisticas" class="section">
+      <div id="statsContainer"></div>
     </div>
+
   </div>
 
+  <!-- NAVEGACIÓN INFERIOR -->
   <nav class="tabs">
-    <button class="tab-btn active" id="tab-nueva" onclick="switchTab('nueva-cata')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 5v14M5 12h14" />
+    <button type="button" class="tab-btn active" id="tab-nueva" onclick="switchTab('nueva-cata')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 8v8M8 12h8" />
       </svg>
       Añadir
     </button>
-    <button class="tab-btn" id="tab-historial" onclick="switchTab('historial')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+    <button type="button" class="tab-btn" id="tab-historial" onclick="switchTab('historial')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 11h1a3 3 0 0 1 0 6h-1" />
+        <path d="M9 12v6M13 12v6" />
+        <path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z" />
+        <path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8" />
       </svg>
-      Historial
+      Bodega
+    </button>
+    <button type="button" class="tab-btn" id="tab-estadisticas" onclick="switchTab('estadisticas')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+        <path d="M4 22h16" />
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+      </svg>
+      Ranking
     </button>
   </nav>
+
+  <!-- ================================================================== -->
+  <!-- MODAL 1: EDITOR TÁCTIL DE ENCUADRE Y AJUSTE DE FOTO                -->
+  <!-- ================================================================== -->
+  <div class="modal-backdrop" id="cropperModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3>✂️ Ajustar Foto de la Cerveza</h3>
+        <button type="button" class="mini-btn" onclick="closeCropperModal()">✕</button>
+      </div>
+
+      <p style="font-size:12px; color:var(--text-muted); text-align:center;">
+        Arrastra con un dedo para mover o pellizca con dos dedos para hacer zoom.
+      </p>
+
+      <div class="cropper-stage" id="cropperStage">
+        <canvas id="cropperCanvas" width="480" height="600"></canvas>
+        <div class="cropper-grid-overlay"></div>
+      </div>
+
+      <div class="cropper-controls">
+        <div class="cropper-row">
+          <span style="font-size:12px; font-weight:700; min-width:45px;">Zoom</span>
+          <input type="range" class="rating-slider" id="cropZoomSlider" min="0.35" max="3.5" step="0.02" value="1" oninput="onCropZoomSlider(this.value)">
+        </div>
+
+        <div class="cropper-toolbar-btns">
+          <button type="button" class="mini-btn" style="justify-content:center;" onclick="rotateCropImage()">🔄 Rotar 90°</button>
+          <button type="button" class="mini-btn" style="justify-content:center;" onclick="setCropFitMode('contain')">🍾 Ver Entera</button>
+          <button type="button" class="mini-btn" style="justify-content:center;" onclick="setCropFitMode('cover')">🔍 Llenar</button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+          <button type="button" class="btn-ai" onclick="applyCropAndSave(true)">
+            ✨ Confirmar Foto y Rellenar con IA
+          </button>
+          <button type="button" class="btn" onclick="applyCropAndSave(false)">
+            ✅ Solo Usar Foto
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- MODAL 2: CÁMARA EN VIVO (GETUSERMEDIA FALLBACK)                    -->
+  <!-- ================================================================== -->
+  <div class="modal-backdrop" id="liveCameraModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3>📹 Cámara en Vivo</h3>
+        <button type="button" class="mini-btn" onclick="closeLiveCameraModal()">✕</button>
+      </div>
+      <div style="width:100%; aspect-ratio:4/5; background:#000; border-radius:16px; overflow:hidden; position:relative;">
+        <video id="liveVideo" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button type="button" class="btn" onclick="captureLiveVideoFrame()">📸 Capturar Foto</button>
+        <button type="button" class="btn btn-secondary" style="width:auto;" onclick="switchCameraFacing()">🔄</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- MODAL 3: CONFIGURACIÓN DE IA GRATUITA (GOOGLE GEMINI)              -->
+  <!-- ================================================================== -->
+  <div class="modal-backdrop" id="aiConfigModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3>✨ Configurar IA + Búsqueda Web</h3>
+        <button type="button" class="mini-btn" onclick="closeAiModal()">✕</button>
+      </div>
+
+      <p style="font-size:13px; color:var(--text-secondary); line-height:1.45;">
+        Usa tu clave gratuita de <b>Google AI Studio</b> para que Birapp lea la etiqueta de la botella y busque en internet el <b>Estilo, ° ALC e IBU</b> automáticamente.
+      </p>
+
+      <div style="background:var(--surface-alt); padding:12px; border-radius:12px; font-size:12px; line-height:1.45; border:1px solid var(--border);">
+        <b>¿Cómo obtener tu API Key gratis (1 minuto)?</b><br>
+        1. Entra a <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--primary); font-weight:700;">aistudio.google.com/apikey</a><br>
+        2. Toca <b>"Create API Key"</b> y cópiala aquí abajo.<br>
+        3. Se guardará de forma privada en tu teléfono y en tu Google Apps Script (nunca en GitHub).
+      </div>
+
+      <div class="form-group" style="margin-bottom:8px;">
+        <label for="aiApiKeyInput">Google Gemini API Key</label>
+        <input type="password" id="aiApiKeyInput" placeholder="AIzaSy...">
+      </div>
+
+      <div class="form-group" style="margin-bottom:8px;">
+        <label for="aiModelSelect">
+          <span>Modelo de IA Preferido</span>
+          <button type="button" class="unrated-toggle" onclick="detectModelsFromApi()">Detectar disponibles</button>
+        </label>
+        <select id="aiModelSelect">
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Recomendado + Web)</option>
+          <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+          <option value="gemini-2.5-pro">gemini-2.5-pro (Razonamiento Profundo)</option>
+          <option value="gemini-2.5-flash">gemini-2.5-flash (Rápido y Estable)</option>
+        </select>
+      </div>
+
+      <div id="aiConfigStatusMsg" style="font-size:12px; color:var(--text-muted);"></div>
+
+      <div style="display:flex; gap:10px;">
+        <button type="button" class="btn" onclick="saveAiConfiguration()">💾 Guardar Configuración</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- MODAL 4: VISOR LIGHTBOX PANTALLA COMPLETA                          -->
+  <!-- ================================================================== -->
+  <div class="modal-backdrop" id="lightboxModal" onclick="closeLightbox()">
+    <div style="position:relative; max-width:95vw; max-height:90vh; display:flex; flex-direction:column; align-items:center;">
+      <img id="lightboxImg" src="" alt="Foto completa" style="max-width:95vw; max-height:84vh; object-fit:contain; border-radius:14px; box-shadow:0 12px 40px rgba(0,0,0,0.6);">
+      <button type="button" class="mini-btn" style="margin-top:12px;" onclick="closeLightbox()">✕ Cerrar vista completa</button>
+    </div>
+  </div>
 
   <div id="toast">¡Guardado con éxito!</div>
 
   <script>
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwosRVbZN3CCzeGJFDruvvvj5Z9aqYHl-36_dTAN7Z03Jxbt6jl0-PfyiObo5FUiPomAA/exec";
+    // 👇🏼 URL DEL BACKEND EN GOOGLE APPS SCRIPT 👇🏼
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwosRVbZN3CCzeGJFDruvvvj5Z9aqYHl-36_dTAN7Z03Jxbt6jl0-PfyiObo5FUiPomAA/exec";
+
     let cervezasData = [];
-    const cropState = {
-      image: null,
-      scale: 1,
-      minScale: 1,
-      offsetX: 0,
-      offsetY: 0,
-      dragging: false,
-      dragStartX: 0,
-      dragStartY: 0
+    let knownBreweries = [];
+    let knownStyles = [];
+    let currentSortMode = "recent";
+    let serverHasAiKey = false;
+
+    const SCORE_LABELS = {
+      1: "1 - Horrible",
+      2: "2 - Muy mala",
+      3: "3 - Mala",
+      4: "4 - Floja",
+      5: "5 - Regular",
+      6: "6 - Aceptable",
+      7: "7 - Buena",
+      8: "8 - Muy buena",
+      9: "9 - Excelente",
+      10: "10 - Perfecta ✨"
     };
-    const IMAGE_CELL_LIMIT = 49000;
 
-    const defaultBeerSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M11 2v4a2 2 0 0 0 2 2h4"/><path d="M12 2v20"/><rect width="10" height="14" x="7" y="8" rx="2"/><path d="M7 8V6a4 4 0 0 1 8 0v2"/></svg>`;
+    const defaultBeerSvg = `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/></svg>`;
 
+    // =========================================================================
+    // INICIALIZACIÓN Y TEMA CLARO/OSCURO
+    // =========================================================================
     document.addEventListener("DOMContentLoaded", () => {
+      initTheme();
       document.getElementById("fecha").valueAsDate = new Date();
+      initCropperEvents();
+      updateAiIndicator();
       loadBeers();
       loadSuggestions();
 
-      const stage = document.getElementById("cropperStage");
-      const zoom = document.getElementById("cropZoom");
-
-      const startDrag = (x, y) => {
-        cropState.dragging = true;
-        cropState.dragStartX = x;
-        cropState.dragStartY = y;
-      };
-
-      const moveDrag = (x, y) => {
-        if (!cropState.dragging || !cropState.image) return;
-        cropState.offsetX += x - cropState.dragStartX;
-        cropState.offsetY += y - cropState.dragStartY;
-        cropState.dragStartX = x;
-        cropState.dragStartY = y;
-        renderCropper();
-      };
-
-      const stopDrag = () => {
-        cropState.dragging = false;
-      };
-
-      stage.addEventListener("mousedown", (ev) => startDrag(ev.clientX, ev.clientY));
-      window.addEventListener("mousemove", (ev) => moveDrag(ev.clientX, ev.clientY));
-      window.addEventListener("mouseup", stopDrag);
-
-      stage.addEventListener("touchstart", (ev) => {
-        const t = ev.touches[0];
-        if (!t) return;
-        startDrag(t.clientX, t.clientY);
-      }, { passive: true });
-
-      stage.addEventListener("touchmove", (ev) => {
-        const t = ev.touches[0];
-        if (!t) return;
-        moveDrag(t.clientX, t.clientY);
-      }, { passive: true });
-
-      stage.addEventListener("touchend", stopDrag);
-
-      zoom.addEventListener("input", (ev) => {
-        if (!cropState.image) return;
-        const stageSize = stage.clientWidth;
-        const previous = cropState.scale;
-        const next = parseFloat(ev.target.value);
-
-        const centerX = (stageSize / 2 - cropState.offsetX) / previous;
-        const centerY = (stageSize / 2 - cropState.offsetY) / previous;
-
-        cropState.scale = next;
-        cropState.offsetX = stageSize / 2 - centerX * cropState.scale;
-        cropState.offsetY = stageSize / 2 - centerY * cropState.scale;
-        renderCropper();
-      });
-
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js").catch((err) => {
-          console.warn("No se pudo registrar service worker:", err);
-        });
+        navigator.serviceWorker.register("./sw.js").then(reg => reg.update()).catch(() => {});
       }
     });
 
-    async function apiGet(action) {
-      const url = `${WEBAPP_URL}?action=${encodeURIComponent(action)}&_ts=${Date.now()}`;
-      const response = await fetch(url, { method: "GET", cache: "no-store" });
-      return parseApiResponse(response);
+    function initTheme() {
+      const savedTheme = localStorage.getItem("birapp_theme") || "light";
+      applyTheme(savedTheme);
     }
 
-    async function apiPost(action, payload = {}) {
-      const requestPayload = JSON.stringify({ action, ...payload });
-      const body = new URLSearchParams({ payload: requestPayload });
-
-      const response = await fetch(WEBAPP_URL, {
-        method: "POST",
-        body
-      });
-      return parseApiResponse(response);
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme") || "light";
+      const next = current === "dark" ? "light" : "dark";
+      localStorage.setItem("birapp_theme", next);
+      applyTheme(next);
     }
 
-    async function parseApiResponse(response) {
-      const raw = await response.text();
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${raw.slice(0, 120)}`);
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      const icon = document.getElementById("themeIcon");
+      if (theme === "dark") {
+        icon.innerHTML = `<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>`;
+      } else {
+        icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
       }
-
-      let parsed;
-      try {
-        parsed = JSON.parse(raw);
-      } catch (e) {
-        throw new Error("La respuesta del backend no es JSON. Verifica doGet/doPost en Apps Script.");
-      }
-
-      if (parsed && typeof parsed === "object" && parsed.error) {
-        throw new Error(parsed.message || "Error de backend");
-      }
-
-      return parsed;
     }
 
-    function handleImageUpload(e) {
-      const file = e.target.files[0];
+    // =========================================================================
+    // CONTROLES TÁCTILES DE PUNTUACIÓN (KARINA Y GUILLERMO)
+    // =========================================================================
+    function onSliderChange(person, val) {
+      const num = parseInt(val, 10);
+      document.getElementById("nota" + person).value = String(num);
+      const pill = document.getElementById("display" + person);
+      pill.textContent = num + " / 10";
+      pill.classList.remove("unrated");
+      document.getElementById("label" + person).textContent = SCORE_LABELS[num] || "";
+      updateLiveAverage();
+    }
+
+    function stepRating(person, delta) {
+      const hidden = document.getElementById("nota" + person);
+      const slider = document.getElementById("slider" + person);
+      let current = parseInt(hidden.value, 10);
+      if (isNaN(current)) {
+        current = 7;
+      } else {
+        current = Math.min(10, Math.max(1, current + delta));
+      }
+      slider.value = current;
+      onSliderChange(person, current);
+    }
+
+    function setUnrated(person) {
+      document.getElementById("nota" + person).value = "Sin puntuar";
+      const pill = document.getElementById("display" + person);
+      pill.textContent = "Sin puntuar";
+      pill.classList.add("unrated");
+      document.getElementById("label" + person).textContent = "Toca + o desliza para puntuar";
+      updateLiveAverage();
+    }
+
+    function setPersonRatingUI(person, value) {
+      const num = parseFloat(value);
+      if (!isNaN(num) && num >= 1 && num <= 10) {
+        document.getElementById("slider" + person).value = Math.round(num);
+        onSliderChange(person, Math.round(num));
+      } else {
+        setUnrated(person);
+      }
+    }
+
+    function updateLiveAverage() {
+      const k = parseFloat(document.getElementById("notaKarina").value);
+      const g = parseFloat(document.getElementById("notaGuillermo").value);
+      let avg = "-";
+      if (!isNaN(k) && !isNaN(g)) avg = ((k + g) / 2).toFixed(1);
+      else if (!isNaN(k)) avg = k.toFixed(1);
+      else if (!isNaN(g)) avg = g.toFixed(1);
+      document.getElementById("liveAvgBadge").textContent = "Promedio: " + avg;
+    }
+
+    // =========================================================================
+    // CÁMARA, GALERÍA Y EDITOR INTERACTIVO DE ENCUADRE (TOUCH CROPPER)
+    // =========================================================================
+    let rawImageObj = null;
+    let cropState = {
+      scale: 1,
+      minScale: 0.2,
+      maxScale: 4,
+      offsetX: 0,
+      offsetY: 0,
+      rotation: 0, // 0, 90, 180, 270
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      lastPinchDist: 0
+    };
+
+    function handleFilePicked(e) {
+      const file = e.target.files && e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
-      reader.onload = (event) => openCropper(event.target.result);
-      reader.readAsDataURL(file);
-    }
-
-    function openCropper(src) {
-      const modal = document.getElementById("cropperModal");
-      const stage = document.getElementById("cropperStage");
-      const imgEl = document.getElementById("cropperImage");
-      const zoom = document.getElementById("cropZoom");
-
-      const img = new Image();
-      img.onload = () => {
-        cropState.image = img;
-        const stageSize = stage.clientWidth;
-        cropState.minScale = Math.max(stageSize / img.width, stageSize / img.height);
-        cropState.scale = cropState.minScale;
-        cropState.offsetX = (stageSize - img.width * cropState.scale) / 2;
-        cropState.offsetY = (stageSize - img.height * cropState.scale) / 2;
-
-        zoom.min = String(cropState.minScale);
-        zoom.max = String(Math.max(cropState.minScale * 3, cropState.minScale + 0.5));
-        zoom.value = String(cropState.scale);
-
-        imgEl.src = src;
-        renderCropper();
-        modal.classList.add("show");
+      reader.onload = function (ev) {
+        loadRawImageIntoCropper(ev.target.result);
       };
-      img.src = src;
+      reader.readAsDataURL(file);
+      e.target.value = "";
     }
 
-    function closeCropper() {
-      document.getElementById("cropperModal").classList.remove("show");
-      document.getElementById("imageInput").value = "";
-      cropState.dragging = false;
+    function loadRawImageIntoCropper(dataUrl) {
+      const img = new Image();
+      img.onload = function () {
+        rawImageObj = img;
+        cropState.rotation = 0;
+        openCropperModal();
+        setCropFitMode("contain");
+      };
+      img.src = dataUrl;
     }
 
-    function clampCropOffsets() {
+    function reopenCropper() {
+      const currentSrc = document.getElementById("imageBase64").value;
+      if (rawImageObj) {
+        openCropperModal();
+        drawCropperCanvas();
+      } else if (currentSrc) {
+        loadRawImageIntoCropper(currentSrc);
+      }
+    }
+
+    function openCropperModal() {
+      document.getElementById("cropperModal").classList.add("open");
+    }
+
+    function closeCropperModal() {
+      document.getElementById("cropperModal").classList.remove("open");
+    }
+
+    function getRotatedDimensions() {
+      if (!rawImageObj) return { w: 1, h: 1 };
+      const isSideways = (cropState.rotation % 180) !== 0;
+      return {
+        w: isSideways ? rawImageObj.height : rawImageObj.width,
+        h: isSideways ? rawImageObj.width : rawImageObj.height
+      };
+    }
+
+    function setCropFitMode(mode) {
+      if (!rawImageObj) return;
+      const canvas = document.getElementById("cropperCanvas");
+      const dim = getRotatedDimensions();
+      const scaleX = canvas.width / dim.w;
+      const scaleY = canvas.height / dim.h;
+
+      cropState.scale = mode === "cover" ? Math.max(scaleX, scaleY) : Math.min(scaleX, scaleY);
+      cropState.minScale = Math.min(scaleX, scaleY) * 0.5;
+      cropState.maxScale = Math.max(scaleX, scaleY) * 3.2;
+
+      cropState.offsetX = 0;
+      cropState.offsetY = 0;
+
+      const slider = document.getElementById("cropZoomSlider");
+      slider.min = cropState.minScale.toFixed(3);
+      slider.max = cropState.maxScale.toFixed(3);
+      slider.value = cropState.scale;
+
+      drawCropperCanvas();
+    }
+
+    function onCropZoomSlider(val) {
+      cropState.scale = parseFloat(val);
+      drawCropperCanvas();
+    }
+
+    function rotateCropImage() {
+      cropState.rotation = (cropState.rotation + 90) % 360;
+      setCropFitMode("contain");
+    }
+
+    function drawCropperCanvas() {
+      if (!rawImageObj) return;
+      const canvas = document.getElementById("cropperCanvas");
+      const ctx = canvas.getContext("2d");
+      const cw = canvas.width;
+      const ch = canvas.height;
+
+      ctx.clearRect(0, 0, cw, ch);
+
+      // 1. Fondo atmosférico oscuro/difuminado para que las botellas verticales se vean elegantes sin cortes
+      ctx.save();
+      ctx.fillStyle = "#16110E";
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.globalAlpha = 0.28;
+      const bgScale = Math.max(cw / rawImageObj.width, ch / rawImageObj.height) * 1.15;
+      ctx.translate(cw / 2, ch / 2);
+      ctx.rotate((cropState.rotation * Math.PI) / 180);
+      ctx.drawImage(
+        rawImageObj,
+        (-rawImageObj.width * bgScale) / 2,
+        (-rawImageObj.height * bgScale) / 2,
+        rawImageObj.width * bgScale,
+        rawImageObj.height * bgScale
+      );
+      ctx.restore();
+
+      // 2. Imagen principal con el zoom, rotación y desplazamiento elegido por el usuario
+      ctx.save();
+      ctx.translate(cw / 2 + cropState.offsetX, ch / 2 + cropState.offsetY);
+      ctx.rotate((cropState.rotation * Math.PI) / 180);
+      const drawW = rawImageObj.width * cropState.scale;
+      const drawH = rawImageObj.height * cropState.scale;
+      ctx.drawImage(rawImageObj, -drawW / 2, -drawH / 2, drawW, drawH);
+      ctx.restore();
+    }
+
+    function initCropperEvents() {
       const stage = document.getElementById("cropperStage");
-      const stageSize = stage.clientWidth;
-      const width = cropState.image.width * cropState.scale;
-      const height = cropState.image.height * cropState.scale;
 
-      const minX = Math.min(0, stageSize - width);
-      const minY = Math.min(0, stageSize - height);
-      cropState.offsetX = Math.min(0, Math.max(minX, cropState.offsetX));
-      cropState.offsetY = Math.min(0, Math.max(minY, cropState.offsetY));
+      // Eventos Mouse
+      stage.addEventListener("mousedown", e => {
+        cropState.isDragging = true;
+        cropState.startX = e.clientX - cropState.offsetX;
+        cropState.startY = e.clientY - cropState.offsetY;
+      });
+
+      window.addEventListener("mousemove", e => {
+        if (!cropState.isDragging) return;
+        cropState.offsetX = e.clientX - cropState.startX;
+        cropState.offsetY = e.clientY - cropState.startY;
+        drawCropperCanvas();
+      });
+
+      window.addEventListener("mouseup", () => {
+        cropState.isDragging = false;
+      });
+
+      // Eventos Touch (1 dedo arrastrar, 2 dedos pellizcar zoom)
+      stage.addEventListener("touchstart", e => {
+        if (e.touches.length === 1) {
+          cropState.isDragging = true;
+          cropState.startX = e.touches[0].clientX - cropState.offsetX;
+          cropState.startY = e.touches[0].clientY - cropState.offsetY;
+        } else if (e.touches.length === 2) {
+          cropState.isDragging = false;
+          cropState.lastPinchDist = getPinchDistance(e.touches);
+        }
+      }, { passive: false });
+
+      stage.addEventListener("touchmove", e => {
+        e.preventDefault();
+        if (e.touches.length === 1 && cropState.isDragging) {
+          cropState.offsetX = e.touches[0].clientX - cropState.startX;
+          cropState.offsetY = e.touches[0].clientY - cropState.startY;
+          drawCropperCanvas();
+        } else if (e.touches.length === 2) {
+          const dist = getPinchDistance(e.touches);
+          if (cropState.lastPinchDist > 0) {
+            const ratio = dist / cropState.lastPinchDist;
+            cropState.scale = Math.min(cropState.maxScale, Math.max(cropState.minScale, cropState.scale * ratio));
+            document.getElementById("cropZoomSlider").value = cropState.scale;
+            drawCropperCanvas();
+          }
+          cropState.lastPinchDist = dist;
+        }
+      }, { passive: false });
+
+      stage.addEventListener("touchend", () => {
+        cropState.isDragging = false;
+        cropState.lastPinchDist = 0;
+      });
     }
 
-    function renderCropper() {
-      const imgEl = document.getElementById("cropperImage");
-      if (!cropState.image || !imgEl) return;
-
-      clampCropOffsets();
-      imgEl.style.width = `${cropState.image.width}px`;
-      imgEl.style.height = `${cropState.image.height}px`;
-      imgEl.style.transform = `translate(${cropState.offsetX}px, ${cropState.offsetY}px) scale(${cropState.scale})`;
+    function getPinchDistance(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
     }
 
-    function applyCrop() {
-      if (!cropState.image) return;
+    // Compresión adaptativa que garantiza < 42,000 caracteres para nunca fallar en Google Sheets
+    function applyCropAndSave(runAiAfter) {
+      const sourceCanvas = document.getElementById("cropperCanvas");
+      const MAX_CHARS = 42000;
 
-      const stage = document.getElementById("cropperStage");
-      const stageSize = stage.clientWidth;
-      const sx = Math.max(0, (-cropState.offsetX) / cropState.scale);
-      const sy = Math.max(0, (-cropState.offsetY) / cropState.scale);
-      const sSize = stageSize / cropState.scale;
+      let quality = 0.76;
+      let scaleDown = 1.0;
+      let finalBase64 = sourceCanvas.toDataURL("image/jpeg", quality);
 
-      const canvas = document.createElement("canvas");
-      let outSize = 500;
-      let quality = 0.72;
-      let compressedBase64 = "";
-
-      for (let i = 0; i < 10; i++) {
-        canvas.width = outSize;
-        canvas.height = outSize;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(cropState.image, sx, sy, sSize, sSize, 0, 0, outSize, outSize);
-        compressedBase64 = canvas.toDataURL("image/jpeg", quality);
-
-        if (compressedBase64.length <= IMAGE_CELL_LIMIT) break;
-        if (quality > 0.42) quality -= 0.1;
-        else outSize = Math.max(260, Math.round(outSize * 0.82));
+      while (finalBase64.length > MAX_CHARS && (quality > 0.38 || scaleDown > 0.6)) {
+        if (quality > 0.45) {
+          quality -= 0.1;
+          finalBase64 = sourceCanvas.toDataURL("image/jpeg", quality);
+        } else {
+          scaleDown -= 0.15;
+          const tmp = document.createElement("canvas");
+          tmp.width = Math.round(sourceCanvas.width * scaleDown);
+          tmp.height = Math.round(sourceCanvas.height * scaleDown);
+          tmp.getContext("2d").drawImage(sourceCanvas, 0, 0, tmp.width, tmp.height);
+          finalBase64 = tmp.toDataURL("image/jpeg", quality);
+        }
       }
 
-      if (!compressedBase64 || compressedBase64.length > IMAGE_CELL_LIMIT) {
-        alert("La imagen supera el límite de Google Sheets. Intenta encuadrar una zona más simple o usar una foto más liviana.");
+      document.getElementById("imageBase64").value = finalBase64;
+      document.getElementById("removeImageFlag").value = "false";
+      showPhotoPreview(finalBase64);
+      closeCropperModal();
+
+      if (runAiAfter) {
+        triggerAiAnalysis();
+      }
+    }
+
+    function showPhotoPreview(src) {
+      const previewImg = document.getElementById("imagePreview");
+      previewImg.src = src;
+      document.getElementById("photoEmptyState").style.display = "none";
+      document.getElementById("photoPreviewCard").classList.add("visible");
+    }
+
+    function clearPhoto() {
+      rawImageObj = null;
+      document.getElementById("imageBase64").value = "";
+      document.getElementById("removeImageFlag").value = "true";
+      document.getElementById("imagePreview").src = "";
+      document.getElementById("photoPreviewCard").classList.remove("visible");
+      document.getElementById("photoEmptyState").style.display = "block";
+    }
+
+    // =========================================================================
+    // CÁMARA EN VIVO (GETUSERMEDIA)
+    // =========================================================================
+    let liveStream = null;
+    let currentFacingMode = "environment";
+
+    async function openLiveCameraModal() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showToast("Tu navegador no permite cámara en vivo, usa el botón 📸 Tomar Foto.");
+        return;
+      }
+      document.getElementById("liveCameraModal").classList.add("open");
+      await startCameraStream();
+    }
+
+    async function startCameraStream() {
+      stopCameraStream();
+      try {
+        liveStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 1600 } },
+          audio: false
+        });
+        document.getElementById("liveVideo").srcObject = liveStream;
+      } catch (err) {
+        showToast("No se pudo acceder a la cámara: " + err.message);
+        closeLiveCameraModal();
+      }
+    }
+
+    function stopCameraStream() {
+      if (liveStream) {
+        liveStream.getTracks().forEach(t => t.stop());
+        liveStream = null;
+      }
+    }
+
+    function switchCameraFacing() {
+      currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+      startCameraStream();
+    }
+
+    function closeLiveCameraModal() {
+      stopCameraStream();
+      document.getElementById("liveCameraModal").classList.remove("open");
+    }
+
+    function captureLiveVideoFrame() {
+      const video = document.getElementById("liveVideo");
+      if (!video.videoWidth) return;
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = video.videoWidth;
+      tempCanvas.height = video.videoHeight;
+      tempCanvas.getContext("2d").drawImage(video, 0, 0);
+      const dataUrl = tempCanvas.toDataURL("image/jpeg", 0.9);
+      closeLiveCameraModal();
+      loadRawImageIntoCropper(dataUrl);
+    }
+
+    // =========================================================================
+    // INTEGRACIÓN IA (GEMINI 3.8 FLASH + GOOGLE SEARCH GROUNDING)
+    // =========================================================================
+    function getLocalAiKey() {
+      return (localStorage.getItem("birapp_gemini_key") || "").trim();
+    }
+
+    function getLocalAiModel() {
+      return localStorage.getItem("birapp_gemini_model") || "gemini-3.8-flash";
+    }
+
+    function updateAiIndicator() {
+      const dot = document.getElementById("aiStatusDot");
+      if (getLocalAiKey() || serverHasAiKey) {
+        dot.classList.add("ready");
+      } else {
+        dot.classList.remove("ready");
+      }
+    }
+
+    function openAiModal() {
+      document.getElementById("aiApiKeyInput").value = getLocalAiKey();
+      document.getElementById("aiModelSelect").value = getLocalAiModel();
+      document.getElementById("aiConfigStatusMsg").textContent = serverHasAiKey
+        ? "✅ Hay una API Key configurada en tu servidor Google Apps Script."
+        : "";
+      document.getElementById("aiConfigModal").classList.add("open");
+    }
+
+    function closeAiModal() {
+      document.getElementById("aiConfigModal").classList.remove("open");
+    }
+
+    async function detectModelsFromApi() {
+      const key = document.getElementById("aiApiKeyInput").value.trim() || getLocalAiKey();
+      const msg = document.getElementById("aiConfigStatusMsg");
+      if (!key) {
+        msg.textContent = "⚠️ Primero pega tu API Key arriba.";
+        return;
+      }
+      msg.textContent = "Consultando modelos en Google AI Studio...";
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
+        const data = await res.json();
+        if (!data.models) {
+          msg.textContent = "⚠️ Clave inválida o sin modelos disponibles.";
+          return;
+        }
+        const select = document.getElementById("aiModelSelect");
+        const currentVal = select.value;
+        const validModels = data.models
+          .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
+          .map(m => m.name.replace(/^models\//, ""))
+          .filter(name => name.startsWith("gemini") && !name.includes("embedding") && !name.includes("tts"));
+
+        if (validModels.length > 0) {
+          select.innerHTML = "";
+          if (!validModels.includes("gemini-3.8-flash")) {
+            select.innerHTML += `<option value="gemini-3.8-flash">gemini-3.8-flash (Auto-Fallback + Web)</option>`;
+          }
+          validModels.reverse().forEach(m => {
+            select.innerHTML += `<option value="${m}">${m}</option>`;
+          });
+          if ([...select.options].some(o => o.value === currentVal)) {
+            select.value = currentVal;
+          }
+          msg.textContent = `✅ ${validModels.length} modelos detectados en tu cuenta.`;
+        }
+      } catch (e) {
+        msg.textContent = "Error al consultar modelos: " + e.message;
+      }
+    }
+
+    function saveAiConfiguration() {
+      const key = document.getElementById("aiApiKeyInput").value.trim();
+      const model = document.getElementById("aiModelSelect").value;
+
+      if (key) {
+        localStorage.setItem("birapp_gemini_key", key);
+      }
+      localStorage.setItem("birapp_gemini_model", model);
+
+      // Guardar también en el servidor (Google Apps Script PropertiesService) para compartir entre teléfonos
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "saveAiConfig",
+          payload: { apiKey: key, model: model }
+        })
+      })
+        .then(r => r.json())
+        .then(res => {
+          if (res && res.hasAiKey) serverHasAiKey = true;
+          updateAiIndicator();
+        })
+        .catch(() => {});
+
+      updateAiIndicator();
+      closeAiModal();
+      showToast("✨ Configuración de IA guardada");
+    }
+
+    async function triggerAiAnalysis() {
+      const imgBase64 = document.getElementById("imageBase64").value;
+      const hintNombre = document.getElementById("nombre").value.trim();
+      const hintCerveceria = document.getElementById("cerveceria").value.trim();
+
+      if (!imgBase64 && !hintNombre && !hintCerveceria) {
+        showToast("📸 Primero toma/sube una foto o escribe el nombre de la cerveza");
         return;
       }
 
-      document.getElementById("imageBase64").value = compressedBase64;
-      const preview = document.getElementById("imagePreview");
-      preview.src = compressedBase64;
-      preview.style.display = "block";
-      closeCropper();
-    }
-
-    function switchTab(tabId) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-      document.getElementById(tabId).classList.add('active');
-      if (tabId === 'nueva-cata') document.getElementById('tab-nueva').classList.add('active');
-      if (tabId === 'historial') document.getElementById('tab-historial').classList.add('active');
-    }
-
-    function showToast(msg) {
-      const toast = document.getElementById("toast");
-      toast.innerText = msg;
-      toast.className = "show";
-      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-    }
-
-    async function loadSuggestions() {
-      try {
-        const data = await apiGet("getSuggestions");
-        populateDatalists(data);
-      } catch (error) {
-        console.error(error);
+      const localKey = getLocalAiKey();
+      if (!localKey && !serverHasAiKey) {
+        openAiModal();
+        showToast("Configura tu API Key gratuita de Gemini primero");
+        return;
       }
+
+      const btn = document.getElementById("btnAnalyzeAi");
+      const btnText = document.getElementById("btnAnalyzeAiText");
+      btn.disabled = true;
+      btnText.textContent = "🔍 Leyendo etiqueta y buscando en la web...";
+
+      try {
+        let aiData = null;
+
+        // Si tenemos la API Key en el dispositivo, consultamos directamente a Gemini con Google Search Grounding (más rápido)
+        if (localKey) {
+          aiData = await analyzeDirectClientGemini(localKey, getLocalAiModel(), imgBase64, hintNombre, hintCerveceria);
+        }
+
+        // Si no hay clave local o si queremos usar la clave guardada en Google Apps Script
+        if (!aiData) {
+          const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              action: "analyzeBeerImage",
+              payload: {
+                apiKey: localKey,
+                model: getLocalAiModel(),
+                imageBase64: imgBase64,
+                nombre: hintNombre,
+                cerveceria: hintCerveceria,
+                knownBreweries: knownBreweries,
+                knownStyles: knownStyles
+              }
+            })
+          });
+          const resJson = await response.json();
+          if (resJson && resJson.success && resJson.data) {
+            aiData = resJson.data;
+          } else if (resJson && resJson.error) {
+            throw new Error(resJson.error);
+          }
+        }
+
+        if (aiData) {
+          applyAiFieldsToForm(aiData);
+          showToast("✨ Datos completados por IA + Búsqueda Web");
+        }
+      } catch (err) {
+        alert("No se pudo autocompletar con IA: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = "✨ Autocompletar con IA + Web";
+      }
+    }
+
+    async function analyzeDirectClientGemini(apiKey, preferredModel, imageBase64, hintNombre, hintCerveceria) {
+      const promptText = [
+        "Eres un maestro sommelier cervecero experto en cervezas artesanales y comerciales (especialmente de Chile, Latinoamérica y el mundo).",
+        "Tu tarea es identificar la cerveza a partir de la foto de la botella/lata/etiqueta y/o las pistas de texto.",
+        hintNombre ? ("Pista de Nombre escrita por el usuario: " + hintNombre) : "",
+        hintCerveceria ? ("Pista de Cervecería escrita por el usuario: " + hintCerveceria) : "",
+        knownBreweries.length ? ("Cervecerías ya registradas en la colección del usuario (usa exactamente el mismo nombre si coincide): " + knownBreweries.join(", ")) : "",
+        knownStyles.length ? ("Estilos ya registrados en la colección del usuario: " + knownStyles.join(", ")) : "",
+        "",
+        "INSTRUCCIONES CRÍTICAS:",
+        "1. Identifica en la foto el Nombre de la cerveza y la Cervecería/Marca.",
+        "2. Muchas veces en la foto frontal NO aparece el Estilo/Variedad, la graduación alcohólica (° ALC / % ABV) o el amargor (IBU).",
+        "3. USA LA BÚSQUEDA WEB (Google Search) para buscar el nombre de la cerveza y su cervecería en internet (Untappd, web oficial de la cervecería, tiendas cerveceras como Casa de la Cerveza, Beervana, etc.) y obtener el Estilo exacto, ° ALC y el IBU oficial.",
+        "4. Para 'alc' devuelve sólo el número (ejemplo: '5.5'). Para 'ibu' devuelve sólo el número entero (ejemplo: '25'), o '' si no existe dato.",
+        "5. Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional fuera del JSON:",
+        '{',
+        '  "nombre": "Nombre específico de la cerveza/variedad",',
+        '  "cerveceria": "Nombre de la Cervecería o Marca",',
+        '  "estilo": "Estilo de cerveza (ej. Amber Lager, Hazy IPA, Oatmeal Stout...)",',
+        '  "alc": "5.5",',
+        '  "ibu": "18",',
+        '  "notasSugeridas": "Breve nota de cata de 1 oración sobre su perfil",',
+        '  "fuente": "Etiqueta + Búsqueda Web"',
+        '}'
+      ].filter(Boolean).join("\n");
+
+      const parts = [{ text: promptText }];
+      if (imageBase64) {
+        const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, "");
+        parts.push({
+          inline_data: {
+            mime_type: "image/jpeg",
+            data: cleanBase64
+          }
+        });
+      }
+
+      // Descubrir modelos activos en la cuenta para evitar 404 y priorizar el modelo elegido (ej. gemini-3.8-flash)
+      let candidates = [preferredModel, "gemini-3.8-flash", "gemini-3.5-flash", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"];
+      try {
+        const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`);
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const available = (listJson.models || [])
+            .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
+            .map(m => m.name.replace(/^models\//, ""));
+          if (available.length > 0) {
+            const matched = candidates.filter(c => available.includes(c));
+            const extraFlashOrPro = available.filter(a => a.startsWith("gemini-") && (a.includes("flash") || a.includes("pro")) && !matched.includes(a)).reverse();
+            candidates = [...new Set([...matched, ...extraFlashOrPro])];
+          }
+        }
+      } catch (_) {}
+
+      let lastErr = "";
+      for (const model of candidates) {
+        // Intento con Google Search Grounding
+        const grounded = await tryClientModelCall(model, apiKey, parts, true);
+        if (grounded.ok) {
+          grounded.data.modeloUsado = model;
+          return grounded.data;
+        }
+        // Fallback sin tool si el modelo rechaza tools
+        const fallback = await tryClientModelCall(model, apiKey, parts, false);
+        if (fallback.ok) {
+          fallback.data.modeloUsado = model;
+          return fallback.data;
+        }
+        lastErr = grounded.error || fallback.error;
+      }
+      throw new Error(lastErr || "No se pudo conectar con Gemini.");
+    }
+
+    async function tryClientModelCall(model, apiKey, parts, useSearch) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const body = {
+        contents: [{ parts }],
+        generationConfig: { temperature: 0.2 }
+      };
+      if (useSearch) {
+        body.tools = [{ google_search: {} }];
+      } else {
+        body.generationConfig.responseMimeType = "application/json";
+      }
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+          const errTxt = await res.text();
+          return { ok: false, error: `${model}: HTTP ${res.status}` };
+        }
+        const json = await res.json();
+        const text = json?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "";
+        const parsed = parseAiJson(text);
+        if (!parsed) return { ok: false, error: "JSON vacío" };
+        return { ok: true, data: parsed };
+      } catch (e) {
+        return { ok: false, error: e.message };
+      }
+    }
+
+    function parseAiJson(text) {
+      const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+      try {
+        return JSON.parse(cleaned);
+      } catch (_) {
+        const s = cleaned.indexOf("{");
+        const e = cleaned.lastIndexOf("}");
+        if (s !== -1 && e > s) {
+          try { return JSON.parse(cleaned.substring(s, e + 1)); } catch (_) {}
+        }
+        return null;
+      }
+    }
+
+    function applyAiFieldsToForm(data) {
+      const map = [
+        { id: "nombre", val: data.nombre },
+        { id: "cerveceria", val: data.cerveceria },
+        { id: "estilo", val: data.estilo },
+        { id: "alc", val: data.alc !== undefined ? String(data.alc).replace("%", "").trim() : "" },
+        { id: "ibu", val: data.ibu !== undefined ? String(data.ibu).replace(/[^\d.]/g, "").trim() : "" }
+      ];
+
+      map.forEach(item => {
+        if (item.val) {
+          const el = document.getElementById(item.id);
+          el.value = item.val;
+          el.classList.remove("ai-filled");
+          void el.offsetWidth;
+          el.classList.add("ai-filled");
+        }
+      });
+
+      const comentarioEl = document.getElementById("comentario");
+      if (data.notasSugeridas && !comentarioEl.value.trim()) {
+        comentarioEl.value = data.notasSugeridas;
+        comentarioEl.classList.add("ai-filled");
+      }
+
+      const banner = document.getElementById("aiResultBanner");
+      const bannerText = document.getElementById("aiResultText");
+      bannerText.textContent = `✨ Completado (${data.modeloUsado || "Gemini"} • ${data.fuente || "Etiqueta + Web"})`;
+      banner.classList.add("visible");
+    }
+
+    // =========================================================================
+    // CARGA DE DATOS, FILTROS Y BODEGA (11 COLUMNAS REALES)
+    // =========================================================================
+    function getBeerField(beer, candidates) {
+      for (const key of candidates) {
+        if (beer[key] !== undefined && beer[key] !== null && String(beer[key]).trim() !== "") {
+          return String(beer[key]).trim();
+        }
+      }
+      // Búsqueda tolerante a codificación para ° ALC y Cervecería
+      for (const k of Object.keys(beer)) {
+        const upper = k.toUpperCase();
+        if (candidates.includes("° ALC") && upper.includes("ALC") && String(beer[k]).trim() !== "") {
+          return String(beer[k]).trim();
+        }
+        if (candidates.includes("Cervecería") && upper.startsWith("CERVECER") && String(beer[k]).trim() !== "") {
+          return String(beer[k]).trim();
+        }
+      }
+      return "";
+    }
+
+    function loadSuggestions() {
+      fetch(`${SCRIPT_URL}?action=getSuggestions`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.hasAiKey) {
+            serverHasAiKey = true;
+            updateAiIndicator();
+          }
+          populateDatalists(data);
+        })
+        .catch(err => console.error("Error loading suggestions:", err));
     }
 
     function populateDatalists(data) {
+      knownBreweries = data.cervecerias || [];
+      knownStyles = data.estilos || [];
+
       const listCerv = document.getElementById("cerveceriasList");
       const listEsti = document.getElementById("estilosList");
+      const filterBrewery = document.getElementById("filterBrewery");
+      const filterStyle = document.getElementById("filterStyle");
+
+      const prevBrew = filterBrewery.value;
+      const prevStyle = filterStyle.value;
+
       listCerv.innerHTML = "";
       listEsti.innerHTML = "";
+      filterBrewery.innerHTML = `<option value="">🍺 Todas las cervecerías</option>`;
+      filterStyle.innerHTML = `<option value="">🌾 Todos los estilos</option>`;
 
-      (data.cervecerias || []).forEach(c => {
-        if (c) listCerv.innerHTML += `<option value="${c}">`;
+      knownBreweries.forEach(c => {
+        if (c) {
+          listCerv.innerHTML += `<option value="${escapeHtml(c)}">`;
+          filterBrewery.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
+        }
       });
-      (data.estilos || []).forEach(e => {
-        if (e) listEsti.innerHTML += `<option value="${e}">`;
+
+      knownStyles.forEach(e => {
+        if (e) {
+          listEsti.innerHTML += `<option value="${escapeHtml(e)}">`;
+          filterStyle.innerHTML += `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`;
+        }
       });
+
+      filterBrewery.value = prevBrew;
+      filterStyle.value = prevStyle;
     }
 
-    async function loadBeers() {
+    function loadBeers() {
       document.getElementById("loading").style.display = "flex";
       document.getElementById("beerList").innerHTML = "";
-      try {
-        const data = await apiGet("getCervezas");
-        renderBeers(data);
-      } catch (error) {
-        document.getElementById("loading").style.display = "none";
-        showToast("No se pudo cargar el historial");
-        console.error(error);
-      }
+      fetch(`${SCRIPT_URL}?action=getCervezas`)
+        .then(res => res.json())
+        .then(data => {
+          cervezasData = Array.isArray(data) ? data : [];
+          document.getElementById("loading").style.display = "none";
+          extractSuggestionsFromData(cervezasData);
+          applyFiltersAndRender();
+          renderStats();
+        })
+        .catch(err => {
+          document.getElementById("loading").style.display = "none";
+          console.error("Error loading beers:", err);
+          showToast("Error al conectar con la planilla");
+        });
     }
 
-    function renderBeers(data) {
-      cervezasData = data || [];
-      document.getElementById("loading").style.display = "none";
+    function extractSuggestionsFromData(data) {
+      const bSet = new Set(knownBreweries);
+      const sSet = new Set(knownStyles);
+      data.forEach(beer => {
+        const c = getBeerField(beer, ["Cervecería", "cerveceria"]);
+        const s = getBeerField(beer, ["Estilo", "estilo"]);
+        if (c) bSet.add(c);
+        if (s) sSet.add(s);
+      });
+      populateDatalists({
+        cervecerias: Array.from(bSet).sort(),
+        estilos: Array.from(sSet).sort()
+      });
+    }
+
+    function computeScores(beer) {
+      const nK = getBeerField(beer, ["Nota Karina", "notaKarina"]) || "Sin puntuar";
+      const nG = getBeerField(beer, ["Nota Guillermo", "notaGuillermo"]) || "Sin puntuar";
+      const kVal = parseFloat(nK);
+      const gVal = parseFloat(nG);
+      let avgNum = NaN;
+      if (!isNaN(kVal) && !isNaN(gVal)) avgNum = (kVal + gVal) / 2;
+      else if (!isNaN(kVal)) avgNum = kVal;
+      else if (!isNaN(gVal)) avgNum = gVal;
+      return {
+        nK,
+        nG,
+        kVal,
+        gVal,
+        avgNum,
+        avgText: !isNaN(avgNum) ? avgNum.toFixed(1) : "-"
+      };
+    }
+
+    function setSortMode(mode, btnEl) {
+      currentSortMode = mode;
+      document.querySelectorAll(".filter-chips .chip").forEach(c => c.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      applyFiltersAndRender();
+    }
+
+    function applyFiltersAndRender() {
+      const query = (document.getElementById("searchInput").value || "").toLowerCase().trim();
+      const brewFilter = document.getElementById("filterBrewery").value;
+      const styleFilter = document.getElementById("filterStyle").value;
+
+      let filtered = cervezasData.filter(beer => {
+        const nombre = getBeerField(beer, ["Nombre", "nombre"]);
+        const cerveceria = getBeerField(beer, ["Cervecería", "cerveceria"]);
+        const estilo = getBeerField(beer, ["Estilo", "estilo"]);
+        const comentario = getBeerField(beer, ["Comentario", "comentario"]);
+
+        if (brewFilter && cerveceria !== brewFilter) return false;
+        if (styleFilter && estilo !== styleFilter) return false;
+
+        if (query) {
+          const haystack = `${nombre} ${cerveceria} ${estilo} ${comentario}`.toLowerCase();
+          if (!haystack.includes(query)) return false;
+        }
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        const sa = computeScores(a);
+        const sb = computeScores(b);
+        if (currentSortMode === "best") {
+          return (isNaN(sb.avgNum) ? -1 : sb.avgNum) - (isNaN(sa.avgNum) ? -1 : sa.avgNum);
+        }
+        if (currentSortMode === "karina") {
+          return (isNaN(sb.kVal) ? -1 : sb.kVal) - (isNaN(sa.kVal) ? -1 : sa.kVal);
+        }
+        if (currentSortMode === "guillermo") {
+          return (isNaN(sb.gVal) ? -1 : sb.gVal) - (isNaN(sa.gVal) ? -1 : sa.gVal);
+        }
+        if (currentSortMode === "alc") {
+          const alcA = parseFloat(getBeerField(a, ["° ALC", "alc"]).replace(",", ".")) || -1;
+          const alcB = parseFloat(getBeerField(b, ["° ALC", "alc"]).replace(",", ".")) || -1;
+          return alcB - alcA;
+        }
+        return 0; // "recent" mantiene el orden inverso cronológico del servidor
+      });
+
+      renderBeerList(filtered);
+    }
+
+    function renderBeerList(listData) {
       const list = document.getElementById("beerList");
       list.innerHTML = "";
 
-      if (!cervezasData.length) {
-        list.innerHTML = `<div style="text-align:center; padding: 40px 20px; color: var(--text-muted);"><p style="font-weight:600; font-size:16px;">El historial está vacío</p><p style="font-size:14px; margin-top:4px;">Añade tu primer registro para empezar.</p></div>`;
+      if (listData.length === 0) {
+        list.innerHTML = `
+          <div style="text-align:center; padding: 44px 20px; color: var(--text-muted);">
+            <div style="width:64px; height:64px; margin:0 auto 14px; border-radius:20px; background:var(--primary-Soft); color:var(--primary); display:flex; align-items:center; justify-content:center;">
+              ${defaultBeerSvg}
+            </div>
+            <p style="font-weight:800; font-size:16px; color:var(--text-main);">No se encontraron cervezas</p>
+            <p style="font-size:13.5px; margin-top:4px;">Prueba ajustando los filtros o añade una nueva cata.</p>
+          </div>`;
         return;
       }
 
-      cervezasData.forEach(beer => {
-        const nombre = beer["Nombre"] || beer["nombre"] || "Sin Nombre";
-        const cerveceria = beer["Cervecería"] || beer["cerveceria"] || "-";
-        const estilo = beer["Estilo"] || beer["estilo"] || "-";
-        const fecha = beer["Fecha"] || beer["fecha"] || "";
-        const alc = beer["° ALC"] || beer["ALC"] || "-";
-        const ibu = beer["IBU"] || "-";
-        const imgBase64 = beer["Imagen"];
-
-        let nK = beer["Nota Karina"] !== undefined ? beer["Nota Karina"] : "Sin puntuar";
-        let nG = beer["Nota Guillermo"] !== undefined ? beer["Nota Guillermo"] : "Sin puntuar";
-
-        let prom = "-";
-        let kVal = parseFloat(nK);
-        let gVal = parseFloat(nG);
-
-        if (!isNaN(kVal) && !isNaN(gVal)) prom = ((kVal + gVal) / 2).toFixed(1);
-        else if (!isNaN(kVal)) prom = kVal.toFixed(1);
-        else if (!isNaN(gVal)) prom = gVal.toFixed(1);
+      listData.forEach(beer => {
+        const nombre = getBeerField(beer, ["Nombre", "nombre"]) || "Sin Nombre";
+        const cerveceria = getBeerField(beer, ["Cervecería", "cerveceria"]) || "-";
+        const estilo = getBeerField(beer, ["Estilo", "estilo"]) || "-";
+        const alc = getBeerField(beer, ["° ALC", "alc"]);
+        const ibu = getBeerField(beer, ["IBU", "ibu"]);
+        const fecha = getBeerField(beer, ["Fecha", "fecha"]);
+        const imgBase64 = getBeerField(beer, ["Imagen", "imagen"]);
+        const scores = computeScores(beer);
 
         const mediaHtml = imgBase64
-          ? `<img src="${imgBase64}" class="beer-thumb" alt="${nombre}">`
+          ? `<img src="${imgBase64}" class="beer-thumb" loading="lazy" alt="${escapeHtml(nombre)}">`
           : `<div class="default-icon-container">${defaultBeerSvg}</div>`;
+
+        const alcBadge = alc && alc !== "-" ? `<span class="meta-pill">💧 ${escapeHtml(alc)}°</span>` : "";
+        const ibuBadge = ibu && ibu !== "-" ? `<span class="meta-pill hop">🌿 ${escapeHtml(ibu)} IBU</span>` : "";
 
         const item = document.createElement("div");
         item.className = "beer-item";
-        item.onclick = () => showDetails(beer, nombre, cerveceria, estilo, fecha, alc, ibu, nK, nG, imgBase64);
+        item.onclick = () => showDetails(beer.ID);
 
-        item.innerHTML = `${mediaHtml}<div class="beer-content-flex"><div class="beer-info"><h3>${nombre}</h3><p>${cerveceria} • ${estilo}</p><p style="font-size:12px; margin-top:4px; opacity:0.85;">°ALC: ${alc} • IBU: ${ibu}</p><p style="font-size:11px; margin-top:5px; opacity:0.8;">${fecha}</p></div><div class="beer-score"><span>Nota</span>${prom}</div></div>`;
+        item.innerHTML = `
+          <div class="beer-thumb-wrap">${mediaHtml}</div>
+          <div class="beer-content-flex">
+            <div class="beer-info">
+              <h3>${escapeHtml(nombre)}</h3>
+              <div class="brewery-line">${escapeHtml(cerveceria)} • ${escapeHtml(estilo)}</div>
+              <div class="beer-meta-tags">
+                ${alcBadge}
+                ${ibuBadge}
+                ${fecha ? `<span class="meta-pill">${escapeHtml(fecha)}</span>` : ""}
+              </div>
+            </div>
+            <div class="beer-score-box">
+              <div class="avg-num">${scores.avgText}</div>
+              <div class="sub-scores">👩🏻${ isNaN(scores.kVal) ? "-" : scores.kVal } · 👨🏻${ isNaN(scores.gVal) ? "-" : scores.gVal }</div>
+            </div>
+          </div>
+        `;
         list.appendChild(item);
       });
-
     }
 
-    function filterBeers() {
-      const query = document.getElementById("searchInput").value.toLowerCase();
-      const items = document.querySelectorAll(".beer-item");
-      items.forEach((item) => {
-        const text = item.innerText.toLowerCase();
-        item.style.display = text.includes(query) ? "flex" : "none";
-      });
+    // =========================================================================
+    // VISTA DETALLE Y LIGHTBOX
+    // =========================================================================
+    function showDetails(beerId) {
+      const beer = cervezasData.find(b => String(b.ID) === String(beerId));
+      if (!beer) return;
+
+      const nombre = getBeerField(beer, ["Nombre", "nombre"]) || "Sin Nombre";
+      const cerveceria = getBeerField(beer, ["Cervecería", "cerveceria"]) || "-";
+      const estilo = getBeerField(beer, ["Estilo", "estilo"]) || "-";
+      const alc = getBeerField(beer, ["° ALC", "alc"]) || "-";
+      const ibu = getBeerField(beer, ["IBU", "ibu"]) || "-";
+      const fecha = getBeerField(beer, ["Fecha", "fecha"]) || "-";
+      const comentario = getBeerField(beer, ["Comentario", "comentario"]);
+      const imgBase64 = getBeerField(beer, ["Imagen", "imagen"]);
+      const scores = computeScores(beer);
+
+      const heroHtml = imgBase64
+        ? `<div class="detalle-hero" onclick="openLightbox('${ beer.ID }')">
+             <img src="${imgBase64}" class="hero-blur-bg" alt="">
+             <img src="${imgBase64}" class="hero-main-img" alt="${escapeHtml(nombre)}">
+             <span class="zoom-hint-badge">🔍 Toca para ampliar</span>
+           </div>`
+        : `<div style="height:150px; background:var(--primary-Soft); color:var(--primary); display:flex; align-items:center; justify-content:center;">
+             ${defaultBeerSvg}
+           </div>`;
+
+      const encodedId = encodeURIComponent(beer.ID);
+
+      document.getElementById("detalleCard").innerHTML = `
+        ${heroHtml}
+        <div style="padding: 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+            <div>
+              <h2 style="font-family:'Outfit',sans-serif; font-size:24px; font-weight:800; color:var(--text-main); line-height:1.15;">${escapeHtml(nombre)}</h2>
+              <p style="color:var(--primary); font-weight:800; font-size:15px; margin-top:4px;">${escapeHtml(cerveceria)} • ${escapeHtml(estilo)}</p>
+            </div>
+            <div class="beer-score-box" style="min-width:68px;">
+              <div class="avg-num" style="font-size:22px;">${scores.avgText}</div>
+              <div class="sub-scores">PROMEDIO</div>
+            </div>
+          </div>
+
+          <div class="detalle-specs-grid">
+            <div class="spec-box">
+              <div class="spec-label">° Alcohol</div>
+              <div class="spec-val">${alc !== "-" ? escapeHtml(alc) + "°" : "-"}</div>
+            </div>
+            <div class="spec-box">
+              <div class="spec-label">Amargor IBU</div>
+              <div class="spec-val">${escapeHtml(ibu)}</div>
+            </div>
+            <div class="spec-box">
+              <div class="spec-label">Fecha Cata</div>
+              <div class="spec-val" style="font-size:13.5px; margin-top:3px;">${escapeHtml(fecha)}</div>
+            </div>
+          </div>
+
+          <div class="duel-row" style="margin-bottom:18px;">
+            <div class="duel-person">
+              <div style="font-size:12.5px; font-weight:700; color:var(--text-muted);">👩🏻 Karina</div>
+              <div style="font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; color:var(--text-main); margin-top:2px;">${escapeHtml(scores.nK)}</div>
+            </div>
+            <div class="duel-person">
+              <div style="font-size:12.5px; font-weight:700; color:var(--text-muted);">👨🏻 Guillermo</div>
+              <div style="font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; color:var(--text-main); margin-top:2px;">${escapeHtml(scores.nG)}</div>
+            </div>
+          </div>
+
+          <h4 style="color:var(--text-muted); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Notas de Cata</h4>
+          <p style="margin-bottom:22px; color:var(--text-main); line-height:1.55; font-size:14.5px; background:var(--surface-alt); padding:14px; border-radius:14px; border:1px solid var(--border);">
+            ${comentario ? escapeHtml(comentario) : "<i style='color:var(--text-muted)'>Sin notas adicionales escritas.</i>"}
+          </p>
+
+          <div style="display:flex; gap:10px;">
+            <button type="button" class="btn" style="flex:1" onclick="setupEdit('${encodedId}')">✏️ Editar</button>
+            <button type="button" class="btn btn-delete" style="flex:1; margin-top:0;" onclick="deleteBeer('${encodedId}')">🗑 Borrar</button>
+          </div>
+        </div>
+      `;
+      switchTab("detalles");
     }
 
-    async function saveBeer(e) {
+    function openLightbox(beerId) {
+      const beer = cervezasData.find(b => String(b.ID) === String(beerId));
+      if (!beer) return;
+      const img = getBeerField(beer, ["Imagen", "imagen"]);
+      if (!img) return;
+      document.getElementById("lightboxImg").src = img;
+      document.getElementById("lightboxModal").classList.add("open");
+    }
+
+    function closeLightbox() {
+      document.getElementById("lightboxModal").classList.remove("open");
+    }
+
+    // =========================================================================
+    // GUARDAR, EDITAR Y ELIMINAR CERVEZA
+    // =========================================================================
+    function saveBeer(e) {
       e.preventDefault();
-      document.getElementById("btnSubmit").innerText = "Guardando...";
-      document.getElementById("btnSubmit").disabled = true;
+      const btn = document.getElementById("btnSubmit");
+      btn.textContent = "⏳ Guardando en Google Sheets...";
+      btn.disabled = true;
 
       const data = {
         id: document.getElementById("beerId").value,
         fecha: formatearFecha(document.getElementById("fecha").value),
-        nombre: document.getElementById("nombre").value,
-        cerveceria: document.getElementById("cerveceria").value,
-        estilo: document.getElementById("estilo").value,
-        alc: document.getElementById("alc").value,
-        ibu: document.getElementById("ibu").value,
+        nombre: document.getElementById("nombre").value.trim(),
+        cerveceria: document.getElementById("cerveceria").value.trim(),
+        estilo: document.getElementById("estilo").value.trim(),
+        alc: document.getElementById("alc").value.trim(),
+        "° ALC": document.getElementById("alc").value.trim(),
+        ibu: document.getElementById("ibu").value.trim(),
+        "IBU": document.getElementById("ibu").value.trim(),
         notaKarina: document.getElementById("notaKarina").value,
         notaGuillermo: document.getElementById("notaGuillermo").value,
-        comentario: document.getElementById("comentario").value,
-        imagen: document.getElementById("imageBase64").value
+        comentario: document.getElementById("comentario").value.trim(),
+        imagen: document.getElementById("imageBase64").value,
+        removeImage: document.getElementById("removeImageFlag").value === "true"
       };
 
-      if (data.imagen && data.imagen.length > IMAGE_CELL_LIMIT) {
-        document.getElementById("btnSubmit").innerText = "Guardar Registro";
-        document.getElementById("btnSubmit").disabled = false;
-        alert("Error: la imagen sigue siendo muy grande para Google Sheets. Intenta más zoom en el recorte o usa una foto más liviana.");
-        return;
-      }
+      const action = data.id ? "updateCerveza" : "addCerveza";
 
-      try {
-        const action = data.id ? "updateCerveza" : "addCerveza";
-        const updated = await apiPost(action, { data });
-        onSuccess(updated);
-      } catch (error) {
-        onFailure(error);
-      }
-    }
-
-    function onFailure(error) {
-      document.getElementById("btnSubmit").innerText = "Guardar Registro";
-      document.getElementById("btnSubmit").disabled = false;
-
-      const msg = (error && error.message) ? error.message : "Error de red";
-      const hint = msg.includes("Failed to fetch") || msg.includes("NetworkError")
-        ? "No se pudo conectar al backend. Revisa el despliegue de Apps Script (acceso Web App) y vuelve a intentar."
-        : msg;
-
-      alert("Error: " + hint);
-    }
-
-    function onSuccess(data) {
-      renderBeers(data);
-      cancelEdit();
-      showToast("¡Registro guardado exitosamente!");
-      switchTab('historial');
-    }
-
-    function showDetails(beer, nombre, cerveceria, estilo, fecha, alc, ibu, nK, nG, imgBase64) {
-      const detalleCard = document.getElementById("detalleCard");
-      const imgHtml = imgBase64
-        ? `<div class="detalle-header"><img src="${imgBase64}" class="detalle-img" style="display:block" alt="${nombre}"></div>`
-        : `<div class="detalle-header"><div class="detalle-icon-large">${defaultBeerSvg}</div></div>`;
-
-      const encodedId = encodeURIComponent(beer.ID);
-
-      detalleCard.innerHTML = `${imgHtml}<div style="padding: 24px;"><h2 style="font-size: 24px; font-weight:800; margin-bottom: 4px; color: var(--text-main)">${nombre}</h2><h4 style="color: var(--primary); font-weight:600; font-size:15px; margin-bottom: 16px;">${cerveceria} • ${estilo}</h4><div class="detalle-box"><p style="color:var(--text-muted); font-size: 13px; font-weight:600;">FECHA DEL REGISTRO</p><p style="font-weight:700; color:var(--text-main); margin-bottom: 16px;">${fecha}</p><p style="color:var(--text-muted); font-size: 13px; font-weight:600; margin-bottom:8px;">DATOS TÉCNICOS</p><div class="detalle-box-row" style="margin-top:0; padding-top:0; border-top:none;"><p style="font-weight:600;">° ALC</p><div class="score-badge">${alc}</div></div><div class="detalle-box-row"><p style="font-weight:600;">IBU</p><div class="score-badge">${ibu}</div></div><p style="color:var(--text-muted); font-size: 13px; font-weight:600; margin-bottom:8px; margin-top:14px;">PUNTUACIONES</p><div class="detalle-box-row" style="margin-top:0; padding-top:0; border-top:none;"><p style="font-weight:600;">👩🏻 Karina</p><div class="score-badge">${nK}</div></div><div class="detalle-box-row"><p style="font-weight:600;">👨🏻 Guillermo</p><div class="score-badge">${nG}</div></div></div><h4 style="color: var(--text-muted); font-size:13px; font-weight:600; margin-bottom:8px;">NOTAS DE CATA</h4><p style="margin-bottom:32px; color:var(--text-main); line-height:1.6; font-size:15px; background:var(--bg-color); padding:16px; border-radius:12px; border:1px solid var(--border);">${beer["Comentario"] || "<i>Sin notas adicionales escritas.</i>"}</p><div style="display:flex; gap:12px;"><button class="btn" style="flex:1" onclick="setupEdit('${encodedId}')">✏ Editar</button><button class="btn btn-delete" style="flex:1" onclick="deleteBeer('${encodedId}')">🗑 Borrar</button></div></div>`;
-      switchTab('detalles');
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: action, payload: data })
+      })
+        .then(res => res.json())
+        .then(response => {
+          if (response && response.error) throw new Error(response.error);
+          cervezasData = Array.isArray(response) ? response : cervezasData;
+          extractSuggestionsFromData(cervezasData);
+          applyFiltersAndRender();
+          renderStats();
+          cancelEdit();
+          showToast("🍻 ¡Cerveza guardada con éxito!");
+          switchTab("historial");
+        })
+        .catch(err => {
+          btn.textContent = "💾 Guardar Cerveza";
+          btn.disabled = false;
+          alert("Error al guardar: " + err.message);
+        });
     }
 
     function setupEdit(encodedId) {
       const id = decodeURIComponent(encodedId);
-      const beer = cervezasData.find(b => b.ID.toString() === id.toString());
+      const beer = cervezasData.find(b => String(b.ID) === String(id));
       if (!beer) return;
 
+      document.getElementById("formTitle").textContent = "✏️ Editar Cerveza";
       document.getElementById("beerId").value = beer.ID;
-      let f = (beer.Fecha || "").split("/");
-      if (f.length === 3) document.getElementById("fecha").value = `${f[2]}-${f[1]}-${f[0]}`;
-      else document.getElementById("fecha").valueAsDate = new Date();
+      document.getElementById("removeImageFlag").value = "false";
 
-      document.getElementById("nombre").value = beer["Nombre"] || "";
-      document.getElementById("cerveceria").value = beer["Cervecería"] || "";
-      document.getElementById("estilo").value = beer["Estilo"] || "";
-      document.getElementById("alc").value = beer["° ALC"] || beer["ALC"] || "";
-      document.getElementById("ibu").value = beer["IBU"] || "";
-      document.getElementById("notaKarina").value = beer["Nota Karina"] || "Sin puntuar";
-      document.getElementById("notaGuillermo").value = beer["Nota Guillermo"] || "Sin puntuar";
-      document.getElementById("comentario").value = beer["Comentario"] || "";
-      document.getElementById("imageBase64").value = beer["Imagen"] || "";
-
-      if (beer["Imagen"]) {
-        document.getElementById('imagePreview').src = beer["Imagen"];
-        document.getElementById('imagePreview').style.display = 'block';
+      const f = getBeerField(beer, ["Fecha", "fecha"]).split("/");
+      if (f.length === 3) {
+        document.getElementById("fecha").value = `${f[2]}-${f[1].padStart(2, "0")}-${f[0].padStart(2, "0")}`;
       } else {
-        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById("fecha").valueAsDate = new Date();
       }
 
-      document.getElementById("btnSubmit").innerText = "Guardar Cambios";
+      document.getElementById("nombre").value = getBeerField(beer, ["Nombre", "nombre"]);
+      document.getElementById("cerveceria").value = getBeerField(beer, ["Cervecería", "cerveceria"]);
+      document.getElementById("estilo").value = getBeerField(beer, ["Estilo", "estilo"]);
+      document.getElementById("alc").value = getBeerField(beer, ["° ALC", "alc"]);
+      document.getElementById("ibu").value = getBeerField(beer, ["IBU", "ibu"]);
+      document.getElementById("comentario").value = getBeerField(beer, ["Comentario", "comentario"]);
+
+      setPersonRatingUI("Karina", getBeerField(beer, ["Nota Karina", "notaKarina"]));
+      setPersonRatingUI("Guillermo", getBeerField(beer, ["Nota Guillermo", "notaGuillermo"]));
+
+      const img = getBeerField(beer, ["Imagen", "imagen"]);
+      document.getElementById("imageBase64").value = img;
+      rawImageObj = null;
+      if (img) {
+        showPhotoPreview(img);
+      } else {
+        clearPhoto();
+        document.getElementById("removeImageFlag").value = "false";
+      }
+
+      document.getElementById("btnSubmit").textContent = "💾 Guardar Cambios";
       document.getElementById("btnCancelEdit").style.display = "block";
-      switchTab('nueva-cata');
+      switchTab("nueva-cata");
     }
 
     function cancelEdit() {
       document.getElementById("beerForm").reset();
+      document.getElementById("formTitle").textContent = "🍺 Registrar Cerveza";
       document.getElementById("fecha").valueAsDate = new Date();
       document.getElementById("beerId").value = "";
-      document.getElementById("imageBase64").value = "";
-      document.getElementById('imagePreview').style.display = 'none';
-      document.getElementById("btnSubmit").innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Guardar Registro`;
-      document.getElementById("btnSubmit").disabled = false;
+      document.getElementById("removeImageFlag").value = "false";
+      document.getElementById("aiResultBanner").classList.remove("visible");
+      document.querySelectorAll(".ai-filled").forEach(el => el.classList.remove("ai-filled"));
+
+      setUnrated("Karina");
+      setUnrated("Guillermo");
+      clearPhoto();
+      document.getElementById("removeImageFlag").value = "false";
+
+      const btn = document.getElementById("btnSubmit");
+      btn.textContent = "💾 Guardar Cerveza";
+      btn.disabled = false;
       document.getElementById("btnCancelEdit").style.display = "none";
     }
 
-    async function deleteBeer(encodedId) {
+    function deleteBeer(encodedId) {
       const id = decodeURIComponent(encodedId);
-      if (!confirm("¿Estás seguro de que deseas eliminar permanentemente este registro?")) return;
+      if (!confirm("¿Seguro que deseas eliminar permanentemente esta cerveza de la planilla?")) return;
 
-      try {
-        const data = await apiPost("deleteCerveza", { id });
-        renderBeers(data);
-        showToast("Registro eliminado");
-        switchTab('historial');
-      } catch (error) {
-        alert("Error al borrar: " + error.message);
-        switchTab('historial');
+      showToast("Eliminando registro...");
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "deleteCerveza", id: id })
+      })
+        .then(res => res.json())
+        .then(data => {
+          cervezasData = Array.isArray(data) ? data : [];
+          applyFiltersAndRender();
+          renderStats();
+          showToast("🗑 Registro eliminado");
+          switchTab("historial");
+        })
+        .catch(err => {
+          alert("Error al borrar: " + err.message);
+        });
+    }
+
+    // =========================================================================
+    // ESTADÍSTICAS Y RANKING (PESTAÑA 3)
+    // =========================================================================
+    function renderStats() {
+      const container = document.getElementById("statsContainer");
+      if (!cervezasData || cervezasData.length === 0) {
+        container.innerHTML = `<div class="card"><p style="text-align:center; color:var(--text-muted);">Aún no hay suficientes datos para estadísticas.</p></div>`;
+        return;
       }
+
+      const total = cervezasData.length;
+      const breweries = new Set();
+      const styles = new Set();
+      let kSum = 0, kCount = 0;
+      let gSum = 0, gCount = 0;
+      let alcSum = 0, alcCount = 0;
+      const breweryCounts = {};
+      const styleCounts = {};
+
+      const rankedBeers = [];
+
+      cervezasData.forEach(b => {
+        const c = getBeerField(b, ["Cervecería", "cerveceria"]);
+        const s = getBeerField(b, ["Estilo", "estilo"]);
+        const alc = parseFloat(getBeerField(b, ["° ALC", "alc"]).replace(",", "."));
+        const sc = computeScores(b);
+
+        if (c) {
+          breweries.add(c);
+          breweryCounts[c] = (breweryCounts[c] || 0) + 1;
+        }
+        if (s) {
+          styles.add(s);
+          styleCounts[s] = (styleCounts[s] || 0) + 1;
+        }
+        if (!isNaN(alc) && alc > 0) {
+          alcSum += alc;
+          alcCount++;
+        }
+        if (!isNaN(sc.kVal)) { kSum += sc.kVal; kCount++; }
+        if (!isNaN(sc.gVal)) { gSum += sc.gVal; gCount++; }
+        if (!isNaN(sc.avgNum)) {
+          rankedBeers.push({ beer: b, avg: sc.avgNum, k: sc.nK, g: sc.nG });
+        }
+      });
+
+      rankedBeers.sort((a, b) => b.avg - a.avg);
+      const top5 = rankedBeers.slice(0, 5);
+
+      const topBreweries = Object.entries(breweryCounts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+      const topStyles = Object.entries(styleCounts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+
+      const kAvg = kCount ? (kSum / kCount).toFixed(2) : "-";
+      const gAvg = gCount ? (gSum / gCount).toFixed(2) : "-";
+      const alcAvg = alcCount ? (alcSum / alcCount).toFixed(1) + "°" : "-";
+
+      const top5Html = top5.map((item, idx) => {
+        const n = getBeerField(item.beer, ["Nombre", "nombre"]);
+        const c = getBeerField(item.beer, ["Cervecería", "cerveceria"]);
+        const medals = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"];
+        return `
+          <div class="beer-item" style="padding:11px 13px; margin-bottom:8px;" onclick="showDetails('${item.beer.ID}')">
+            <div style="font-size:22px; width:32px; text-align:center;">${medals[idx]}</div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:800; font-size:15px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(n)}</div>
+              <div style="font-size:12px; color:var(--text-muted); font-weight:600;">${escapeHtml(c)} • 👩🏻 ${item.k} | 👨🏻 ${item.g}</div>
+            </div>
+            <div class="score-pill-lg">${item.avg.toFixed(1)}</div>
+          </div>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <div class="stats-kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-val">${total}</div>
+            <div class="kpi-label">🍺 Cervezas Catadas</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val">${breweries.size}</div>
+            <div class="kpi-label">🏭 Cervecerías Probadas</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val">${styles.size}</div>
+            <div class="kpi-label">🌾 Estilos Distintos</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val">${alcAvg}</div>
+            <div class="kpi-label">💧 Graduación Media</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="section-title" style="font-size:17px; margin-bottom:10px;">⚖️ Duelo de Catadores</h3>
+          <div class="duel-row">
+            <div class="duel-person">
+              <div style="font-size:13px; font-weight:700; color:var(--text-muted);">👩🏻 Promedio Karina</div>
+              <div style="font-family:'Outfit',sans-serif; font-size:26px; font-weight:800; color:var(--primary); margin-top:4px;">${kAvg}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${kCount} cervezas evaluadas</div>
+            </div>
+            <div class="duel-person">
+              <div style="font-size:13px; font-weight:700; color:var(--text-muted);">👨🏻 Promedio Guillermo</div>
+              <div style="font-family:'Outfit',sans-serif; font-size:26px; font-weight:800; color:var(--primary); margin-top:4px;">${gAvg}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${gCount} cervezas evaluadas</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="section-title" style="font-size:17px; margin-bottom:12px;">🏆 Top 5 Mejores Cervezas</h3>
+          ${top5Html}
+        </div>
+
+        <div class="card">
+          <h3 class="section-title" style="font-size:17px; margin-bottom:12px;">📊 Cervecerías y Estilos Favoritos</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <div style="font-size:12px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">MÁS PROBADAS</div>
+              ${topBreweries.map(([name, cnt]) => `<div style="display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border);"><span>${escapeHtml(name)}</span><b>${cnt}</b></div>`).join("")}
+            </div>
+            <div>
+              <div style="font-size:12px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">ESTILOS TOP</div>
+              ${topStyles.map(([name, cnt]) => `<div style="display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border);"><span>${escapeHtml(name)}</span><b>${cnt}</b></div>`).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // NAVEGACIÓN Y UTILIDADES
+    // =========================================================================
+    function switchTab(tabId) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+
+      document.getElementById(tabId).classList.add("active");
+
+      if (tabId === "nueva-cata") document.getElementById("tab-nueva").classList.add("active");
+      if (tabId === "historial" || tabId === "detalles") document.getElementById("tab-historial").classList.add("active");
+      if (tabId === "estadisticas") {
+        document.getElementById("tab-estadisticas").classList.add("active");
+        renderStats();
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.className = "show";
+      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3100);
     }
 
     function formatearFecha(fechaYYYYMMDD) {
       if (!fechaYYYYMMDD) return "";
-      const d = new Date(fechaYYYYMMDD + 'T00:00:00');
-      const dia = ("0" + d.getDate()).slice(-2);
-      const mes = ("0" + (d.getMonth() + 1)).slice(-2);
-      const anio = d.getFullYear();
-      return `${dia}/${mes}/${anio}`;
+      const parts = fechaYYYYMMDD.split("-");
+      if (parts.length !== 3) return fechaYYYYMMDD;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
     }
   </script>
 </body>

@@ -1,4 +1,4 @@
-const CACHE_NAME = "birapp-static-v2";
+const CACHE_NAME = "birapp-static-v3";
 const APP_SHELL = ["./", "./index.html", "./manifest.json", "./assets/icon-cheers.svg"];
 
 self.addEventListener("install", (event) => {
@@ -21,23 +21,21 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  // Nunca cachear llamadas API ni requests cross-origin (Apps Script / Google Fonts / etc)
+  // Nunca cachear llamadas API ni requests externos (Google Apps Script, Gemini API, Google Fonts)
   if (url.origin !== self.location.origin || url.searchParams.has("action")) {
     return;
   }
 
+  // Estrategia Network-First con respaldo en caché para que la app siempre cargue la última versión
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(request)
-        .then((response) => {
-          if (!response || response.status !== 200) return response;
+    fetch(request)
+      .then((response) => {
+        if (response && response.status === 200) {
           const cloned = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned));
-          return response;
-        })
-        .catch(() => caches.match("./index.html"));
-    })
+        }
+        return response;
+      })
+      .catch(() => caches.match(request).then((cached) => cached || caches.match("./index.html")))
   );
 });
