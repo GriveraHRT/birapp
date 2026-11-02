@@ -1,4 +1,4 @@
-const CACHE_NAME = "birapp-static-v3";
+const CACHE_NAME = "birapp-static-v4";
 const APP_SHELL = ["./", "./index.html", "./manifest.json", "./assets/icon-cheers.svg"];
 
 self.addEventListener("install", (event) => {

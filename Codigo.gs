@@ -32,30 +32,34 @@ function doGet(e) {
 function doPost(e) {
   let data;
   try {
-    data = JSON.parse(e.postData.contents);
+    const rawPayload = (e && e.parameter && e.parameter.payload)
+      ? e.parameter.payload
+      : (e && e.postData && e.postData.contents ? e.postData.contents : "{}");
+    data = JSON.parse(rawPayload);
   } catch (err) {
-    return jsonResponse({ error: "Invalid JSON: " + err.message });
+    return jsonResponse({ error: true, message: "Invalid JSON: " + err.message });
   }
 
   const action = data.action;
+  const itemData = data.data || data.payload || data;
   let result;
 
   try {
     if (action === "addCerveza") {
-      result = addCerveza(data.payload);
+      result = addCerveza(itemData);
     } else if (action === "updateCerveza") {
-      result = updateCerveza(data.payload);
+      result = updateCerveza(itemData);
     } else if (action === "deleteCerveza") {
-      result = deleteCerveza(data.id);
+      result = deleteCerveza(data.id || itemData.id);
     } else if (action === "saveAiConfig") {
-      result = saveAiConfig(data.payload || {});
+      result = saveAiConfig(itemData);
     } else if (action === "analyzeBeerImage") {
-      result = analyzeBeerWithGemini(data.payload || {});
+      result = analyzeBeerWithGemini(itemData);
     } else {
-      return jsonResponse({ error: "Invalid POST action: " + action });
+      return jsonResponse({ error: true, message: "Invalid POST action: " + action });
     }
   } catch (err) {
-    return jsonResponse({ error: err.message || String(err) });
+    return jsonResponse({ error: true, message: err.message || String(err) });
   }
 
   return jsonResponse(result);

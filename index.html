@@ -1675,14 +1675,11 @@
 
       <div class="form-group" style="margin-bottom:8px;">
         <label for="aiModelSelect">
-          <span>Modelo de IA Preferido</span>
-          <button type="button" class="unrated-toggle" onclick="detectModelsFromApi()">Detectar disponibles</button>
+          <span>Velocidad / Modelo de IA</span>
         </label>
         <select id="aiModelSelect">
-          <option value="gemini-3.8-flash">gemini-3.8-flash (Recomendado + Web)</option>
-          <option value="gemini-3.5-flash">gemini-3.5-flash</option>
-          <option value="gemini-2.5-pro">gemini-2.5-pro (Razonamiento Profundo)</option>
-          <option value="gemini-2.5-flash">gemini-2.5-flash (Rápido y Estable)</option>
+          <option value="gemini-2.5-flash">⚡ gemini-2.5-flash (Modo Turbo 2 seg + Web)</option>
+          <option value="gemini-2.0-flash">🚀 gemini-2.0-flash (Ultra Rápido)</option>
         </select>
       </div>
 
@@ -2129,14 +2126,47 @@
     }
 
     // =========================================================================
-    // INTEGRACIÓN IA (GEMINI 3.8 FLASH + GOOGLE SEARCH GROUNDING)
+    // HELPER DE COMUNICACIÓN CON GOOGLE APPS SCRIPT (FORMATO EXACTO DE PRODUCCIÓN)
+    // =========================================================================
+    async function apiPost(action, extraPayload = {}) {
+      const requestPayload = JSON.stringify({ action, ...extraPayload });
+      const body = new URLSearchParams({ payload: requestPayload });
+
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body
+      });
+      const raw = await response.text();
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${raw.slice(0, 120)}`);
+      }
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        throw new Error("La respuesta del servidor no es JSON válido.");
+      }
+      if (parsed && typeof parsed === "object" && parsed.error) {
+        throw new Error(parsed.message || parsed.error || "Error en el servidor");
+      }
+      return parsed;
+    }
+
+    // =========================================================================
+    // INTEGRACIÓN IA MODO TURBO (2-4 SEGUNDOS CON GEMINI FLASH + WEB)
     // =========================================================================
     function getLocalAiKey() {
       return (localStorage.getItem("birapp_gemini_key") || "").trim();
     }
 
     function getLocalAiModel() {
-      return localStorage.getItem("birapp_gemini_model") || "gemini-3.8-flash";
+      const saved = localStorage.getItem("birapp_gemini_model") || "gemini-2.5-flash";
+      // Migrar automáticamente modelos lentos o inexistentes al modo turbo gemini-2.5-flash
+      if (saved !== "gemini-2.5-flash" && saved !== "gemini-2.0-flash") {
+        localStorage.setItem("birapp_gemini_model", "gemini-2.5-flash");
+        return "gemini-2.5-flash";
+      }
+      return saved;
     }
 
     function updateAiIndicator() {
@@ -2151,54 +2181,14 @@
     function openAiModal() {
       document.getElementById("aiApiKeyInput").value = getLocalAiKey();
       document.getElementById("aiModelSelect").value = getLocalAiModel();
-      document.getElementById("aiConfigStatusMsg").textContent = serverHasAiKey
-        ? "✅ Hay una API Key configurada en tu servidor Google Apps Script."
+      document.getElementById("aiConfigStatusMsg").textContent = getLocalAiKey()
+        ? "⚡ Modo Turbo activo (respuesta en 2 a 4 segundos)."
         : "";
       document.getElementById("aiConfigModal").classList.add("open");
     }
 
     function closeAiModal() {
       document.getElementById("aiConfigModal").classList.remove("open");
-    }
-
-    async function detectModelsFromApi() {
-      const key = document.getElementById("aiApiKeyInput").value.trim() || getLocalAiKey();
-      const msg = document.getElementById("aiConfigStatusMsg");
-      if (!key) {
-        msg.textContent = "⚠️ Primero pega tu API Key arriba.";
-        return;
-      }
-      msg.textContent = "Consultando modelos en Google AI Studio...";
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
-        const data = await res.json();
-        if (!data.models) {
-          msg.textContent = "⚠️ Clave inválida o sin modelos disponibles.";
-          return;
-        }
-        const select = document.getElementById("aiModelSelect");
-        const currentVal = select.value;
-        const validModels = data.models
-          .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
-          .map(m => m.name.replace(/^models\//, ""))
-          .filter(name => name.startsWith("gemini") && !name.includes("embedding") && !name.includes("tts"));
-
-        if (validModels.length > 0) {
-          select.innerHTML = "";
-          if (!validModels.includes("gemini-3.8-flash")) {
-            select.innerHTML += `<option value="gemini-3.8-flash">gemini-3.8-flash (Auto-Fallback + Web)</option>`;
-          }
-          validModels.reverse().forEach(m => {
-            select.innerHTML += `<option value="${m}">${m}</option>`;
-          });
-          if ([...select.options].some(o => o.value === currentVal)) {
-            select.value = currentVal;
-          }
-          msg.textContent = `✅ ${validModels.length} modelos detectados en tu cuenta.`;
-        }
-      } catch (e) {
-        msg.textContent = "Error al consultar modelos: " + e.message;
-      }
     }
 
     function saveAiConfiguration() {
@@ -2210,25 +2200,38 @@
       }
       localStorage.setItem("birapp_gemini_model", model);
 
-      // Guardar también en el servidor (Google Apps Script PropertiesService) para compartir entre teléfonos
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          action: "saveAiConfig",
-          payload: { apiKey: key, model: model }
-        })
-      })
-        .then(r => r.json())
-        .then(res => {
-          if (res && res.hasAiKey) serverHasAiKey = true;
-          updateAiIndicator();
-        })
-        .catch(() => {});
-
       updateAiIndicator();
       closeAiModal();
-      showToast("✨ Configuración de IA guardada");
+      showToast("⚡ Configuración de IA Turbo guardada");
+    }
+
+    // Crea una miniatura ligera (~15 KB) exclusiva para enviar a la IA en milisegundos
+    function createFastAiThumbnail(dataUrl) {
+      return new Promise(resolve => {
+        if (!dataUrl) return resolve("");
+        const img = new Image();
+        img.onload = () => {
+          const MAX_DIM = 440;
+          let w = img.width;
+          let h = img.height;
+          if (w > MAX_DIM || h > MAX_DIM) {
+            if (w > h) {
+              h = Math.round((h * MAX_DIM) / w);
+              w = MAX_DIM;
+            } else {
+              w = Math.round((w * MAX_DIM) / h);
+              h = MAX_DIM;
+            }
+          }
+          const c = document.createElement("canvas");
+          c.width = w;
+          c.height = h;
+          c.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL("image/jpeg", 0.65));
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      });
     }
 
     async function triggerAiAnalysis() {
@@ -2242,7 +2245,7 @@
       }
 
       const localKey = getLocalAiKey();
-      if (!localKey && !serverHasAiKey) {
+      if (!localKey) {
         openAiModal();
         showToast("Configura tu API Key gratuita de Gemini primero");
         return;
@@ -2251,46 +2254,41 @@
       const btn = document.getElementById("btnAnalyzeAi");
       const btnText = document.getElementById("btnAnalyzeAiText");
       btn.disabled = true;
-      btnText.textContent = "🔍 Leyendo etiqueta y buscando en la web...";
+      btnText.textContent = "⚡ Analizando etiqueta (2 seg)...";
 
       try {
-        let aiData = null;
+        const fastThumb = imgBase64 ? await createFastAiThumbnail(imgBase64) : "";
 
-        // Si tenemos la API Key en el dispositivo, consultamos directamente a Gemini con Google Search Grounding (más rápido)
-        if (localKey) {
-          aiData = await analyzeDirectClientGemini(localKey, getLocalAiModel(), imgBase64, hintNombre, hintCerveceria);
+        // FASE 1: Lectura ultrarrápida (1.5 a 2.5 seg) sin bloqueo de thinking
+        const step1Data = await runFastVisionStep(localKey, getLocalAiModel(), fastThumb, hintNombre, hintCerveceria);
+        if (step1Data) {
+          applyAiFieldsToForm(step1Data);
         }
 
-        // Si no hay clave local o si queremos usar la clave guardada en Google Apps Script
-        if (!aiData) {
-          const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({
-              action: "analyzeBeerImage",
-              payload: {
-                apiKey: localKey,
-                model: getLocalAiModel(),
-                imageBase64: imgBase64,
-                nombre: hintNombre,
-                cerveceria: hintCerveceria,
-                knownBreweries: knownBreweries,
-                knownStyles: knownStyles
-              }
-            })
-          });
-          const resJson = await response.json();
-          if (resJson && resJson.success && resJson.data) {
-            aiData = resJson.data;
-          } else if (resJson && resJson.error) {
-            throw new Error(resJson.error);
+        // FASE 2 (Opcional): Si en la foto solo salía el nombre/marca y faltó el °ALC, IBU o Estilo,
+        // hacemos una búsqueda web rápida SOLO DE TEXTO (con timeout estricto de 7 segundos)
+        const currentNombre = document.getElementById("nombre").value.trim();
+        const currentCerveceria = document.getElementById("cerveceria").value.trim();
+        const missingTechSpecs = !document.getElementById("alc").value.trim() || !document.getElementById("ibu").value.trim() || !document.getElementById("estilo").value.trim();
+
+        if ((currentNombre || currentCerveceria) && (missingTechSpecs || !fastThumb)) {
+          btnText.textContent = "🌐 Buscando °ALC e IBU en la web...";
+          const webData = await runFastWebLookupStep(localKey, currentNombre, currentCerveceria);
+          if (webData) {
+            applyAiFieldsToForm({
+              nombre: webData.nombre || currentNombre,
+              cerveceria: webData.cerveceria || currentCerveceria,
+              estilo: webData.estilo || document.getElementById("estilo").value.trim(),
+              alc: webData.alc || document.getElementById("alc").value.trim(),
+              ibu: webData.ibu || document.getElementById("ibu").value.trim(),
+              notasSugeridas: webData.notasSugeridas || document.getElementById("comentario").value.trim(),
+              modeloUsado: "Gemini Turbo",
+              fuente: "Etiqueta + Web"
+            });
           }
         }
 
-        if (aiData) {
-          applyAiFieldsToForm(aiData);
-          showToast("✨ Datos completados por IA + Búsqueda Web");
-        }
+        showToast("✨ ¡Datos completados con IA!");
       } catch (err) {
         alert("No se pudo autocompletar con IA: " + err.message);
       } finally {
@@ -2299,108 +2297,109 @@
       }
     }
 
-    async function analyzeDirectClientGemini(apiKey, preferredModel, imageBase64, hintNombre, hintCerveceria) {
+    async function fetchWithTimeout(url, options, timeoutMs) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function runFastVisionStep(apiKey, preferredModel, imageBase64, hintNombre, hintCerveceria) {
       const promptText = [
-        "Eres un maestro sommelier cervecero experto en cervezas artesanales y comerciales (especialmente de Chile, Latinoamérica y el mundo).",
-        "Tu tarea es identificar la cerveza a partir de la foto de la botella/lata/etiqueta y/o las pistas de texto.",
-        hintNombre ? ("Pista de Nombre escrita por el usuario: " + hintNombre) : "",
-        hintCerveceria ? ("Pista de Cervecería escrita por el usuario: " + hintCerveceria) : "",
-        knownBreweries.length ? ("Cervecerías ya registradas en la colección del usuario (usa exactamente el mismo nombre si coincide): " + knownBreweries.join(", ")) : "",
-        knownStyles.length ? ("Estilos ya registrados en la colección del usuario: " + knownStyles.join(", ")) : "",
-        "",
-        "INSTRUCCIONES CRÍTICAS:",
-        "1. Identifica en la foto el Nombre de la cerveza y la Cervecería/Marca.",
-        "2. Muchas veces en la foto frontal NO aparece el Estilo/Variedad, la graduación alcohólica (° ALC / % ABV) o el amargor (IBU).",
-        "3. USA LA BÚSQUEDA WEB (Google Search) para buscar el nombre de la cerveza y su cervecería en internet (Untappd, web oficial de la cervecería, tiendas cerveceras como Casa de la Cerveza, Beervana, etc.) y obtener el Estilo exacto, ° ALC y el IBU oficial.",
-        "4. Para 'alc' devuelve sólo el número (ejemplo: '5.5'). Para 'ibu' devuelve sólo el número entero (ejemplo: '25'), o '' si no existe dato.",
-        "5. Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional fuera del JSON:",
-        '{',
-        '  "nombre": "Nombre específico de la cerveza/variedad",',
-        '  "cerveceria": "Nombre de la Cervecería o Marca",',
-        '  "estilo": "Estilo de cerveza (ej. Amber Lager, Hazy IPA, Oatmeal Stout...)",',
-        '  "alc": "5.5",',
-        '  "ibu": "18",',
-        '  "notasSugeridas": "Breve nota de cata de 1 oración sobre su perfil",',
-        '  "fuente": "Etiqueta + Búsqueda Web"',
-        '}'
+        "Eres un experto en cervezas artesanales y comerciales (especialmente chilenas e internacionales).",
+        "Extrae los datos de la cerveza a partir de la imagen y/o pistas.",
+        hintNombre ? ("Pista Nombre: " + hintNombre) : "",
+        hintCerveceria ? ("Pista Cervecería: " + hintCerveceria) : "",
+        knownBreweries.length ? ("Cervecerías conocidas del usuario (usa el mismo nombre si coincide): " + knownBreweries.join(", ")) : "",
+        "Si reconoces esta cerveza comercial/artesanal, completa también su estilo, °ALC (% alcohol, solo número ej '5.5') e IBU (solo número ej '20'). Si no estás seguro de alc o ibu y no salen en la foto, déjalos en ''.",
+        "Devuelve SOLO este JSON:",
+        '{"nombre":"","cerveceria":"","estilo":"","alc":"","ibu":"","notasSugeridas":""}'
       ].filter(Boolean).join("\n");
 
       const parts = [{ text: promptText }];
       if (imageBase64) {
         const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, "");
-        parts.push({
-          inline_data: {
-            mime_type: "image/jpeg",
-            data: cleanBase64
-          }
-        });
+        parts.push({ inline_data: { mime_type: "image/jpeg", data: cleanBase64 } });
       }
 
-      // Descubrir modelos activos en la cuenta para evitar 404 y priorizar el modelo elegido (ej. gemini-3.8-flash)
-      let candidates = [preferredModel, "gemini-3.8-flash", "gemini-3.5-flash", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"];
-      try {
-        const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`);
-        if (listRes.ok) {
-          const listJson = await listRes.json();
-          const available = (listJson.models || [])
-            .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
-            .map(m => m.name.replace(/^models\//, ""));
-          if (available.length > 0) {
-            const matched = candidates.filter(c => available.includes(c));
-            const extraFlashOrPro = available.filter(a => a.startsWith("gemini-") && (a.includes("flash") || a.includes("pro")) && !matched.includes(a)).reverse();
-            candidates = [...new Set([...matched, ...extraFlashOrPro])];
-          }
-        }
-      } catch (_) {}
+      const modelsToTry = preferredModel === "gemini-2.0-flash"
+        ? ["gemini-2.0-flash", "gemini-2.5-flash"]
+        : ["gemini-2.5-flash", "gemini-2.0-flash"];
 
       let lastErr = "";
-      for (const model of candidates) {
-        // Intento con Google Search Grounding
-        const grounded = await tryClientModelCall(model, apiKey, parts, true);
-        if (grounded.ok) {
-          grounded.data.modeloUsado = model;
-          return grounded.data;
+      for (const model of modelsToTry) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const body = {
+          contents: [{ parts }],
+          generationConfig: {
+            temperature: 0.1,
+            responseMimeType: "application/json"
+          }
+        };
+        if (model.startsWith("gemini-2.5")) {
+          body.generationConfig.thinkingConfig = { thinkingBudget: 0 };
         }
-        // Fallback sin tool si el modelo rechaza tools
-        const fallback = await tryClientModelCall(model, apiKey, parts, false);
-        if (fallback.ok) {
-          fallback.data.modeloUsado = model;
-          return fallback.data;
+
+        try {
+          const res = await fetchWithTimeout(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          }, 8000);
+
+          if (!res.ok) {
+            lastErr = `HTTP ${res.status}`;
+            continue;
+          }
+          const json = await res.json();
+          const text = json?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "";
+          const parsed = parseAiJson(text);
+          if (parsed) {
+            parsed.modeloUsado = model;
+            parsed.fuente = "Lectura Instantánea";
+            return parsed;
+          }
+        } catch (e) {
+          lastErr = e.name === "AbortError" ? "Tiempo de espera agotado" : e.message;
         }
-        lastErr = grounded.error || fallback.error;
       }
-      throw new Error(lastErr || "No se pudo conectar con Gemini.");
+      if (!imageBase64) return null;
+      throw new Error(lastErr || "Error al analizar la imagen");
     }
 
-    async function tryClientModelCall(model, apiKey, parts, useSearch) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    async function runFastWebLookupStep(apiKey, nombre, cerveceria) {
+      const searchPrompt = [
+        `Busca en la web la ficha técnica de la cerveza "${nombre}" de la cervecería "${cerveceria}" (Chile / artesanal / Untappd).`,
+        "Necesito su Estilo exacto, graduación alcohólica (°ALC / % ABV, solo número ej '5.5') e IBU (solo número entero ej '18').",
+        "Responde ÚNICAMENTE con un objeto JSON válido sin texto extra:",
+        '{"nombre":"","cerveceria":"","estilo":"","alc":"","ibu":"","notasSugeridas":""}'
+      ].join("\n");
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
       const body = {
-        contents: [{ parts }],
-        generationConfig: { temperature: 0.2 }
+        contents: [{ parts: [{ text: searchPrompt }] }],
+        tools: [{ google_search: {} }],
+        generationConfig: {
+          temperature: 0.1,
+          thinkingConfig: { thinkingBudget: 0 }
+        }
       };
-      if (useSearch) {
-        body.tools = [{ google_search: {} }];
-      } else {
-        body.generationConfig.responseMimeType = "application/json";
-      }
 
       try {
-        const res = await fetch(url, {
+        const res = await fetchWithTimeout(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body)
-        });
-        if (!res.ok) {
-          const errTxt = await res.text();
-          return { ok: false, error: `${model}: HTTP ${res.status}` };
-        }
+        }, 7000);
+        if (!res.ok) return null;
         const json = await res.json();
         const text = json?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "";
-        const parsed = parseAiJson(text);
-        if (!parsed) return { ok: false, error: "JSON vacío" };
-        return { ok: true, data: parsed };
-      } catch (e) {
-        return { ok: false, error: e.message };
+        return parseAiJson(text);
+      } catch (_) {
+        return null;
       }
     }
 
@@ -2806,14 +2805,8 @@
 
       const action = data.id ? "updateCerveza" : "addCerveza";
 
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: action, payload: data })
-      })
-        .then(res => res.json())
+      apiPost(action, { data: data, payload: data })
         .then(response => {
-          if (response && response.error) throw new Error(response.error);
           cervezasData = Array.isArray(response) ? response : cervezasData;
           extractSuggestionsFromData(cervezasData);
           applyFiltersAndRender();
@@ -2895,12 +2888,7 @@
       if (!confirm("¿Seguro que deseas eliminar permanentemente esta cerveza de la planilla?")) return;
 
       showToast("Eliminando registro...");
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "deleteCerveza", id: id })
-      })
-        .then(res => res.json())
+      apiPost("deleteCerveza", { id: id })
         .then(data => {
           cervezasData = Array.isArray(data) ? data : [];
           applyFiltersAndRender();
