@@ -1675,11 +1675,14 @@
 
       <div class="form-group" style="margin-bottom:8px;">
         <label for="aiModelSelect">
-          <span>Velocidad / Modelo de IA</span>
+          <span>Modelo de IA Preferido</span>
+          <button type="button" class="unrated-toggle" onclick="detectModelsFromApi()">Detectar de mi cuenta</button>
         </label>
         <select id="aiModelSelect">
-          <option value="gemini-2.5-flash">⚡ gemini-2.5-flash (Modo Turbo 2 seg + Web)</option>
-          <option value="gemini-2.0-flash">🚀 gemini-2.0-flash (Ultra Rápido)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Recomendado)</option>
+          <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Rápido)</option>
+          <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview</option>
+          <option value="gemini-4-argon">gemini-4-argon</option>
         </select>
       </div>
 
@@ -2153,18 +2156,18 @@
     }
 
     // =========================================================================
-    // INTEGRACIÓN IA MODO TURBO (2-4 SEGUNDOS CON GEMINI FLASH + WEB)
+    // INTEGRACIÓN IA (GEMINI 3.8 FLASH / 3.5 FLASH LITE + BÚSQUEDA WEB RÁPIDA)
     // =========================================================================
     function getLocalAiKey() {
       return (localStorage.getItem("birapp_gemini_key") || "").trim();
     }
 
     function getLocalAiModel() {
-      const saved = localStorage.getItem("birapp_gemini_model") || "gemini-2.5-flash";
-      // Migrar automáticamente modelos lentos o inexistentes al modo turbo gemini-2.5-flash
-      if (saved !== "gemini-2.5-flash" && saved !== "gemini-2.0-flash") {
-        localStorage.setItem("birapp_gemini_model", "gemini-2.5-flash");
-        return "gemini-2.5-flash";
+      const saved = localStorage.getItem("birapp_gemini_model") || "gemini-3.8-flash";
+      // Si había quedado guardado 2.5 por el cambio anterior, restaurar a gemini-3.8-flash
+      if (saved.startsWith("gemini-2.")) {
+        localStorage.setItem("birapp_gemini_model", "gemini-3.8-flash");
+        return "gemini-3.8-flash";
       }
       return saved;
     }
@@ -2180,15 +2183,57 @@
 
     function openAiModal() {
       document.getElementById("aiApiKeyInput").value = getLocalAiKey();
-      document.getElementById("aiModelSelect").value = getLocalAiModel();
+      const select = document.getElementById("aiModelSelect");
+      const currentModel = getLocalAiModel();
+      if (![...select.options].some(o => o.value === currentModel)) {
+        select.innerHTML = `<option value="${escapeHtml(currentModel)}">${escapeHtml(currentModel)}</option>` + select.innerHTML;
+      }
+      select.value = currentModel;
       document.getElementById("aiConfigStatusMsg").textContent = getLocalAiKey()
-        ? "⚡ Modo Turbo activo (respuesta en 2 a 4 segundos)."
+        ? `✅ Usando modelo: ${currentModel}`
         : "";
       document.getElementById("aiConfigModal").classList.add("open");
     }
 
     function closeAiModal() {
       document.getElementById("aiConfigModal").classList.remove("open");
+    }
+
+    async function detectModelsFromApi() {
+      const key = document.getElementById("aiApiKeyInput").value.trim() || getLocalAiKey();
+      const msg = document.getElementById("aiConfigStatusMsg");
+      if (!key) {
+        msg.textContent = "⚠️ Primero pega tu API Key arriba.";
+        return;
+      }
+      msg.textContent = "Consultando modelos en tu cuenta de AI Studio...";
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
+        const data = await res.json();
+        if (!data.models) {
+          msg.textContent = "⚠️ Clave inválida o sin modelos disponibles.";
+          return;
+        }
+        const select = document.getElementById("aiModelSelect");
+        const currentVal = select.value;
+        const validModels = data.models
+          .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
+          .map(m => m.name.replace(/^models\//, ""))
+          .filter(name => name.startsWith("gemini") && !name.includes("embedding") && !name.includes("tts"));
+
+        if (validModels.length > 0) {
+          select.innerHTML = "";
+          validModels.forEach(m => {
+            select.innerHTML += `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`;
+          });
+          if ([...select.options].some(o => o.value === currentVal)) {
+            select.value = currentVal;
+          }
+          msg.textContent = `✅ ${validModels.length} modelos cargados desde tu Google AI Studio.`;
+        }
+      } catch (e) {
+        msg.textContent = "Error al consultar modelos: " + e.message;
+      }
     }
 
     function saveAiConfiguration() {
@@ -2202,7 +2247,7 @@
 
       updateAiIndicator();
       closeAiModal();
-      showToast("⚡ Configuración de IA Turbo guardada");
+      showToast(`✨ Modelo ${model} guardado`);
     }
 
     // Crea una miniatura ligera (~15 KB) exclusiva para enviar a la IA en milisegundos
@@ -2211,7 +2256,7 @@
         if (!dataUrl) return resolve("");
         const img = new Image();
         img.onload = () => {
-          const MAX_DIM = 440;
+          const MAX_DIM = 480;
           let w = img.width;
           let h = img.height;
           if (w > MAX_DIM || h > MAX_DIM) {
@@ -2227,7 +2272,7 @@
           c.width = w;
           c.height = h;
           c.getContext("2d").drawImage(img, 0, 0, w, h);
-          resolve(c.toDataURL("image/jpeg", 0.65));
+          resolve(c.toDataURL("image/jpeg", 0.68));
         };
         img.onerror = () => resolve(dataUrl);
         img.src = dataUrl;
@@ -2251,29 +2296,33 @@
         return;
       }
 
+      const selectedModel = getLocalAiModel();
       const btn = document.getElementById("btnAnalyzeAi");
       const btnText = document.getElementById("btnAnalyzeAiText");
       btn.disabled = true;
-      btnText.textContent = "⚡ Analizando etiqueta (2 seg)...";
+      btnText.textContent = `⚡ Leyendo etiqueta con ${selectedModel}...`;
 
       try {
         const fastThumb = imgBase64 ? await createFastAiThumbnail(imgBase64) : "";
 
-        // FASE 1: Lectura ultrarrápida (1.5 a 2.5 seg) sin bloqueo de thinking
-        const step1Data = await runFastVisionStep(localKey, getLocalAiModel(), fastThumb, hintNombre, hintCerveceria);
-        if (step1Data) {
-          applyAiFieldsToForm(step1Data);
+        // FASE 1: Lectura visual directa SIN google_search para que gemini-3.8-flash / 3.5-flash-lite
+        // no entre en bucle de agente de largo horizonte mientras procesa la imagen
+        if (fastThumb) {
+          const step1Data = await runFastVisionStep(localKey, selectedModel, fastThumb, hintNombre, hintCerveceria);
+          if (step1Data) {
+            applyAiFieldsToForm(step1Data);
+          }
         }
 
-        // FASE 2 (Opcional): Si en la foto solo salía el nombre/marca y faltó el °ALC, IBU o Estilo,
-        // hacemos una búsqueda web rápida SOLO DE TEXTO (con timeout estricto de 7 segundos)
+        // FASE 2 (Solo si faltan °ALC, IBU o Estilo, o si se buscó por texto sin foto):
+        // Consulta rápida SOLO DE TEXTO con búsqueda web acotada a 12 segundos máximo
         const currentNombre = document.getElementById("nombre").value.trim();
         const currentCerveceria = document.getElementById("cerveceria").value.trim();
         const missingTechSpecs = !document.getElementById("alc").value.trim() || !document.getElementById("ibu").value.trim() || !document.getElementById("estilo").value.trim();
 
         if ((currentNombre || currentCerveceria) && (missingTechSpecs || !fastThumb)) {
           btnText.textContent = "🌐 Buscando °ALC e IBU en la web...";
-          const webData = await runFastWebLookupStep(localKey, currentNombre, currentCerveceria);
+          const webData = await runFastWebLookupStep(localKey, selectedModel, currentNombre, currentCerveceria);
           if (webData) {
             applyAiFieldsToForm({
               nombre: webData.nombre || currentNombre,
@@ -2282,7 +2331,7 @@
               alc: webData.alc || document.getElementById("alc").value.trim(),
               ibu: webData.ibu || document.getElementById("ibu").value.trim(),
               notasSugeridas: webData.notasSugeridas || document.getElementById("comentario").value.trim(),
-              modeloUsado: "Gemini Turbo",
+              modeloUsado: webData.modeloUsado || selectedModel,
               fuente: "Etiqueta + Web"
             });
           }
@@ -2309,29 +2358,27 @@
 
     async function runFastVisionStep(apiKey, preferredModel, imageBase64, hintNombre, hintCerveceria) {
       const promptText = [
-        "Eres un experto en cervezas artesanales y comerciales (especialmente chilenas e internacionales).",
-        "Extrae los datos de la cerveza a partir de la imagen y/o pistas.",
+        "Extrae de inmediato los datos de la cerveza de esta imagen.",
         hintNombre ? ("Pista Nombre: " + hintNombre) : "",
         hintCerveceria ? ("Pista Cervecería: " + hintCerveceria) : "",
         knownBreweries.length ? ("Cervecerías conocidas del usuario (usa el mismo nombre si coincide): " + knownBreweries.join(", ")) : "",
-        "Si reconoces esta cerveza comercial/artesanal, completa también su estilo, °ALC (% alcohol, solo número ej '5.5') e IBU (solo número ej '20'). Si no estás seguro de alc o ibu y no salen en la foto, déjalos en ''.",
-        "Devuelve SOLO este JSON:",
+        "Si conoces esta cerveza comercial/artesanal o se lee en la etiqueta, completa también su estilo, °ALC (solo número ej '5.5') e IBU (solo número ej '20'). Si no salen en la foto y no los conoces con certeza, déjalos en ''.",
+        "Responde inmediatamente SOLO con este objeto JSON:",
         '{"nombre":"","cerveceria":"","estilo":"","alc":"","ibu":"","notasSugeridas":""}'
       ].filter(Boolean).join("\n");
 
-      const parts = [{ text: promptText }];
-      if (imageBase64) {
-        const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, "");
-        parts.push({ inline_data: { mime_type: "image/jpeg", data: cleanBase64 } });
-      }
+      const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, "");
+      const parts = [
+        { text: promptText },
+        { inline_data: { mime_type: "image/jpeg", data: cleanBase64 } }
+      ];
 
-      const modelsToTry = preferredModel === "gemini-2.0-flash"
-        ? ["gemini-2.0-flash", "gemini-2.5-flash"]
-        : ["gemini-2.5-flash", "gemini-2.0-flash"];
+      // Probar el modelo elegido (ej. gemini-3.8-flash) y como respaldo rápido gemini-3.5-flash-lite
+      const modelsToTry = [...new Set([preferredModel, "gemini-3.8-flash", "gemini-3.5-flash-lite"])];
 
       let lastErr = "";
       for (const model of modelsToTry) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
         const body = {
           contents: [{ parts }],
           generationConfig: {
@@ -2339,19 +2386,16 @@
             responseMimeType: "application/json"
           }
         };
-        if (model.startsWith("gemini-2.5")) {
-          body.generationConfig.thinkingConfig = { thinkingBudget: 0 };
-        }
 
         try {
           const res = await fetchWithTimeout(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
-          }, 8000);
+          }, 12000);
 
           if (!res.ok) {
-            lastErr = `HTTP ${res.status}`;
+            lastErr = `${model}: HTTP ${res.status}`;
             continue;
           }
           const json = await res.json();
@@ -2359,48 +2403,54 @@
           const parsed = parseAiJson(text);
           if (parsed) {
             parsed.modeloUsado = model;
-            parsed.fuente = "Lectura Instantánea";
+            parsed.fuente = "Lectura Etiqueta";
             return parsed;
           }
         } catch (e) {
-          lastErr = e.name === "AbortError" ? "Tiempo de espera agotado" : e.message;
+          lastErr = e.name === "AbortError" ? `Timeout en ${model}` : e.message;
         }
       }
-      if (!imageBase64) return null;
       throw new Error(lastErr || "Error al analizar la imagen");
     }
 
-    async function runFastWebLookupStep(apiKey, nombre, cerveceria) {
+    async function runFastWebLookupStep(apiKey, preferredModel, nombre, cerveceria) {
       const searchPrompt = [
-        `Busca en la web la ficha técnica de la cerveza "${nombre}" de la cervecería "${cerveceria}" (Chile / artesanal / Untappd).`,
-        "Necesito su Estilo exacto, graduación alcohólica (°ALC / % ABV, solo número ej '5.5') e IBU (solo número entero ej '18').",
-        "Responde ÚNICAMENTE con un objeto JSON válido sin texto extra:",
+        `Haz UNA sola búsqueda rápida para la cerveza "${nombre}" de la cervecería "${cerveceria}" (Chile / artesanal / Untappd).`,
+        "Obtén su Estilo, °ALC (% ABV, solo número ej '5.5') e IBU (solo número entero ej '18').",
+        "No hagas búsquedas adicionales. Responde DE INMEDIATO únicamente con este JSON:",
         '{"nombre":"","cerveceria":"","estilo":"","alc":"","ibu":"","notasSugeridas":""}'
       ].join("\n");
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
-      const body = {
-        contents: [{ parts: [{ text: searchPrompt }] }],
-        tools: [{ google_search: {} }],
-        generationConfig: {
-          temperature: 0.1,
-          thinkingConfig: { thinkingBudget: 0 }
-        }
-      };
+      // Para la fase de búsqueda web rápida priorizamos el modelo elegido y gemini-3.5-flash-lite
+      const modelsToTry = [...new Set(["gemini-3.5-flash-lite", preferredModel, "gemini-3.8-flash"])];
 
-      try {
-        const res = await fetchWithTimeout(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        }, 7000);
-        if (!res.ok) return null;
-        const json = await res.json();
-        const text = json?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "";
-        return parseAiJson(text);
-      } catch (_) {
-        return null;
+      for (const model of modelsToTry) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const body = {
+          contents: [{ parts: [{ text: searchPrompt }] }],
+          tools: [{ google_search: {} }],
+          generationConfig: {
+            temperature: 0.1
+          }
+        };
+
+        try {
+          const res = await fetchWithTimeout(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          }, 12000);
+          if (!res.ok) continue;
+          const json = await res.json();
+          const text = json?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "";
+          const parsed = parseAiJson(text);
+          if (parsed) {
+            parsed.modeloUsado = model;
+            return parsed;
+          }
+        } catch (_) {}
       }
+      return null;
     }
 
     function parseAiJson(text) {
