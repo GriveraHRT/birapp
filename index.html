@@ -4,8 +4,8 @@
 <head>
   <base target="_top">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
-  <meta name="theme-color" content="#1C1410" id="metaThemeColor">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#231812" id="metaThemeColor">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,7 +13,8 @@
   <title>Birapp — Bodega Cervecera</title>
 
   <!-- Iconos y Manifiesto PWA para iOS y Android -->
-  <link rel="apple-touch-icon" href="./assets/icon-cheers.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png">
   <link rel="icon" type="image/svg+xml" href="./assets/icon-cheers.svg">
   <link rel="manifest" href="./manifest.json">
 
@@ -54,6 +55,9 @@
       --danger: #DC2626;
       --danger-bg: #FEF2F2;
       --success: #16A34A;
+      --warn-bg: #FEF3C7;
+      --warn-border: #F59E0B;
+      --warn-text: #78350F;
       --ai-accent: #7C3AED;
       --ai-gradient: linear-gradient(135deg, #D97706 0%, #9333EA 100%);
     }
@@ -90,6 +94,9 @@
       --danger: #F87171;
       --danger-bg: #351616;
       --success: #4ADE80;
+      --warn-bg: rgba(245, 158, 11, 0.16);
+      --warn-border: #D97706;
+      --warn-text: #FDE68A;
     }
 
     * {
@@ -191,7 +198,12 @@
       background: rgba(255, 255, 255, 0.18);
     }
 
-    .ai-status-dot {
+    .icon-btn.syncing svg {
+      animation: spin 0.85s linear infinite;
+    }
+
+    .ai-status-dot,
+    .sync-pending-dot {
       position: absolute;
       top: 6px;
       right: 6px;
@@ -207,11 +219,55 @@
       box-shadow: 0 0 6px #22C55E;
     }
 
+    .sync-pending-dot {
+      display: none;
+      background: #F59E0B;
+      box-shadow: 0 0 6px #F59E0B;
+    }
+
+    .sync-pending-dot.visible {
+      display: block;
+    }
+
     /* MAIN CONTAINER */
     .container {
       padding: 18px 16px;
       max-width: 600px;
       margin: 0 auto;
+    }
+
+    /* OFFLINE / QUEUE BANNER */
+    .offline-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-text);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .offline-banner.visible {
+      display: flex;
+    }
+
+    .offline-sync-btn {
+      background: var(--primary);
+      color: #FFF;
+      border: none;
+      border-radius: 9px;
+      padding: 6px 10px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .section {
@@ -247,6 +303,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 10px;
       margin-bottom: 16px;
     }
 
@@ -371,6 +428,7 @@
       background: #14100E;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
       border: 2px solid var(--border-strong);
+      cursor: pointer;
     }
 
     .photo-preview-frame img {
@@ -460,9 +518,37 @@
       color: var(--text-main);
       font-size: 12.5px;
       font-weight: 600;
+      line-height: 1.35;
     }
 
     .ai-badge-result.visible {
+      display: flex;
+    }
+
+    .ai-badge-result.warning {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+      color: var(--warn-text);
+    }
+
+    /* DUPLICATE ALERT */
+    .duplicate-alert {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding: 11px 13px;
+      border-radius: 13px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-text);
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .duplicate-alert.visible {
       display: flex;
     }
 
@@ -568,6 +654,11 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .taster-card.is-unrated .rating-slider {
+      opacity: 0.4;
     }
 
     .taster-header {
@@ -645,11 +736,22 @@
       border-radius: 99px;
       background: var(--border-strong);
       outline: none;
+      transition: opacity 0.2s;
     }
 
     .rating-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: 3px solid #FFF;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    .rating-slider::-moz-range-thumb {
       width: 24px;
       height: 24px;
       border-radius: 50%;
@@ -731,7 +833,7 @@
     .search-bar input {
       border-radius: 16px;
       padding-left: 44px;
-      padding-right: 38px;
+      padding-right: 40px;
       background-color: var(--surface);
       box-shadow: var(--card-shadow);
       border: 1.5px solid var(--border);
@@ -744,6 +846,29 @@
       transform: translateY(-50%);
       color: var(--text-muted);
       pointer-events: none;
+    }
+
+    .clear-search-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: var(--surface-alt);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clear-search-btn.visible {
+      display: flex;
     }
 
     .filter-chips {
@@ -783,7 +908,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
     .subfilter-row select {
@@ -792,6 +917,21 @@
       font-weight: 600;
       border-radius: 11px;
       background-color: var(--surface);
+    }
+
+    .results-summary {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding: 0 4px;
+    }
+
+    .results-summary.visible {
+      display: flex;
     }
 
     /* BEER LIST ITEMS */
@@ -906,6 +1046,12 @@
       border-color: transparent;
     }
 
+    .meta-pill.pending {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-color: var(--warn-border);
+    }
+
     .beer-score-box {
       background: var(--primary-Soft);
       border: 1px solid rgba(200, 109, 20, 0.25);
@@ -1009,6 +1155,30 @@
       color: var(--text-main);
     }
 
+    .detalle-notes {
+      margin-bottom: 22px;
+      color: var(--text-main);
+      line-height: 1.55;
+      font-size: 14.5px;
+      background: var(--surface-alt);
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      white-space: pre-line;
+      word-break: break-word;
+    }
+
+    .detalle-actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .detalle-actions-grid .btn {
+      padding: 13px 10px;
+      font-size: 14px;
+    }
+
     /* STATS / RANKING SECTION */
     .stats-kpi-grid {
       display: grid;
@@ -1059,16 +1229,23 @@
 
     /* BOTTOM NAVIGATION */
     .tabs {
-      display: flex;
-      justify-content: space-around;
       background: var(--surface);
       position: fixed;
       bottom: 0;
+      left: 0;
+      right: 0;
       width: 100%;
       box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
       border-top: 1px solid var(--border);
       z-index: 100;
       padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .tabs-inner {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
     }
 
     .tab-btn {
@@ -1234,6 +1411,8 @@
 
     #toast {
       visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
       min-width: 220px;
       max-width: 90vw;
       background-color: #1F1612;
@@ -1246,25 +1425,17 @@
       z-index: 1000;
       bottom: calc(84px + env(safe-area-inset-bottom));
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, 10px);
       font-weight: 700;
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
       font-size: 13.5px;
+      transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
     }
 
     #toast.show {
       visibility: visible;
-      animation: fadein 0.25s, fadeout 0.25s 2.9s;
-    }
-
-    @keyframes fadein {
-      from { opacity: 0; transform: translate(-50%, 12px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
-    }
-
-    @keyframes fadeout {
-      from { opacity: 1; transform: translate(-50%, 0); }
-      to { opacity: 0; transform: translate(-50%, 12px); }
+      opacity: 1;
+      transform: translate(-50%, 0);
     }
   </style>
 </head>
@@ -1286,11 +1457,20 @@
         </div>
         <div class="brand-text">
           <h1>Birapp</h1>
-          <span>Karina & Guillermo</span>
+          <span>Karina &amp; Guillermo</span>
         </div>
       </div>
 
       <div class="header-actions">
+        <button type="button" class="icon-btn" id="syncBtn" onclick="manualSync()" title="Sincronizar con Google Sheets">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+            <path d="M16 16h5v5" />
+          </svg>
+          <span class="sync-pending-dot" id="syncPendingDot"></span>
+        </button>
         <button type="button" class="icon-btn" onclick="openAiModal()" title="Configurar IA Gratuita (Gemini)">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
@@ -1308,6 +1488,11 @@
 
   <div class="container">
 
+    <div class="offline-banner" id="offlineBanner">
+      <span id="offlineBannerText">📡 Sin conexión. Mostrando bodega guardada en tu teléfono.</span>
+      <button type="button" class="offline-sync-btn" id="btnSyncNow" onclick="manualSync()">Subir ahora</button>
+    </div>
+
     <!-- ================================================================== -->
     <!-- SECCIÓN 1: NUEVA CATA / EDITAR REGISTRO                            -->
     <!-- ================================================================== -->
@@ -1315,6 +1500,7 @@
       <div class="card">
         <div class="section-title-row">
           <h2 class="section-title" id="formTitle">🍺 Registrar Cerveza</h2>
+          <button type="button" class="unrated-toggle" id="btnResetDraft" style="display:none;" onclick="confirmClearDraft()">Limpiar</button>
         </div>
 
         <form id="beerForm" onsubmit="saveBeer(event)">
@@ -1383,7 +1569,7 @@
               <span id="btnAnalyzeAiText">✨ Autocompletar con IA + Web</span>
             </button>
             <div class="ai-hint-caption">
-              Lee el nombre en tu foto (o lo que escribas abajo) y busca en la web el <b>Estilo, ° ALC e IBU</b> reales.
+              Lee la etiqueta en tu foto o busca sin foto (ideal para <b>barril / schop</b>) el <b>Estilo, °ALC e IBU</b>.
             </div>
             <div class="ai-badge-result" id="aiResultBanner">
               <span id="aiResultText">✨ Datos completados con Gemini</span>
@@ -1399,6 +1585,11 @@
           <div class="form-group">
             <label for="nombre">Nombre de la Cerveza</label>
             <input type="text" id="nombre" placeholder="Ej. Trauco, Belzeebú, Torobayo..." required>
+          </div>
+
+          <div class="duplicate-alert" id="duplicateAlert">
+            <span id="duplicateAlertText">⚠️ Ya registraron esta cerveza antes.</span>
+            <button type="button" class="offline-sync-btn" onclick="openDuplicateDetail()">Ver ficha</button>
           </div>
 
           <div class="form-group">
@@ -1443,7 +1634,7 @@
 
           <div class="taster-cards">
             <!-- Karina -->
-            <div class="taster-card">
+            <div class="taster-card is-unrated" id="cardKarina">
               <div class="taster-header">
                 <div class="taster-name">👩🏻 Karina</div>
                 <div class="taster-score-display">
@@ -1462,7 +1653,7 @@
             </div>
 
             <!-- Guillermo -->
-            <div class="taster-card">
+            <div class="taster-card is-unrated" id="cardGuillermo">
               <div class="taster-header">
                 <div class="taster-name">👨🏻 Guillermo</div>
                 <div class="taster-score-display">
@@ -1505,16 +1696,19 @@
           <circle cx="11" cy="11" r="8" />
           <path d="m21 21-4.3-4.3" />
         </svg>
-        <input type="text" id="searchInput" placeholder="Buscar por nombre, cervecería, estilo..." oninput="applyFiltersAndRender()">
+        <input type="text" id="searchInput" placeholder="Buscar por nombre, cervecería, estilo..." oninput="onSearchInput()">
+        <button type="button" class="clear-search-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="Limpiar búsqueda">✕</button>
       </div>
 
       <!-- Chips de Ordenamiento Rápido -->
       <div class="filter-chips">
         <button type="button" class="chip active" data-sort="recent" onclick="setSortMode('recent', this)">🕒 Recientes</button>
         <button type="button" class="chip" data-sort="best" onclick="setSortMode('best', this)">⭐ Mejor Nota</button>
+        <button type="button" class="chip" data-sort="unrated" onclick="setSortMode('unrated', this)">⏳ Sin puntuar</button>
         <button type="button" class="chip" data-sort="karina" onclick="setSortMode('karina', this)">👩🏻 Top Karina</button>
         <button type="button" class="chip" data-sort="guillermo" onclick="setSortMode('guillermo', this)">👨🏻 Top Guillermo</button>
         <button type="button" class="chip" data-sort="alc" onclick="setSortMode('alc', this)">🔥 Mayor °ALC</button>
+        <button type="button" class="chip" data-sort="ibu" onclick="setSortMode('ibu', this)">🌿 Mayor IBU</button>
       </div>
 
       <!-- Selectores rápidos por Cervecería y Estilo -->
@@ -1525,6 +1719,11 @@
         <select id="filterStyle" onchange="applyFiltersAndRender()">
           <option value="">🌾 Todos los estilos</option>
         </select>
+      </div>
+
+      <div class="results-summary" id="resultsSummary">
+        <span id="resultsSummaryText">0 cervezas</span>
+        <button type="button" class="unrated-toggle" id="btnResetFilters" style="display:none;" onclick="resetAllFilters()">Limpiar filtros</button>
       </div>
 
       <div id="loading" class="loading">
@@ -1556,33 +1755,35 @@
 
   <!-- NAVEGACIÓN INFERIOR -->
   <nav class="tabs">
-    <button type="button" class="tab-btn active" id="tab-nueva" onclick="switchTab('nueva-cata')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 8v8M8 12h8" />
-      </svg>
-      Añadir
-    </button>
-    <button type="button" class="tab-btn" id="tab-historial" onclick="switchTab('historial')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 11h1a3 3 0 0 1 0 6h-1" />
-        <path d="M9 12v6M13 12v6" />
-        <path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z" />
-        <path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8" />
-      </svg>
-      Bodega
-    </button>
-    <button type="button" class="tab-btn" id="tab-estadisticas" onclick="switchTab('estadisticas')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
-        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
-        <path d="M4 22h16" />
-        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
-        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
-        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
-      </svg>
-      Ranking
-    </button>
+    <div class="tabs-inner">
+      <button type="button" class="tab-btn active" id="tab-nueva" onclick="switchTab('nueva-cata')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 8v8M8 12h8" />
+        </svg>
+        Añadir
+      </button>
+      <button type="button" class="tab-btn" id="tab-historial" onclick="switchTab('historial')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 11h1a3 3 0 0 1 0 6h-1" />
+          <path d="M9 12v6M13 12v6" />
+          <path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z" />
+          <path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8" />
+        </svg>
+        Bodega
+      </button>
+      <button type="button" class="tab-btn" id="tab-estadisticas" onclick="switchTab('estadisticas')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+          <path d="M4 22h16" />
+          <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+        </svg>
+        Ranking
+      </button>
+    </div>
   </nav>
 
   <!-- ================================================================== -->
@@ -1607,7 +1808,7 @@
       <div class="cropper-controls">
         <div class="cropper-row">
           <span style="font-size:12px; font-weight:700; min-width:45px;">Zoom</span>
-          <input type="range" class="rating-slider" id="cropZoomSlider" min="0.35" max="3.5" step="0.02" value="1" oninput="onCropZoomSlider(this.value)">
+          <input type="range" class="rating-slider" id="cropZoomSlider" min="0.35" max="3.5" step="0.01" value="1" oninput="onCropZoomSlider(this.value)">
         </div>
 
         <div class="cropper-toolbar-btns">
@@ -1663,14 +1864,17 @@
 
       <div style="background:var(--surface-alt); padding:12px; border-radius:12px; font-size:12px; line-height:1.45; border:1px solid var(--border);">
         <b>¿Cómo obtener tu API Key gratis (1 minuto)?</b><br>
-        1. Entra a <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--primary); font-weight:700;">aistudio.google.com/apikey</a><br>
+        1. Entra a <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style="color:var(--primary); font-weight:700;">aistudio.google.com/apikey</a><br>
         2. Toca <b>"Create API Key"</b> y cópiala aquí abajo.<br>
-        3. Se guardará de forma privada en tu teléfono y en tu Google Apps Script (nunca en GitHub).
+        3. Se guardará en tu teléfono y en tu Google Apps Script privado para compartirla con tu pareja.
       </div>
 
       <div class="form-group" style="margin-bottom:8px;">
-        <label for="aiApiKeyInput">Google Gemini API Key</label>
-        <input type="password" id="aiApiKeyInput" placeholder="AIzaSy...">
+        <label for="aiApiKeyInput">
+          <span>Google Gemini API Key</span>
+          <button type="button" class="unrated-toggle" id="btnClearAiKey" style="display:none; color:var(--danger);" onclick="clearAiApiKey()">Quitar clave</button>
+        </label>
+        <input type="password" id="aiApiKeyInput" placeholder="AIzaSy... (o deja en blanco si ya está en la nube)">
       </div>
 
       <div class="form-group" style="margin-bottom:8px;">
@@ -1679,17 +1883,18 @@
           <button type="button" class="unrated-toggle" onclick="detectModelsFromApi()">Detectar de mi cuenta</button>
         </label>
         <select id="aiModelSelect">
-          <option value="gemini-3.8-flash">gemini-3.8-flash (Recomendado)</option>
-          <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Rápido)</option>
-          <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview</option>
-          <option value="gemini-4-argon">gemini-4-argon</option>
+          <option value="gemini-4-hydrogen">gemini-4-hydrogen (Recomendado • Rápido + Gratis)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Equilibrado • Gratis)</option>
+          <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Rápido • Gratis)</option>
+          <option value="gemini-4-argon">gemini-4-argon (Máxima Precisión • Billing)</option>
         </select>
       </div>
 
-      <div id="aiConfigStatusMsg" style="font-size:12px; color:var(--text-muted);"></div>
+      <div id="aiConfigStatusMsg" style="font-size:12px; color:var(--text-muted); line-height:1.4;"></div>
 
-      <div style="display:flex; gap:10px;">
-        <button type="button" class="btn" onclick="saveAiConfiguration()">💾 Guardar Configuración</button>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button type="button" class="btn btn-secondary" id="btnTestAi" onclick="testAiConnection()">🧪 Probar IA + Web</button>
+        <button type="button" class="btn" id="btnSaveAiConfig" onclick="saveAiConfiguration()">💾 Guardar</button>
       </div>
     </div>
   </div>
@@ -1698,9 +1903,26 @@
   <!-- MODAL 4: VISOR LIGHTBOX PANTALLA COMPLETA                          -->
   <!-- ================================================================== -->
   <div class="modal-backdrop" id="lightboxModal" onclick="closeLightbox()">
-    <div style="position:relative; max-width:95vw; max-height:90vh; display:flex; flex-direction:column; align-items:center;">
+    <div style="position:relative; max-width:95vw; max-height:90vh; display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()">
       <img id="lightboxImg" src="" alt="Foto completa" style="max-width:95vw; max-height:84vh; object-fit:contain; border-radius:14px; box-shadow:0 12px 40px rgba(0,0,0,0.6);">
       <button type="button" class="mini-btn" style="margin-top:12px;" onclick="closeLightbox()">✕ Cerrar vista completa</button>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- MODAL 5: CONFIRMACIÓN PROPIA (SIN ALERTAS NATIVAS FEAS)            -->
+  <!-- ================================================================== -->
+  <div class="modal-backdrop" id="confirmModal" onclick="closeConfirmModal(false)">
+    <div class="modal-sheet" style="max-width:360px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="confirmTitle">Confirmar</h3>
+        <button type="button" class="mini-btn" onclick="closeConfirmModal(false)">✕</button>
+      </div>
+      <p id="confirmMessage" style="font-size:14px; color:var(--text-secondary); line-height:1.45;"></p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px;">
+        <button type="button" class="btn btn-secondary" id="confirmCancelBtn" onclick="closeConfirmModal(false)">Cancelar</button>
+        <button type="button" class="btn" id="confirmOkBtn" onclick="closeConfirmModal(true)">Confirmar</button>
+      </div>
     </div>
   </div>
 
@@ -1709,12 +1931,28 @@
   <script>
     // 👇🏼 URL DEL BACKEND EN GOOGLE APPS SCRIPT 👇🏼
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwosRVbZN3CCzeGJFDruvvvj5Z9aqYHl-36_dTAN7Z03Jxbt6jl0-PfyiObo5FUiPomAA/exec";
+    const DEFAULT_AI_MODEL = "gemini-4-hydrogen";
+    const FALLBACK_AI_MODELS = ["gemini-4-hydrogen", "gemini-3.8-flash", "gemini-3.5-flash-lite"];
+    const DRAFT_STORAGE_KEY = "birapp_form_draft";
 
+    let serverCervezasData = [];
     let cervezasData = [];
     let knownBreweries = [];
     let knownStyles = [];
     let currentSortMode = "recent";
     let serverHasAiKey = false;
+    let serverAiModel = DEFAULT_AI_MODEL;
+    let lastSyncAt = 0;
+    let pendingQueueCount = 0;
+    let isFlushingQueue = false;
+    let isSyncing = false;
+    let currentDetailBeerId = null;
+    let matchedDuplicateBeerId = null;
+    let searchDebounceTimer = null;
+    let duplicateCheckTimer = null;
+    let toastTimer = null;
+    let confirmResolver = null;
+    let aiSourceBase64 = "";
 
     const SCORE_LABELS = {
       1: "1 - Horrible",
@@ -1732,18 +1970,275 @@
     const defaultBeerSvg = `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/></svg>`;
 
     // =========================================================================
-    // INICIALIZACIÓN Y TEMA CLARO/OSCURO
+    // PERSISTENCIA OFFLINE CON INDEXEDDB (CACHÉ DE BODEGA + COLA DE ENVÍO)
     // =========================================================================
-    document.addEventListener("DOMContentLoaded", () => {
+    const BirappDB = (() => {
+      const DB_NAME = "BirappDB";
+      const DB_VERSION = 1;
+      let dbPromise = null;
+
+      function open() {
+        if (typeof indexedDB === "undefined") {
+          return Promise.resolve(null);
+        }
+        if (!dbPromise) {
+          dbPromise = new Promise(resolve => {
+            try {
+              const req = indexedDB.open(DB_NAME, DB_VERSION);
+              req.onupgradeneeded = event => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains("cache")) {
+                  db.createObjectStore("cache");
+                }
+                if (!db.objectStoreNames.contains("queue")) {
+                  db.createObjectStore("queue", { keyPath: "queueId" });
+                }
+              };
+              req.onsuccess = () => resolve(req.result);
+              req.onerror = () => resolve(null);
+            } catch (_) {
+              resolve(null);
+            }
+          });
+        }
+        return dbPromise;
+      }
+
+      async function getCache(key) {
+        const db = await open();
+        if (!db) return null;
+        return new Promise(resolve => {
+          try {
+            const tx = db.transaction("cache", "readonly");
+            const req = tx.objectStore("cache").get(key);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => resolve(null);
+          } catch (_) {
+            resolve(null);
+          }
+        });
+      }
+
+      async function setCache(key, value) {
+        const db = await open();
+        if (!db) return false;
+        return new Promise(resolve => {
+          try {
+            const tx = db.transaction("cache", "readwrite");
+            tx.objectStore("cache").put(value, key);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
+          } catch (_) {
+            resolve(false);
+          }
+        });
+      }
+
+      async function getQueue() {
+        const db = await open();
+        if (!db) return [];
+        return new Promise(resolve => {
+          try {
+            const tx = db.transaction("queue", "readonly");
+            const req = tx.objectStore("queue").getAll();
+            req.onsuccess = () => {
+              const items = Array.isArray(req.result) ? req.result : [];
+              items.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+              resolve(items);
+            };
+            req.onerror = () => resolve([]);
+          } catch (_) {
+            resolve([]);
+          }
+        });
+      }
+
+      async function putQueueItem(item) {
+        const db = await open();
+        if (!db) return false;
+        return new Promise(resolve => {
+          try {
+            const tx = db.transaction("queue", "readwrite");
+            tx.objectStore("queue").put(item);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
+          } catch (_) {
+            resolve(false);
+          }
+        });
+      }
+
+      async function deleteQueueItem(queueId) {
+        const db = await open();
+        if (!db) return false;
+        return new Promise(resolve => {
+          try {
+            const tx = db.transaction("queue", "readwrite");
+            tx.objectStore("queue").delete(queueId);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
+          } catch (_) {
+            resolve(false);
+          }
+        });
+      }
+
+      return { getCache, setCache, getQueue, putQueueItem, deleteQueueItem };
+    })();
+
+    // =========================================================================
+    // UTILIDADES DE FECHA, NORMALIZACIÓN, VALIDACIÓN Y SEGURIDAD
+    // =========================================================================
+    function getTodayLocalISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseFechaToISO(str) {
+      const raw = String(str || "").trim();
+      if (!raw) return "";
+
+      // YYYY-MM-DD o YYYY/MM/DD
+      let m = raw.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+      if (m) {
+        const y = parseInt(m[1], 10);
+        const mo = parseInt(m[2], 10);
+        const d = parseInt(m[3], 10);
+        if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) {
+          return `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        }
+      }
+
+      // DD/MM/YYYY o DD-MM-YYYY
+      m = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (m) {
+        const d = parseInt(m[1], 10);
+        const mo = parseInt(m[2], 10);
+        const y = parseInt(m[3], 10);
+        if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) {
+          return `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        }
+      }
+
+      return "";
+    }
+
+    function parseFechaToTimestamp(str) {
+      const iso = parseFechaToISO(str);
+      if (!iso) return 0;
+      const parts = iso.split("-");
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10);
+      const d = parseInt(parts[2], 10);
+      return new Date(y, m - 1, d).getTime();
+    }
+
+    function formatearFecha(fechaYYYYMMDD) {
+      if (!fechaYYYYMMDD) return "";
+      const parts = String(fechaYYYYMMDD).split("-");
+      if (parts.length !== 3) return fechaYYYYMMDD;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function normalizeTextForSearch(str) {
+      return String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function normalizeAlcInput(val) {
+      return String(val === undefined || val === null ? "" : val)
+        .replace(/,/g, ".")
+        .replace(/[%°]/g, "")
+        .replace(/\b(alc|abv)\b/gi, "")
+        .trim();
+    }
+
+    function normalizeIbuInput(val) {
+      const cleaned = String(val === undefined || val === null ? "" : val)
+        .replace(/ibu/gi, "")
+        .replace(/[^\d.]/g, "")
+        .trim();
+      if (!cleaned) return "";
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? "" : String(Math.round(num));
+    }
+
+    function isSafeImageSrc(src) {
+      const val = String(src || "").trim();
+      return val.startsWith("data:image/") || val.startsWith("https://");
+    }
+
+    function escapeHtml(str) {
+      return String(str === undefined || str === null ? "" : str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    // =========================================================================
+    // INICIALIZACIÓN, TEMA, VISIBILIDAD Y BOTÓN ATRÁS DEL MÓVIL
+    // =========================================================================
+    document.addEventListener("DOMContentLoaded", async () => {
       initTheme();
-      document.getElementById("fecha").valueAsDate = new Date();
+      document.getElementById("fecha").value = getTodayLocalISO();
       initCropperEvents();
+      initFormInteractions();
+      initHistoryBackSupport();
       updateAiIndicator();
-      loadBeers();
-      loadSuggestions();
 
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./sw.js").then(reg => reg.update()).catch(() => {});
+      }
+
+      // 1. Pintar instantáneamente desde IndexedDB (0 ms) si hay bodega guardada
+      const hadCache = await hydrateFromCache();
+      restoreFormDraftIfEmpty();
+
+      // 2. Actualizar banner de red/cola y sincronizar con Google Sheets
+      await refreshPendingQueueCount();
+      if (navigator.onLine) {
+        await flushOfflineQueue({ silentIfEmpty: true });
+        await syncFromServer({ silent: hadCache });
+      } else if (!hadCache) {
+        document.getElementById("loading").style.display = "none";
+        applyFiltersAndRender();
+      }
+    });
+
+    window.addEventListener("online", async () => {
+      await updateOfflineBanner();
+      await flushOfflineQueue({ silentIfEmpty: true });
+      await syncFromServer({ silent: true });
+    });
+
+    window.addEventListener("offline", () => {
+      updateOfflineBanner();
+    });
+
+    document.addEventListener("visibilitychange", async () => {
+      if (document.hidden) {
+        if (document.getElementById("liveCameraModal").classList.contains("open")) {
+          closeLiveCameraModal();
+        } else {
+          stopCameraStream();
+        }
+        return;
+      }
+
+      if (navigator.onLine) {
+        await flushOfflineQueue({ silentIfEmpty: true });
+        if (Date.now() - lastSyncAt > 30000) {
+          await syncFromServer({ silent: true });
+        }
       }
     });
 
@@ -1761,6 +2256,10 @@
 
     function applyTheme(theme) {
       document.documentElement.setAttribute("data-theme", theme);
+      const metaTheme = document.getElementById("metaThemeColor");
+      if (metaTheme) {
+        metaTheme.setAttribute("content", theme === "dark" ? "#16110E" : "#231812");
+      }
       const icon = document.getElementById("themeIcon");
       if (theme === "dark") {
         icon.innerHTML = `<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>`;
@@ -1769,48 +2268,123 @@
       }
     }
 
+    function pushNavState(kind) {
+      try {
+        history.pushState({ birappNav: kind }, "");
+      } catch (_) {}
+    }
+
+    function initHistoryBackSupport() {
+      window.addEventListener("popstate", () => {
+        const modalOrder = [
+          { id: "confirmModal", close: () => closeConfirmModal(false, true) },
+          { id: "lightboxModal", close: () => closeLightbox(true) },
+          { id: "aiConfigModal", close: () => closeAiModal(true) },
+          { id: "liveCameraModal", close: () => closeLiveCameraModal(true) },
+          { id: "cropperModal", close: () => closeCropperModal(true) }
+        ];
+
+        for (const m of modalOrder) {
+          if (document.getElementById(m.id).classList.contains("open")) {
+            m.close();
+            return;
+          }
+        }
+
+        if (document.getElementById("detalles").classList.contains("active")) {
+          switchTab("historial", { skipHistory: true });
+        }
+      });
+    }
+
+    // =========================================================================
+    // MODAL DE CONFIRMACIÓN PROPIO
+    // =========================================================================
+    function askConfirm({ title = "Confirmar", message = "", okText = "Confirmar", danger = false }) {
+      return new Promise(resolve => {
+        confirmResolver = resolve;
+        document.getElementById("confirmTitle").textContent = title;
+        document.getElementById("confirmMessage").textContent = message;
+        const okBtn = document.getElementById("confirmOkBtn");
+        okBtn.textContent = okText;
+        okBtn.className = danger ? "btn btn-delete" : "btn";
+        okBtn.style.marginTop = "0";
+        document.getElementById("confirmModal").classList.add("open");
+        pushNavState("confirmModal");
+      });
+    }
+
+    function closeConfirmModal(accepted, fromPopstate = false) {
+      const modal = document.getElementById("confirmModal");
+      if (modal.classList.contains("open")) {
+        modal.classList.remove("open");
+        if (!fromPopstate && history.state && history.state.birappNav === "confirmModal") {
+          try { history.back(); } catch (_) {}
+        }
+      }
+      if (confirmResolver) {
+        const res = confirmResolver;
+        confirmResolver = null;
+        res(Boolean(accepted));
+      }
+    }
+
     // =========================================================================
     // CONTROLES TÁCTILES DE PUNTUACIÓN (KARINA Y GUILLERMO)
     // =========================================================================
     function onSliderChange(person, val) {
-      const num = parseInt(val, 10);
-      document.getElementById("nota" + person).value = String(num);
+      const num = parseFloat(val);
+      const rounded = Math.round(num);
+      const strVal = Number.isInteger(num) ? String(num) : String(num);
+      document.getElementById("nota" + person).value = strVal;
       const pill = document.getElementById("display" + person);
-      pill.textContent = num + " / 10";
+      pill.textContent = strVal + " / 10";
       pill.classList.remove("unrated");
-      document.getElementById("label" + person).textContent = SCORE_LABELS[num] || "";
+      document.getElementById("card" + person).classList.remove("is-unrated");
+      document.getElementById("label" + person).textContent = SCORE_LABELS[rounded] || "";
       updateLiveAverage();
+      saveFormDraft();
     }
 
     function stepRating(person, delta) {
       const hidden = document.getElementById("nota" + person);
       const slider = document.getElementById("slider" + person);
-      let current = parseInt(hidden.value, 10);
+      let current = parseFloat(hidden.value);
       if (isNaN(current)) {
         current = 7;
       } else {
-        current = Math.min(10, Math.max(1, current + delta));
+        current = Math.min(10, Math.max(1, Math.round(current) + delta));
       }
       slider.value = current;
       onSliderChange(person, current);
     }
 
-    function setUnrated(person) {
+    function setUnrated(person, skipDraftSave = false) {
       document.getElementById("nota" + person).value = "Sin puntuar";
       const pill = document.getElementById("display" + person);
       pill.textContent = "Sin puntuar";
       pill.classList.add("unrated");
+      document.getElementById("card" + person).classList.add("is-unrated");
       document.getElementById("label" + person).textContent = "Toca + o desliza para puntuar";
       updateLiveAverage();
+      if (!skipDraftSave) saveFormDraft();
     }
 
     function setPersonRatingUI(person, value) {
-      const num = parseFloat(value);
+      const cleanStr = String(value || "").replace(",", ".").trim();
+      const num = parseFloat(cleanStr);
       if (!isNaN(num) && num >= 1 && num <= 10) {
-        document.getElementById("slider" + person).value = Math.round(num);
-        onSliderChange(person, Math.round(num));
+        const displayVal = Number.isInteger(num) ? String(num) : String(Number(num.toFixed(1)));
+        document.getElementById("slider" + person).value = Math.min(10, Math.max(1, Math.round(num)));
+        document.getElementById("nota" + person).value = displayVal;
+        const pill = document.getElementById("display" + person);
+        pill.textContent = displayVal + " / 10";
+        pill.classList.remove("unrated");
+        document.getElementById("card" + person).classList.remove("is-unrated");
+        document.getElementById("label" + person).textContent = SCORE_LABELS[Math.round(num)] || "";
+        updateLiveAverage();
       } else {
-        setUnrated(person);
+        setUnrated(person, true);
       }
     }
 
@@ -1825,73 +2399,286 @@
     }
 
     // =========================================================================
+    // BORRADOR LOCAL Y DETECTOR DE CERVEZAS DUPLICADAS
+    // =========================================================================
+    function initFormInteractions() {
+      const draftFields = ["fecha", "nombre", "cerveceria", "estilo", "alc", "ibu", "comentario"];
+      draftFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("input", () => {
+          saveFormDraft();
+          if (id === "nombre" || id === "cerveceria") {
+            clearTimeout(duplicateCheckTimer);
+            duplicateCheckTimer = setTimeout(checkDuplicateBeer, 180);
+          }
+        });
+      });
+    }
+
+    function saveFormDraft() {
+      if (document.getElementById("beerId").value) return; // No guardar borrador cuando editamos una existente
+      const draft = {
+        fecha: document.getElementById("fecha").value,
+        nombre: document.getElementById("nombre").value,
+        cerveceria: document.getElementById("cerveceria").value,
+        estilo: document.getElementById("estilo").value,
+        alc: document.getElementById("alc").value,
+        ibu: document.getElementById("ibu").value,
+        notaKarina: document.getElementById("notaKarina").value,
+        notaGuillermo: document.getElementById("notaGuillermo").value,
+        comentario: document.getElementById("comentario").value
+      };
+      const hasContent = Boolean(
+        draft.nombre.trim() ||
+        draft.cerveceria.trim() ||
+        draft.estilo.trim() ||
+        draft.alc.trim() ||
+        draft.ibu.trim() ||
+        draft.comentario.trim() ||
+        draft.notaKarina !== "Sin puntuar" ||
+        draft.notaGuillermo !== "Sin puntuar"
+      );
+
+      document.getElementById("btnResetDraft").style.display = hasContent ? "inline-block" : "none";
+
+      try {
+        if (hasContent) {
+          localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+        } else {
+          localStorage.removeItem(DRAFT_STORAGE_KEY);
+        }
+      } catch (_) {}
+    }
+
+    function clearFormDraft() {
+      document.getElementById("btnResetDraft").style.display = "none";
+      try { localStorage.removeItem(DRAFT_STORAGE_KEY); } catch (_) {}
+    }
+
+    function restoreFormDraftIfEmpty() {
+      if (document.getElementById("beerId").value) return;
+      try {
+        const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (!draft || typeof draft !== "object") return;
+
+        if (draft.fecha) document.getElementById("fecha").value = draft.fecha;
+        if (draft.nombre) document.getElementById("nombre").value = draft.nombre;
+        if (draft.cerveceria) document.getElementById("cerveceria").value = draft.cerveceria;
+        if (draft.estilo) document.getElementById("estilo").value = draft.estilo;
+        if (draft.alc) document.getElementById("alc").value = draft.alc;
+        if (draft.ibu) document.getElementById("ibu").value = draft.ibu;
+        if (draft.comentario) document.getElementById("comentario").value = draft.comentario;
+        if (draft.notaKarina) setPersonRatingUI("Karina", draft.notaKarina);
+        if (draft.notaGuillermo) setPersonRatingUI("Guillermo", draft.notaGuillermo);
+
+        document.getElementById("btnResetDraft").style.display = "inline-block";
+        checkDuplicateBeer();
+      } catch (_) {}
+    }
+
+    async function confirmClearDraft() {
+      const ok = await askConfirm({
+        title: "Limpiar formulario",
+        message: "¿Deseas borrar los datos actuales del formulario?",
+        okText: "Sí, limpiar",
+        danger: true
+      });
+      if (ok) {
+        cancelEdit();
+        showToast("🧹 Formulario limpio");
+      }
+    }
+
+    function checkDuplicateBeer() {
+      const alertEl = document.getElementById("duplicateAlert");
+      const textEl = document.getElementById("duplicateAlertText");
+      if (document.getElementById("beerId").value) {
+        matchedDuplicateBeerId = null;
+        alertEl.classList.remove("visible");
+        return;
+      }
+
+      const nameNorm = normalizeTextForSearch(document.getElementById("nombre").value);
+      const brewNorm = normalizeTextForSearch(document.getElementById("cerveceria").value);
+
+      if (nameNorm.length < 3 || !cervezasData.length) {
+        matchedDuplicateBeerId = null;
+        alertEl.classList.remove("visible");
+        return;
+      }
+
+      const match = cervezasData.find(beer => {
+        const bName = normalizeTextForSearch(getBeerField(beer, ["Nombre", "nombre"]));
+        const bBrew = normalizeTextForSearch(getBeerField(beer, ["Cervecería", "cerveceria"]));
+        if (!bName) return false;
+
+        const exactName = bName === nameNorm;
+        const brewMatches = !brewNorm || !bBrew || bBrew === brewNorm || bBrew.includes(brewNorm) || brewNorm.includes(bBrew);
+        if (exactName && brewMatches) return true;
+
+        if (brewNorm.length >= 3 && bBrew && (bBrew === brewNorm || bBrew.includes(brewNorm) || brewNorm.includes(bBrew))) {
+          return nameNorm.length >= 4 && (bName.includes(nameNorm) || nameNorm.includes(bName));
+        }
+        return false;
+      });
+
+      if (!match) {
+        matchedDuplicateBeerId = null;
+        alertEl.classList.remove("visible");
+        return;
+      }
+
+      matchedDuplicateBeerId = match.ID;
+      const mName = getBeerField(match, ["Nombre", "nombre"]);
+      const mBrew = getBeerField(match, ["Cervecería", "cerveceria"]);
+      const mDate = getBeerField(match, ["Fecha", "fecha"]);
+      const scores = computeScores(match);
+      const kText = isNaN(scores.kVal) ? "-" : scores.kVal;
+      const gText = isNaN(scores.gVal) ? "-" : scores.gVal;
+
+      textEl.textContent = `⚠️ Ya probaron "${mName}"${mBrew ? " (" + mBrew + ")" : ""}${mDate ? " el " + mDate : ""} — Promedio ${scores.avgText} (👩🏻 ${kText} · 👨🏻 ${gText})`;
+      alertEl.classList.add("visible");
+    }
+
+    function openDuplicateDetail() {
+      if (matchedDuplicateBeerId) {
+        showDetails(matchedDuplicateBeerId);
+      }
+    }
+
+    // =========================================================================
     // CÁMARA, GALERÍA Y EDITOR INTERACTIVO DE ENCUADRE (TOUCH CROPPER)
     // =========================================================================
-    let rawImageObj = null;
+    let committedWorkingCanvas = null;
+    let pendingWorkingCanvas = null;
+    let committedCropState = null;
+    let bgBlurCanvas = null;
+
     let cropState = {
       scale: 1,
       minScale: 0.2,
       maxScale: 4,
       offsetX: 0,
       offsetY: 0,
-      rotation: 0, // 0, 90, 180, 270
+      rotation: 0,
       isDragging: false,
       startX: 0,
       startY: 0,
       lastPinchDist: 0
     };
 
+    function createWorkingCanvas(sourceImg, maxDim = 1400) {
+      let w = sourceImg.naturalWidth || sourceImg.width || 1;
+      let h = sourceImg.naturalHeight || sourceImg.height || 1;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        } else {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      c.getContext("2d").drawImage(sourceImg, 0, 0, w, h);
+      return c;
+    }
+
     function handleFilePicked(e) {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (ev) {
-        loadRawImageIntoCropper(ev.target.result);
+      const objUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          pendingWorkingCanvas = createWorkingCanvas(img, 1400);
+          cropState.rotation = 0;
+          openCropperModal();
+          setCropFitMode("contain");
+        } finally {
+          URL.revokeObjectURL(objUrl);
+        }
       };
-      reader.readAsDataURL(file);
+      img.onerror = () => {
+        URL.revokeObjectURL(objUrl);
+        showToast("No se pudo abrir la imagen seleccionada");
+      };
+      img.src = objUrl;
       e.target.value = "";
     }
 
-    function loadRawImageIntoCropper(dataUrl) {
+    function loadDataUrlIntoCropper(dataUrl) {
       const img = new Image();
-      img.onload = function () {
-        rawImageObj = img;
+      img.onload = () => {
+        pendingWorkingCanvas = createWorkingCanvas(img, 1400);
         cropState.rotation = 0;
         openCropperModal();
         setCropFitMode("contain");
+      };
+      img.onerror = () => {
+        showToast("No se pudo cargar la foto en el editor");
       };
       img.src = dataUrl;
     }
 
     function reopenCropper() {
       const currentSrc = document.getElementById("imageBase64").value;
-      if (rawImageObj) {
+      if (committedWorkingCanvas) {
+        pendingWorkingCanvas = committedWorkingCanvas;
+        if (committedCropState) {
+          cropState = { ...cropState, ...committedCropState, isDragging: false, lastPinchDist: 0 };
+        }
         openCropperModal();
+        syncZoomSliderRange();
         drawCropperCanvas();
       } else if (currentSrc) {
-        loadRawImageIntoCropper(currentSrc);
+        loadDataUrlIntoCropper(currentSrc);
       }
     }
 
     function openCropperModal() {
-      document.getElementById("cropperModal").classList.add("open");
+      const modal = document.getElementById("cropperModal");
+      if (!modal.classList.contains("open")) {
+        modal.classList.add("open");
+        pushNavState("cropperModal");
+      }
     }
 
-    function closeCropperModal() {
-      document.getElementById("cropperModal").classList.remove("open");
+    function closeCropperModal(fromPopstate = false) {
+      const modal = document.getElementById("cropperModal");
+      if (modal.classList.contains("open")) {
+        modal.classList.remove("open");
+        if (!fromPopstate && history.state && history.state.birappNav === "cropperModal") {
+          try { history.back(); } catch (_) {}
+        }
+      }
+      pendingWorkingCanvas = null;
     }
 
     function getRotatedDimensions() {
-      if (!rawImageObj) return { w: 1, h: 1 };
+      if (!pendingWorkingCanvas) return { w: 1, h: 1 };
       const isSideways = (cropState.rotation % 180) !== 0;
       return {
-        w: isSideways ? rawImageObj.height : rawImageObj.width,
-        h: isSideways ? rawImageObj.width : rawImageObj.height
+        w: isSideways ? pendingWorkingCanvas.height : pendingWorkingCanvas.width,
+        h: isSideways ? pendingWorkingCanvas.width : pendingWorkingCanvas.height
       };
     }
 
+    function syncZoomSliderRange() {
+      const slider = document.getElementById("cropZoomSlider");
+      slider.min = cropState.minScale.toFixed(4);
+      slider.max = cropState.maxScale.toFixed(4);
+      slider.step = Math.max(0.002, (cropState.maxScale - cropState.minScale) / 100).toFixed(4);
+      slider.value = cropState.scale;
+    }
+
     function setCropFitMode(mode) {
-      if (!rawImageObj) return;
+      if (!pendingWorkingCanvas) return;
       const canvas = document.getElementById("cropperCanvas");
       const dim = getRotatedDimensions();
       const scaleX = canvas.width / dim.w;
@@ -1899,21 +2686,31 @@
 
       cropState.scale = mode === "cover" ? Math.max(scaleX, scaleY) : Math.min(scaleX, scaleY);
       cropState.minScale = Math.min(scaleX, scaleY) * 0.5;
-      cropState.maxScale = Math.max(scaleX, scaleY) * 3.2;
+      cropState.maxScale = Math.max(scaleX, scaleY) * 3.5;
 
       cropState.offsetX = 0;
       cropState.offsetY = 0;
 
-      const slider = document.getElementById("cropZoomSlider");
-      slider.min = cropState.minScale.toFixed(3);
-      slider.max = cropState.maxScale.toFixed(3);
-      slider.value = cropState.scale;
-
+      syncZoomSliderRange();
       drawCropperCanvas();
+    }
+
+    function clampCropOffsets() {
+      if (!pendingWorkingCanvas) return;
+      const canvas = document.getElementById("cropperCanvas");
+      const dim = getRotatedDimensions();
+      const dispW = dim.w * cropState.scale;
+      const dispH = dim.h * cropState.scale;
+      const maxOffX = Math.max(canvas.width * 0.35, dispW * 0.45);
+      const maxOffY = Math.max(canvas.height * 0.35, dispH * 0.45);
+
+      cropState.offsetX = Math.min(maxOffX, Math.max(-maxOffX, cropState.offsetX));
+      cropState.offsetY = Math.min(maxOffY, Math.max(-maxOffY, cropState.offsetY));
     }
 
     function onCropZoomSlider(val) {
       cropState.scale = parseFloat(val);
+      clampCropOffsets();
       drawCropperCanvas();
     }
 
@@ -1923,55 +2720,77 @@
     }
 
     function drawCropperCanvas() {
-      if (!rawImageObj) return;
+      if (!pendingWorkingCanvas) return;
       const canvas = document.getElementById("cropperCanvas");
       const ctx = canvas.getContext("2d");
       const cw = canvas.width;
       const ch = canvas.height;
+      const dim = getRotatedDimensions();
 
       ctx.clearRect(0, 0, cw, ch);
 
-      // 1. Fondo atmosférico oscuro/difuminado para que las botellas verticales se vean elegantes sin cortes
+      // 1. Fondo atmosférico suavizado compatible con iOS/Android sin costo de filtro por frame
       ctx.save();
       ctx.fillStyle = "#16110E";
       ctx.fillRect(0, 0, cw, ch);
-      ctx.globalAlpha = 0.28;
-      const bgScale = Math.max(cw / rawImageObj.width, ch / rawImageObj.height) * 1.15;
-      ctx.translate(cw / 2, ch / 2);
-      ctx.rotate((cropState.rotation * Math.PI) / 180);
-      ctx.drawImage(
-        rawImageObj,
-        (-rawImageObj.width * bgScale) / 2,
-        (-rawImageObj.height * bgScale) / 2,
-        rawImageObj.width * bgScale,
-        rawImageObj.height * bgScale
+      if (!bgBlurCanvas) {
+        bgBlurCanvas = document.createElement("canvas");
+        bgBlurCanvas.width = 32;
+        bgBlurCanvas.height = 40;
+      }
+      const bCtx = bgBlurCanvas.getContext("2d");
+      bCtx.clearRect(0, 0, 32, 40);
+      bCtx.save();
+      bCtx.translate(16, 20);
+      bCtx.rotate((cropState.rotation * Math.PI) / 180);
+      const bgScaleSmall = Math.max(32 / dim.w, 40 / dim.h) * 1.15;
+      bCtx.drawImage(
+        pendingWorkingCanvas,
+        (-pendingWorkingCanvas.width * bgScaleSmall) / 2,
+        (-pendingWorkingCanvas.height * bgScaleSmall) / 2,
+        pendingWorkingCanvas.width * bgScaleSmall,
+        pendingWorkingCanvas.height * bgScaleSmall
       );
+      bCtx.restore();
+
+      ctx.globalAlpha = 0.36;
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(bgBlurCanvas, 0, 0, cw, ch);
       ctx.restore();
 
-      // 2. Imagen principal con el zoom, rotación y desplazamiento elegido por el usuario
+      // 2. Imagen principal con el zoom, rotación y desplazamiento exacto
       ctx.save();
       ctx.translate(cw / 2 + cropState.offsetX, ch / 2 + cropState.offsetY);
       ctx.rotate((cropState.rotation * Math.PI) / 180);
-      const drawW = rawImageObj.width * cropState.scale;
-      const drawH = rawImageObj.height * cropState.scale;
-      ctx.drawImage(rawImageObj, -drawW / 2, -drawH / 2, drawW, drawH);
+      const drawW = pendingWorkingCanvas.width * cropState.scale;
+      const drawH = pendingWorkingCanvas.height * cropState.scale;
+      ctx.drawImage(pendingWorkingCanvas, -drawW / 2, -drawH / 2, drawW, drawH);
       ctx.restore();
+    }
+
+    function getCanvasScaleFactor() {
+      const stage = document.getElementById("cropperStage");
+      const canvas = document.getElementById("cropperCanvas");
+      const rect = stage.getBoundingClientRect();
+      return rect.width > 0 ? canvas.width / rect.width : 1;
     }
 
     function initCropperEvents() {
       const stage = document.getElementById("cropperStage");
 
-      // Eventos Mouse
       stage.addEventListener("mousedown", e => {
+        const factor = getCanvasScaleFactor();
         cropState.isDragging = true;
-        cropState.startX = e.clientX - cropState.offsetX;
-        cropState.startY = e.clientY - cropState.offsetY;
+        cropState.startX = e.clientX * factor - cropState.offsetX;
+        cropState.startY = e.clientY * factor - cropState.offsetY;
       });
 
       window.addEventListener("mousemove", e => {
         if (!cropState.isDragging) return;
-        cropState.offsetX = e.clientX - cropState.startX;
-        cropState.offsetY = e.clientY - cropState.startY;
+        const factor = getCanvasScaleFactor();
+        cropState.offsetX = e.clientX * factor - cropState.startX;
+        cropState.offsetY = e.clientY * factor - cropState.startY;
+        clampCropOffsets();
         drawCropperCanvas();
       });
 
@@ -1979,12 +2798,22 @@
         cropState.isDragging = false;
       });
 
-      // Eventos Touch (1 dedo arrastrar, 2 dedos pellizcar zoom)
+      stage.addEventListener("wheel", e => {
+        if (!pendingWorkingCanvas) return;
+        e.preventDefault();
+        const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+        cropState.scale = Math.min(cropState.maxScale, Math.max(cropState.minScale, cropState.scale * zoomFactor));
+        clampCropOffsets();
+        document.getElementById("cropZoomSlider").value = cropState.scale;
+        drawCropperCanvas();
+      }, { passive: false });
+
       stage.addEventListener("touchstart", e => {
+        const factor = getCanvasScaleFactor();
         if (e.touches.length === 1) {
           cropState.isDragging = true;
-          cropState.startX = e.touches[0].clientX - cropState.offsetX;
-          cropState.startY = e.touches[0].clientY - cropState.offsetY;
+          cropState.startX = e.touches[0].clientX * factor - cropState.offsetX;
+          cropState.startY = e.touches[0].clientY * factor - cropState.offsetY;
         } else if (e.touches.length === 2) {
           cropState.isDragging = false;
           cropState.lastPinchDist = getPinchDistance(e.touches);
@@ -1993,15 +2822,18 @@
 
       stage.addEventListener("touchmove", e => {
         e.preventDefault();
+        const factor = getCanvasScaleFactor();
         if (e.touches.length === 1 && cropState.isDragging) {
-          cropState.offsetX = e.touches[0].clientX - cropState.startX;
-          cropState.offsetY = e.touches[0].clientY - cropState.startY;
+          cropState.offsetX = e.touches[0].clientX * factor - cropState.startX;
+          cropState.offsetY = e.touches[0].clientY * factor - cropState.startY;
+          clampCropOffsets();
           drawCropperCanvas();
         } else if (e.touches.length === 2) {
           const dist = getPinchDistance(e.touches);
           if (cropState.lastPinchDist > 0) {
             const ratio = dist / cropState.lastPinchDist;
             cropState.scale = Math.min(cropState.maxScale, Math.max(cropState.minScale, cropState.scale * ratio));
+            clampCropOffsets();
             document.getElementById("cropZoomSlider").value = cropState.scale;
             drawCropperCanvas();
           }
@@ -2021,24 +2853,65 @@
       return Math.hypot(dx, dy);
     }
 
-    // Compresión adaptativa que garantiza < 42,000 caracteres para nunca fallar en Google Sheets
+    function buildSharpAiImage(workingCanvas, rotationDeg) {
+      if (!workingCanvas) return "";
+      const isSideways = (rotationDeg % 180) !== 0;
+      const rotW = isSideways ? workingCanvas.height : workingCanvas.width;
+      const rotH = isSideways ? workingCanvas.width : workingCanvas.height;
+      const MAX_DIM = 1024;
+      const ratio = Math.min(1, MAX_DIM / Math.max(rotW, rotH));
+
+      const out = document.createElement("canvas");
+      out.width = Math.max(1, Math.round(rotW * ratio));
+      out.height = Math.max(1, Math.round(rotH * ratio));
+      const ctx = out.getContext("2d");
+      ctx.translate(out.width / 2, out.height / 2);
+      ctx.rotate((rotationDeg * Math.PI) / 180);
+      ctx.drawImage(
+        workingCanvas,
+        (-workingCanvas.width * ratio) / 2,
+        (-workingCanvas.height * ratio) / 2,
+        workingCanvas.width * ratio,
+        workingCanvas.height * ratio
+      );
+      return out.toDataURL("image/jpeg", 0.82);
+    }
+
+    // Compresión adaptativa con techo estricto <= 46,000 caracteres para nunca fallar en Google Sheets
     function applyCropAndSave(runAiAfter) {
       const sourceCanvas = document.getElementById("cropperCanvas");
-      const MAX_CHARS = 42000;
+      const MAX_CHARS = 46000;
 
-      let quality = 0.76;
+      committedWorkingCanvas = pendingWorkingCanvas;
+      committedCropState = {
+        scale: cropState.scale,
+        minScale: cropState.minScale,
+        maxScale: cropState.maxScale,
+        offsetX: cropState.offsetX,
+        offsetY: cropState.offsetY,
+        rotation: cropState.rotation
+      };
+
+      // Imagen nítida (1024 px) exclusiva para que la IA lea letras pequeñas de °ALC / IBU
+      aiSourceBase64 = buildSharpAiImage(committedWorkingCanvas, cropState.rotation);
+
+      let quality = 0.78;
       let scaleDown = 1.0;
       let finalBase64 = sourceCanvas.toDataURL("image/jpeg", quality);
 
-      while (finalBase64.length > MAX_CHARS && (quality > 0.38 || scaleDown > 0.6)) {
-        if (quality > 0.45) {
-          quality -= 0.1;
+      while (finalBase64.length > MAX_CHARS && (quality > 0.30 || scaleDown > 0.40)) {
+        if (quality > 0.44 && scaleDown >= 0.99) {
+          quality = Math.max(0.40, quality - 0.10);
           finalBase64 = sourceCanvas.toDataURL("image/jpeg", quality);
         } else {
-          scaleDown -= 0.15;
+          if (scaleDown > 0.40) {
+            scaleDown = Math.max(0.40, scaleDown - 0.15);
+          } else {
+            quality = Math.max(0.28, quality - 0.08);
+          }
           const tmp = document.createElement("canvas");
-          tmp.width = Math.round(sourceCanvas.width * scaleDown);
-          tmp.height = Math.round(sourceCanvas.height * scaleDown);
+          tmp.width = Math.max(120, Math.round(sourceCanvas.width * scaleDown));
+          tmp.height = Math.max(150, Math.round(sourceCanvas.height * scaleDown));
           tmp.getContext("2d").drawImage(sourceCanvas, 0, 0, tmp.width, tmp.height);
           finalBase64 = tmp.toDataURL("image/jpeg", quality);
         }
@@ -2062,7 +2935,10 @@
     }
 
     function clearPhoto() {
-      rawImageObj = null;
+      committedWorkingCanvas = null;
+      pendingWorkingCanvas = null;
+      committedCropState = null;
+      aiSourceBase64 = "";
       document.getElementById("imageBase64").value = "";
       document.getElementById("removeImageFlag").value = "true";
       document.getElementById("imagePreview").src = "";
@@ -2081,7 +2957,11 @@
         showToast("Tu navegador no permite cámara en vivo, usa el botón 📸 Tomar Foto.");
         return;
       }
-      document.getElementById("liveCameraModal").classList.add("open");
+      const modal = document.getElementById("liveCameraModal");
+      if (!modal.classList.contains("open")) {
+        modal.classList.add("open");
+        pushNavState("liveCameraModal");
+      }
       await startCameraStream();
     }
 
@@ -2104,6 +2984,8 @@
         liveStream.getTracks().forEach(t => t.stop());
         liveStream = null;
       }
+      const video = document.getElementById("liveVideo");
+      if (video) video.srcObject = null;
     }
 
     function switchCameraFacing() {
@@ -2111,9 +2993,15 @@
       startCameraStream();
     }
 
-    function closeLiveCameraModal() {
+    function closeLiveCameraModal(fromPopstate = false) {
       stopCameraStream();
-      document.getElementById("liveCameraModal").classList.remove("open");
+      const modal = document.getElementById("liveCameraModal");
+      if (modal.classList.contains("open")) {
+        modal.classList.remove("open");
+        if (!fromPopstate && history.state && history.state.birappNav === "liveCameraModal") {
+          try { history.back(); } catch (_) {}
+        }
+      }
     }
 
     function captureLiveVideoFrame() {
@@ -2123,22 +3011,52 @@
       tempCanvas.width = video.videoWidth;
       tempCanvas.height = video.videoHeight;
       tempCanvas.getContext("2d").drawImage(video, 0, 0);
-      const dataUrl = tempCanvas.toDataURL("image/jpeg", 0.9);
+      const dataUrl = tempCanvas.toDataURL("image/jpeg", 0.92);
       closeLiveCameraModal();
-      loadRawImageIntoCropper(dataUrl);
+      loadDataUrlIntoCropper(dataUrl);
     }
 
     // =========================================================================
-    // HELPER DE COMUNICACIÓN CON GOOGLE APPS SCRIPT (FORMATO EXACTO DE PRODUCCIÓN)
+    // HELPER DE COMUNICACIÓN CON GOOGLE APPS SCRIPT (TIMEOUT + CORS SIMPLE)
     // =========================================================================
-    async function apiPost(action, extraPayload = {}) {
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function apiGet(action, timeoutMs = 15000) {
+      const url = `${SCRIPT_URL}?action=${encodeURIComponent(action)}`;
+      const response = await fetchWithTimeout(url, { method: "GET" }, timeoutMs);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} al consultar el servidor.`);
+      }
+      const raw = await response.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        throw new Error("La respuesta del servidor no es JSON válido.");
+      }
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed) && parsed.error) {
+        throw new Error(parsed.message || parsed.error || "Error en el servidor");
+      }
+      return parsed;
+    }
+
+    async function apiPost(action, extraPayload = {}, timeoutMs = 20000) {
       const requestPayload = JSON.stringify({ action, ...extraPayload });
       const body = new URLSearchParams({ payload: requestPayload });
 
-      const response = await fetch(SCRIPT_URL, {
+      // Sin headers personalizados para respetar CORS simple de Google Apps Script
+      const response = await fetchWithTimeout(SCRIPT_URL, {
         method: "POST",
         body
-      });
+      }, timeoutMs);
       const raw = await response.text();
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${raw.slice(0, 120)}`);
@@ -2149,27 +3067,67 @@
       } catch (e) {
         throw new Error("La respuesta del servidor no es JSON válido.");
       }
-      if (parsed && typeof parsed === "object" && parsed.error) {
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed) && parsed.error) {
         throw new Error(parsed.message || parsed.error || "Error en el servidor");
       }
       return parsed;
     }
 
+    function isNetworkOrTimeoutError(err) {
+      if (!navigator.onLine) return true;
+      if (!err) return false;
+      if (err.name === "AbortError" || err.name === "TypeError") return true;
+      const msg = String(err.message || "").toLowerCase();
+      return msg.includes("failed to fetch") || msg.includes("network") || msg.includes("load failed") || msg.includes("abort");
+    }
+
     // =========================================================================
-    // INTEGRACIÓN IA (GEMINI 3.8 FLASH / 3.5 FLASH LITE + BÚSQUEDA WEB RÁPIDA)
+    // INTEGRACIÓN IA (GEMINI 4 HYDROGEN / 3.8 FLASH + BÚSQUEDA WEB EN 2 FASES)
     // =========================================================================
     function getLocalAiKey() {
       return (localStorage.getItem("birapp_gemini_key") || "").trim();
     }
 
-    function getLocalAiModel() {
-      const saved = localStorage.getItem("birapp_gemini_model") || "gemini-3.8-flash";
-      // Si había quedado guardado 2.5 por el cambio anterior, restaurar a gemini-3.8-flash
-      if (saved.startsWith("gemini-2.")) {
-        localStorage.setItem("birapp_gemini_model", "gemini-3.8-flash");
-        return "gemini-3.8-flash";
+    function normalizeClientAiModel(modelName) {
+      const m = String(modelName || "").trim();
+      if (!m || m.startsWith("gemini-2.") || m === "gemini-3.1-pro-preview") {
+        return DEFAULT_AI_MODEL;
       }
-      return saved;
+      return m;
+    }
+
+    function getLocalAiModel() {
+      const raw = localStorage.getItem("birapp_gemini_model");
+      if (!raw) return serverAiModel || DEFAULT_AI_MODEL;
+      const normalized = normalizeClientAiModel(raw);
+      if (normalized !== raw) {
+        localStorage.setItem("birapp_gemini_model", normalized);
+      }
+      return normalized;
+    }
+
+    function buildClientThinkingConfig(modelName, phase) {
+      const m = String(modelName || "").toLowerCase();
+      if (m.includes("flash-lite")) {
+        return { thinkingLevel: phase === "vision" ? "MINIMAL" : "LOW" };
+      }
+      if (m.includes("gemini-4") || m.includes("gemini-3")) {
+        // gemini-4-hydrogen, gemini-4-argon y gemini-3.8-flash requieren mínimo "LOW"
+        return { thinkingLevel: "LOW" };
+      }
+      return null;
+    }
+
+    function supportsClientTemperature(modelName) {
+      return !String(modelName || "").toLowerCase().startsWith("gemini-4");
+    }
+
+    function isGeminiAuthError(status, rawText) {
+      return status === 401 || status === 403 || String(rawText || "").includes("API_KEY_INVALID");
+    }
+
+    function isGeminiThinkingError(status, rawText) {
+      return status === 400 && String(rawText || "").toLowerCase().includes("thinking");
     }
 
     function updateAiIndicator() {
@@ -2189,26 +3147,47 @@
         select.innerHTML = `<option value="${escapeHtml(currentModel)}">${escapeHtml(currentModel)}</option>` + select.innerHTML;
       }
       select.value = currentModel;
-      document.getElementById("aiConfigStatusMsg").textContent = getLocalAiKey()
-        ? `✅ Usando modelo: ${currentModel}`
-        : "";
-      document.getElementById("aiConfigModal").classList.add("open");
+
+      const hasAnyKey = Boolean(getLocalAiKey() || serverHasAiKey);
+      document.getElementById("btnClearAiKey").style.display = hasAnyKey ? "inline-block" : "none";
+
+      let statusText = "";
+      if (getLocalAiKey()) {
+        statusText = `✅ Modelo activo: ${currentModel} (clave local${serverHasAiKey ? " + nube" : ""})`;
+      } else if (serverHasAiKey) {
+        statusText = `☁️ Usando API Key compartida desde Google Sheets (modelo: ${currentModel}).`;
+      } else {
+        statusText = "⚠️ Ingresa tu API Key gratuita de Google AI Studio.";
+      }
+      document.getElementById("aiConfigStatusMsg").textContent = statusText;
+
+      const modal = document.getElementById("aiConfigModal");
+      if (!modal.classList.contains("open")) {
+        modal.classList.add("open");
+        pushNavState("aiConfigModal");
+      }
     }
 
-    function closeAiModal() {
-      document.getElementById("aiConfigModal").classList.remove("open");
+    function closeAiModal(fromPopstate = false) {
+      const modal = document.getElementById("aiConfigModal");
+      if (modal.classList.contains("open")) {
+        modal.classList.remove("open");
+        if (!fromPopstate && history.state && history.state.birappNav === "aiConfigModal") {
+          try { history.back(); } catch (_) {}
+        }
+      }
     }
 
     async function detectModelsFromApi() {
       const key = document.getElementById("aiApiKeyInput").value.trim() || getLocalAiKey();
       const msg = document.getElementById("aiConfigStatusMsg");
       if (!key) {
-        msg.textContent = "⚠️ Primero pega tu API Key arriba.";
+        msg.textContent = "⚠️ Primero pega tu API Key arriba para consultar tu cuenta.";
         return;
       }
       msg.textContent = "Consultando modelos en tu cuenta de AI Studio...";
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
+        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`, {}, 10000);
         const data = await res.json();
         if (!data.models) {
           msg.textContent = "⚠️ Clave inválida o sin modelos disponibles.";
@@ -2236,61 +3215,131 @@
       }
     }
 
-    function saveAiConfiguration() {
+    async function saveAiConfiguration() {
       const key = document.getElementById("aiApiKeyInput").value.trim();
-      const model = document.getElementById("aiModelSelect").value;
+      const model = normalizeClientAiModel(document.getElementById("aiModelSelect").value);
+      const saveBtn = document.getElementById("btnSaveAiConfig");
+      const msg = document.getElementById("aiConfigStatusMsg");
 
       if (key) {
         localStorage.setItem("birapp_gemini_key", key);
       }
       localStorage.setItem("birapp_gemini_model", model);
-
+      serverAiModel = model;
       updateAiIndicator();
-      closeAiModal();
-      showToast(`✨ Modelo ${model} guardado`);
+
+      if (navigator.onLine) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "⏳ Guardando...";
+        try {
+          const payloadData = { model };
+          if (key) payloadData.apiKey = key;
+          const res = await apiPost("saveAiConfig", { data: payloadData }, 12000);
+          if (res && typeof res.hasAiKey === "boolean") {
+            serverHasAiKey = res.hasAiKey;
+            updateAiIndicator();
+          }
+          closeAiModal();
+          showToast(`✨ ${model} guardado y sincronizado`);
+        } catch (err) {
+          closeAiModal();
+          showToast(`✨ ${model} guardado localmente`);
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = "💾 Guardar";
+        }
+      } else {
+        closeAiModal();
+        showToast(`✨ ${model} guardado localmente`);
+      }
     }
 
-    // Crea una miniatura ligera (~15 KB) exclusiva para enviar a la IA en milisegundos
-    function createFastAiThumbnail(dataUrl) {
-      return new Promise(resolve => {
-        if (!dataUrl) return resolve("");
-        const img = new Image();
-        img.onload = () => {
-          const MAX_DIM = 480;
-          let w = img.width;
-          let h = img.height;
-          if (w > MAX_DIM || h > MAX_DIM) {
-            if (w > h) {
-              h = Math.round((h * MAX_DIM) / w);
-              w = MAX_DIM;
-            } else {
-              w = Math.round((w * MAX_DIM) / h);
-              h = MAX_DIM;
-            }
-          }
-          const c = document.createElement("canvas");
-          c.width = w;
-          c.height = h;
-          c.getContext("2d").drawImage(img, 0, 0, w, h);
-          resolve(c.toDataURL("image/jpeg", 0.68));
-        };
-        img.onerror = () => resolve(dataUrl);
-        img.src = dataUrl;
+    async function clearAiApiKey() {
+      const ok = await askConfirm({
+        title: "Quitar API Key",
+        message: "¿Deseas eliminar la clave de Gemini guardada en este teléfono y en la nube?",
+        okText: "Sí, quitar",
+        danger: true
       });
+      if (!ok) return;
+
+      localStorage.removeItem("birapp_gemini_key");
+      document.getElementById("aiApiKeyInput").value = "";
+      serverHasAiKey = false;
+      updateAiIndicator();
+
+      if (navigator.onLine) {
+        try {
+          await apiPost("saveAiConfig", { data: { clearApiKey: true } }, 10000);
+        } catch (_) {}
+      }
+      document.getElementById("btnClearAiKey").style.display = "none";
+      document.getElementById("aiConfigStatusMsg").textContent = "🗑 API Key eliminada.";
+      showToast("🗑 Clave de IA eliminada");
+    }
+
+    async function testAiConnection() {
+      const msg = document.getElementById("aiConfigStatusMsg");
+      const btn = document.getElementById("btnTestAi");
+      const inputKey = document.getElementById("aiApiKeyInput").value.trim();
+      const effectiveKey = inputKey || getLocalAiKey();
+      const selectedModel = normalizeClientAiModel(document.getElementById("aiModelSelect").value);
+
+      if (!effectiveKey && !serverHasAiKey) {
+        msg.textContent = "⚠️ Primero pega tu API Key arriba para probar.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "⏳ Probando...";
+      msg.textContent = `Probando ${selectedModel} con búsqueda web real...`;
+      const started = performance.now();
+
+      try {
+        if (effectiveKey) {
+          const result = await callDirectGemini(
+            selectedModel,
+            effectiveKey,
+            [{
+              text: 'Busca en la web la cerveza chilena "Kunstmann Torobayo" y responde SOLO con JSON válido: {"cerveza":"Kunstmann Torobayo","estilo":"","alc":""}'
+            }],
+            { useSearchGrounding: true, phase: "web", timeoutMs: 18000 }
+          );
+          const sec = ((performance.now() - started) / 1000).toFixed(1);
+          const webInfo = result.sources.length ? `Web OK (${result.sources.join(", ")})` : "Sin citas web explícitas";
+          msg.textContent = `✅ ${selectedModel} respondió en ${sec}s • ${webInfo} • Ej: ${result.data.estilo || "Pale Ale"} ${result.data.alc || ""}`;
+        } else {
+          const res = await apiPost("testAiConfig", { data: { model: selectedModel } }, 25000);
+          const sec = ((res.elapsedMs || (performance.now() - started)) / 1000).toFixed(1);
+          const sources = (res.sources || []).join(", ");
+          msg.textContent = `✅ Nube (${res.model || selectedModel}) respondió en ${sec}s${sources ? " • Web OK (" + sources + ")" : ""}`;
+        }
+      } catch (err) {
+        msg.textContent = `❌ Error al probar ${selectedModel}: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🧪 Probar IA + Web";
+      }
     }
 
     async function triggerAiAnalysis() {
-      const imgBase64 = document.getElementById("imageBase64").value;
+      const savedThumb = document.getElementById("imageBase64").value;
+      const imageForAi = aiSourceBase64 || savedThumb;
       const hintNombre = document.getElementById("nombre").value.trim();
       const hintCerveceria = document.getElementById("cerveceria").value.trim();
 
-      if (!imgBase64 && !hintNombre && !hintCerveceria) {
-        showToast("📸 Primero toma/sube una foto o escribe el nombre de la cerveza");
+      if (!imageForAi && !hintNombre && !hintCerveceria) {
+        showToast("📸 Toma una foto o escribe el nombre/cervecería primero");
+        return;
+      }
+
+      if (!navigator.onLine) {
+        showToast("📡 Sin internet para consultar la IA. Puedes guardar la cata manualmente.");
         return;
       }
 
       const localKey = getLocalAiKey();
-      if (!localKey) {
+      if (!localKey && !serverHasAiKey) {
         openAiModal();
         showToast("Configura tu API Key gratuita de Gemini primero");
         return;
@@ -2300,113 +3349,234 @@
       const btn = document.getElementById("btnAnalyzeAi");
       const btnText = document.getElementById("btnAnalyzeAiText");
       btn.disabled = true;
-      btnText.textContent = `⚡ Leyendo etiqueta con ${selectedModel}...`;
 
       try {
-        const fastThumb = imgBase64 ? await createFastAiThumbnail(imgBase64) : "";
+        // Si el segundo teléfono no tiene clave local pero sí existe en Google Sheets, usar el backend
+        if (!localKey && serverHasAiKey) {
+          btnText.textContent = `☁️ Analizando con ${selectedModel}...`;
+          const serverRes = await apiPost("analyzeBeerImage", {
+            data: {
+              imageBase64: imageForAi,
+              nombre: hintNombre,
+              cerveceria: hintCerveceria,
+              knownBreweries,
+              knownStyles,
+              model: selectedModel
+            }
+          }, 35000);
 
-        // FASE 1: Lectura visual directa SIN google_search para que gemini-3.8-flash / 3.5-flash-lite
-        // no entre en bucle de agente de largo horizonte mientras procesa la imagen
-        if (fastThumb) {
-          const step1Data = await runFastVisionStep(localKey, selectedModel, fastThumb, hintNombre, hintCerveceria);
+          const payload = serverRes && serverRes.data ? serverRes.data : serverRes;
+          if (!payload) throw new Error("Respuesta vacía del servidor de IA.");
+          applyAiFieldsToForm(payload);
+          showToast("✨ ¡Datos completados con IA!");
+          return;
+        }
+
+        // Flujo directo rápido en 2 fases con la clave local
+        let step1Data = null;
+        if (imageForAi) {
+          btnText.textContent = `⚡ Leyendo etiqueta con ${selectedModel}...`;
+          step1Data = await runFastVisionStep(localKey, selectedModel, imageForAi, hintNombre, hintCerveceria);
           if (step1Data) {
             applyAiFieldsToForm(step1Data);
           }
         }
 
-        // FASE 2 (Solo si faltan °ALC, IBU o Estilo, o si se buscó por texto sin foto):
-        // Consulta rápida SOLO DE TEXTO con búsqueda web acotada a 12 segundos máximo
         const currentNombre = document.getElementById("nombre").value.trim();
         const currentCerveceria = document.getElementById("cerveceria").value.trim();
-        const missingTechSpecs = !document.getElementById("alc").value.trim() || !document.getElementById("ibu").value.trim() || !document.getElementById("estilo").value.trim();
+        const currentEstilo = document.getElementById("estilo").value.trim();
+        const currentAlc = document.getElementById("alc").value.trim();
+        const currentIbu = document.getElementById("ibu").value.trim();
 
-        if ((currentNombre || currentCerveceria) && (missingTechSpecs || !fastThumb)) {
-          btnText.textContent = "🌐 Buscando °ALC e IBU en la web...";
-          const webData = await runFastWebLookupStep(localKey, selectedModel, currentNombre, currentCerveceria);
-          if (webData) {
-            applyAiFieldsToForm({
-              nombre: webData.nombre || currentNombre,
-              cerveceria: webData.cerveceria || currentCerveceria,
-              estilo: webData.estilo || document.getElementById("estilo").value.trim(),
-              alc: webData.alc || document.getElementById("alc").value.trim(),
-              ibu: webData.ibu || document.getElementById("ibu").value.trim(),
-              notasSugeridas: webData.notasSugeridas || document.getElementById("comentario").value.trim(),
-              modeloUsado: webData.modeloUsado || selectedModel,
-              fuente: "Etiqueta + Web"
-            });
+        const needsWebLookup = !imageForAi ||
+          !currentEstilo ||
+          !currentAlc ||
+          !currentIbu ||
+          !(step1Data && step1Data.estiloLeidoEnEtiqueta) ||
+          !(step1Data && step1Data.alcLeidoEnEtiqueta) ||
+          !(step1Data && step1Data.ibuLeidoEnEtiqueta);
+
+        if ((currentNombre || currentCerveceria) && needsWebLookup) {
+          btnText.textContent = `🌐 Buscando °ALC, IBU y estilo con ${selectedModel}...`;
+          try {
+            const webData = await runFastWebLookupStep(localKey, selectedModel, currentNombre, currentCerveceria);
+            if (webData) {
+              const finalEstilo = (step1Data && step1Data.estiloLeidoEnEtiqueta && currentEstilo)
+                ? currentEstilo
+                : (webData.estilo || currentEstilo);
+              const finalAlc = (step1Data && step1Data.alcLeidoEnEtiqueta && currentAlc)
+                ? currentAlc
+                : (webData.alc || currentAlc);
+              const finalIbu = (step1Data && step1Data.ibuLeidoEnEtiqueta && currentIbu)
+                ? currentIbu
+                : (webData.ibu || currentIbu);
+
+              applyAiFieldsToForm({
+                nombre: currentNombre || webData.nombre,
+                cerveceria: currentCerveceria || webData.cerveceria,
+                estilo: finalEstilo,
+                alc: finalAlc,
+                ibu: finalIbu,
+                notasSugeridas: webData.notasSugeridas || document.getElementById("comentario").value.trim(),
+                modeloUsado: webData.modeloUsado || selectedModel,
+                fuente: imageForAi ? "Etiqueta + Web" : "Búsqueda Web",
+                fuentesWeb: webData.fuentesWeb || []
+              });
+            }
+          } catch (webErr) {
+            if (!step1Data) throw webErr;
+            setAiBannerWarning(`⚠️ Se leyó la etiqueta, pero falló la búsqueda web (${webErr.message}). Revisa o completa °ALC/IBU manual.`);
+            showToast("⚠️ Etiqueta leída; búsqueda web sin respuesta");
+            return;
           }
         }
 
         showToast("✨ ¡Datos completados con IA!");
       } catch (err) {
-        alert("No se pudo autocompletar con IA: " + err.message);
+        setAiBannerWarning(`⚠️ No se pudo completar con IA: ${err.message}`);
+        showToast("Error IA: " + err.message);
       } finally {
         btn.disabled = false;
         btnText.textContent = "✨ Autocompletar con IA + Web";
       }
     }
 
-    async function fetchWithTimeout(url, options, timeoutMs) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        return await fetch(url, { ...options, signal: controller.signal });
-      } finally {
-        clearTimeout(timer);
+    async function callDirectGemini(model, apiKey, parts, options = {}) {
+      const { useSearchGrounding = false, responseSchema = null, phase = "web", timeoutMs = 16000, skipThinking = false } = options;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+      const generationConfig = {};
+      if (supportsClientTemperature(model)) {
+        generationConfig.temperature = 0.1;
       }
+
+      if (!skipThinking) {
+        const tc = buildClientThinkingConfig(model, phase);
+        if (tc) generationConfig.thinkingConfig = tc;
+      }
+
+      const body = {
+        contents: [{ parts }],
+        generationConfig
+      };
+
+      if (useSearchGrounding) {
+        // Nunca combinar tools google_search con responseMimeType: application/json
+        body.tools = [{ google_search: {} }];
+      } else {
+        generationConfig.responseMimeType = "application/json";
+        if (responseSchema) generationConfig.responseSchema = responseSchema;
+      }
+
+      const res = await fetchWithTimeout(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      }, timeoutMs);
+
+      if (!res.ok) {
+        const errText = await res.text();
+        if (!skipThinking && isGeminiThinkingError(res.status, errText)) {
+          return callDirectGemini(model, apiKey, parts, {
+            useSearchGrounding,
+            responseSchema,
+            phase,
+            timeoutMs,
+            skipThinking: true
+          });
+        }
+        const error = new Error(`${model}: HTTP ${res.status}`);
+        error.authFatal = isGeminiAuthError(res.status, errText);
+        throw error;
+      }
+
+      const json = await res.json();
+      const candidate = json?.candidates?.[0];
+      const text = candidate?.content?.parts?.map(p => p.text || "").join("\n") || "";
+      const parsed = parseAiJson(text);
+      if (!parsed) {
+        throw new Error(`${model}: JSON inválido`);
+      }
+
+      const sources = extractGroundingSources(candidate?.groundingMetadata);
+      return { data: parsed, sources };
+    }
+
+    function extractGroundingSources(metadata) {
+      const chunks = metadata?.groundingChunks;
+      if (!Array.isArray(chunks)) return [];
+      const seen = new Set();
+      const out = [];
+      for (const ch of chunks) {
+        const label = String(ch?.web?.title || ch?.web?.uri || "").trim();
+        if (label && !seen.has(label)) {
+          seen.add(label);
+          out.push(label);
+        }
+        if (out.length >= 3) break;
+      }
+      return out;
     }
 
     async function runFastVisionStep(apiKey, preferredModel, imageBase64, hintNombre, hintCerveceria) {
       const promptText = [
-        "Extrae de inmediato los datos de la cerveza de esta imagen.",
+        "Eres un maestro sommelier cervecero. Extrae únicamente lo que lees con certeza en esta foto de cerveza/etiqueta.",
         hintNombre ? ("Pista Nombre: " + hintNombre) : "",
         hintCerveceria ? ("Pista Cervecería: " + hintCerveceria) : "",
-        knownBreweries.length ? ("Cervecerías conocidas del usuario (usa el mismo nombre si coincide): " + knownBreweries.join(", ")) : "",
-        "Si conoces esta cerveza comercial/artesanal o se lee en la etiqueta, completa también su estilo, °ALC (solo número ej '5.5') e IBU (solo número ej '20'). Si no salen en la foto y no los conoces con certeza, déjalos en ''.",
-        "Responde inmediatamente SOLO con este objeto JSON:",
-        '{"nombre":"","cerveceria":"","estilo":"","alc":"","ibu":"","notasSugeridas":""}'
+        knownBreweries.length ? ("Cervecerías ya registradas por el usuario (usa exactamente el mismo nombre si coincide): " + knownBreweries.slice(0, 60).join(", ")) : "",
+        knownStyles.length ? ("Estilos ya registrados por el usuario (úsalos como referencia si coincide): " + knownStyles.slice(0, 60).join(", ")) : "",
+        "REGLA CRÍTICA: Si °ALC, IBU o Estilo NO aparecen impresos en la foto, NO los inventes ni adivines: déjalos en '' y pon false en su campo *LeidoEnEtiqueta para que se busquen en la web en la fase siguiente.",
+        "Para 'alc' devuelve solo número (ej '5.5'). Para 'ibu' solo entero (ej '20')."
       ].filter(Boolean).join("\n");
 
       const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, "");
+      let mimeType = "image/jpeg";
+      const mimeMatch = imageBase64.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
+      if (mimeMatch && mimeMatch[1]) mimeType = mimeMatch[1];
+
       const parts = [
         { text: promptText },
-        { inline_data: { mime_type: "image/jpeg", data: cleanBase64 } }
+        { inline_data: { mime_type: mimeType, data: cleanBase64 } }
       ];
 
-      // Probar el modelo elegido (ej. gemini-3.8-flash) y como respaldo rápido gemini-3.5-flash-lite
-      const modelsToTry = [...new Set([preferredModel, "gemini-3.8-flash", "gemini-3.5-flash-lite"])];
+      const responseSchema = {
+        type: "OBJECT",
+        properties: {
+          nombre: { type: "STRING" },
+          cerveceria: { type: "STRING" },
+          estilo: { type: "STRING" },
+          alc: { type: "STRING" },
+          ibu: { type: "STRING" },
+          notasSugeridas: { type: "STRING" },
+          estiloLeidoEnEtiqueta: { type: "BOOLEAN" },
+          alcLeidoEnEtiqueta: { type: "BOOLEAN" },
+          ibuLeidoEnEtiqueta: { type: "BOOLEAN" }
+        },
+        required: ["nombre", "cerveceria", "estilo", "alc", "ibu", "estiloLeidoEnEtiqueta", "alcLeidoEnEtiqueta", "ibuLeidoEnEtiqueta"]
+      };
 
+      const modelsToTry = [...new Set([preferredModel, ...FALLBACK_AI_MODELS])];
       let lastErr = "";
+
       for (const model of modelsToTry) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-        const body = {
-          contents: [{ parts }],
-          generationConfig: {
-            temperature: 0.1,
-            responseMimeType: "application/json"
-          }
-        };
-
         try {
-          const res = await fetchWithTimeout(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-          }, 12000);
-
-          if (!res.ok) {
-            lastErr = `${model}: HTTP ${res.status}`;
-            continue;
-          }
-          const json = await res.json();
-          const text = json?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "";
-          const parsed = parseAiJson(text);
-          if (parsed) {
-            parsed.modeloUsado = model;
-            parsed.fuente = "Lectura Etiqueta";
-            return parsed;
-          }
+          const res = await callDirectGemini(model, apiKey, parts, {
+            useSearchGrounding: false,
+            responseSchema,
+            phase: "vision",
+            timeoutMs: 15000
+          });
+          const parsed = res.data;
+          parsed.modeloUsado = model;
+          parsed.fuente = "Lectura Etiqueta";
+          parsed.estiloLeidoEnEtiqueta = Boolean(parsed.estiloLeidoEnEtiqueta && String(parsed.estilo || "").trim());
+          parsed.alcLeidoEnEtiqueta = Boolean(parsed.alcLeidoEnEtiqueta && normalizeAlcInput(parsed.alc));
+          parsed.ibuLeidoEnEtiqueta = Boolean(parsed.ibuLeidoEnEtiqueta && normalizeIbuInput(parsed.ibu));
+          return parsed;
         } catch (e) {
+          if (e.authFatal) {
+            throw new Error("API Key inválida o sin permisos (" + e.message + ")");
+          }
           lastErr = e.name === "AbortError" ? `Timeout en ${model}` : e.message;
         }
       }
@@ -2415,46 +3585,40 @@
 
     async function runFastWebLookupStep(apiKey, preferredModel, nombre, cerveceria) {
       const searchPrompt = [
-        `Haz UNA sola búsqueda rápida para la cerveza "${nombre}" de la cervecería "${cerveceria}" (Chile / artesanal / Untappd).`,
-        "Obtén su Estilo, °ALC (% ABV, solo número ej '5.5') e IBU (solo número entero ej '18').",
-        "No hagas búsquedas adicionales. Responde DE INMEDIATO únicamente con este JSON:",
+        `Busca en la web la ficha técnica de la cerveza "${nombre}" de la cervecería "${cerveceria}" (Chile / artesanal / Untappd / sitio oficial).`,
+        knownBreweries.length ? ("Cervecerías del usuario (usa el mismo nombre si coincide): " + knownBreweries.slice(0, 60).join(", ")) : "",
+        knownStyles.length ? ("Estilos del usuario (úsalos si coincide exactamente): " + knownStyles.slice(0, 60).join(", ")) : "",
+        "Obtén su Estilo, °ALC (% ABV, solo número ej '5.5'), IBU (solo número entero ej '18', o '' si no existe) y una nota de cata breve en español (1 oración).",
+        "Responde DE INMEDIATO únicamente con este JSON sin markdown:",
         '{"nombre":"","cerveceria":"","estilo":"","alc":"","ibu":"","notasSugeridas":""}'
-      ].join("\n");
+      ].filter(Boolean).join("\n");
 
-      // Para la fase de búsqueda web rápida priorizamos el modelo elegido y gemini-3.5-flash-lite
-      const modelsToTry = [...new Set(["gemini-3.5-flash-lite", preferredModel, "gemini-3.8-flash"])];
+      const modelsToTry = [...new Set([preferredModel, ...FALLBACK_AI_MODELS])];
+      let lastErr = "";
 
       for (const model of modelsToTry) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-        const body = {
-          contents: [{ parts: [{ text: searchPrompt }] }],
-          tools: [{ google_search: {} }],
-          generationConfig: {
-            temperature: 0.1
-          }
-        };
-
         try {
-          const res = await fetchWithTimeout(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-          }, 12000);
-          if (!res.ok) continue;
-          const json = await res.json();
-          const text = json?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "";
-          const parsed = parseAiJson(text);
-          if (parsed) {
-            parsed.modeloUsado = model;
-            return parsed;
+          const res = await callDirectGemini(model, apiKey, [{ text: searchPrompt }], {
+            useSearchGrounding: true,
+            phase: "web",
+            timeoutMs: 18000
+          });
+          const parsed = res.data;
+          parsed.modeloUsado = model;
+          parsed.fuentesWeb = res.sources || [];
+          return parsed;
+        } catch (e) {
+          if (e.authFatal) {
+            throw new Error("API Key inválida o sin permisos (" + e.message + ")");
           }
-        } catch (_) {}
+          lastErr = e.name === "AbortError" ? `Timeout web en ${model}` : e.message;
+        }
       }
-      return null;
+      throw new Error(lastErr || "No se obtuvieron resultados web");
     }
 
     function parseAiJson(text) {
-      const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+      const cleaned = String(text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
       try {
         return JSON.parse(cleaned);
       } catch (_) {
@@ -2467,13 +3631,20 @@
       }
     }
 
+    function setAiBannerWarning(message) {
+      const banner = document.getElementById("aiResultBanner");
+      const bannerText = document.getElementById("aiResultText");
+      bannerText.textContent = message;
+      banner.classList.add("visible", "warning");
+    }
+
     function applyAiFieldsToForm(data) {
       const map = [
         { id: "nombre", val: data.nombre },
         { id: "cerveceria", val: data.cerveceria },
         { id: "estilo", val: data.estilo },
-        { id: "alc", val: data.alc !== undefined ? String(data.alc).replace("%", "").trim() : "" },
-        { id: "ibu", val: data.ibu !== undefined ? String(data.ibu).replace(/[^\d.]/g, "").trim() : "" }
+        { id: "alc", val: normalizeAlcInput(data.alc) },
+        { id: "ibu", val: normalizeIbuInput(data.ibu) }
       ];
 
       map.forEach(item => {
@@ -2492,14 +3663,277 @@
         comentarioEl.classList.add("ai-filled");
       }
 
+      const sourcesList = Array.isArray(data.fuentesWeb) && data.fuentesWeb.length
+        ? ` • Fuentes: ${data.fuentesWeb.slice(0, 2).join(", ")}`
+        : "";
+
       const banner = document.getElementById("aiResultBanner");
       const bannerText = document.getElementById("aiResultText");
-      bannerText.textContent = `✨ Completado (${data.modeloUsado || "Gemini"} • ${data.fuente || "Etiqueta + Web"})`;
+      banner.classList.remove("warning");
+      bannerText.textContent = `✨ Completado (${data.modeloUsado || DEFAULT_AI_MODEL} • ${data.fuente || "Etiqueta + Web"}${sourcesList})`;
       banner.classList.add("visible");
+
+      saveFormDraft();
+      checkDuplicateBeer();
     }
 
     // =========================================================================
-    // CARGA DE DATOS, FILTROS Y BODEGA (11 COLUMNAS REALES)
+    // SINCRONIZACIÓN, CACHÉ OFFLINE Y COLA DE PENDIENTES
+    // =========================================================================
+    function buildBeerDisplayObjFromData(itemData, id, isPending = true) {
+      return {
+        ID: id,
+        Fecha: itemData.fecha || "",
+        Nombre: itemData.nombre || "",
+        "Cervecería": itemData.cerveceria || "",
+        Estilo: itemData.estilo || "",
+        "° ALC": normalizeAlcInput(itemData.alc !== undefined ? itemData.alc : itemData["° ALC"]),
+        IBU: normalizeIbuInput(itemData.ibu !== undefined ? itemData.ibu : itemData["IBU"]),
+        "Nota Karina": itemData.notaKarina || "Sin puntuar",
+        "Nota Guillermo": itemData.notaGuillermo || "Sin puntuar",
+        Comentario: itemData.comentario || "",
+        Imagen: itemData.removeImage ? "" : (itemData.imagen || ""),
+        _pending: isPending
+      };
+    }
+
+    function mergePendingIntoBeers(baseList, queueItems) {
+      let list = Array.isArray(baseList) ? baseList.map(item => ({ ...item })) : [];
+
+      for (const q of queueItems) {
+        if (q.action === "deleteCerveza") {
+          const delId = String(q.body?.id || "");
+          list = list.filter(b => String(b.ID) !== delId);
+        } else if (q.action === "updateCerveza") {
+          const d = q.body?.data || {};
+          const idx = list.findIndex(b => String(b.ID) === String(d.id));
+          if (idx >= 0) {
+            const prevImg = getBeerField(list[idx], ["Imagen", "imagen"]);
+            const merged = buildBeerDisplayObjFromData(d, d.id, true);
+            if (!d.removeImage && !merged.Imagen) {
+              merged.Imagen = prevImg;
+            }
+            list[idx] = merged;
+          }
+        } else if (q.action === "addCerveza") {
+          const d = q.body?.data || {};
+          const cid = String(d.clientId || q.queueId);
+          if (!list.some(b => String(b.ID) === cid)) {
+            list.unshift(buildBeerDisplayObjFromData(d, cid, true));
+          }
+        }
+      }
+      return list;
+    }
+
+    async function refreshPendingQueueCount() {
+      const queue = await BirappDB.getQueue();
+      pendingQueueCount = queue.length;
+      await updateOfflineBanner();
+      return queue;
+    }
+
+    async function updateOfflineBanner() {
+      const banner = document.getElementById("offlineBanner");
+      const text = document.getElementById("offlineBannerText");
+      const syncNowBtn = document.getElementById("btnSyncNow");
+      const dot = document.getElementById("syncPendingDot");
+
+      dot.classList.toggle("visible", pendingQueueCount > 0);
+
+      if (!navigator.onLine) {
+        text.textContent = pendingQueueCount > 0
+          ? `📡 Sin conexión • ${pendingQueueCount} ${pendingQueueCount === 1 ? "cata pendiente" : "catas pendientes"} de subir.`
+          : "📡 Sin conexión. Mostrando bodega guardada en tu teléfono.";
+        syncNowBtn.style.display = "none";
+        banner.classList.add("visible");
+      } else if (pendingQueueCount > 0) {
+        text.textContent = `⏳ Tienes ${pendingQueueCount} ${pendingQueueCount === 1 ? "cambio pendiente" : "cambios pendientes"} de subir a Google Sheets.`;
+        syncNowBtn.style.display = "inline-block";
+        banner.classList.add("visible");
+      } else {
+        banner.classList.remove("visible");
+      }
+    }
+
+    async function applyServerSnapshot(snapshot) {
+      serverCervezasData = Array.isArray(snapshot.cervezas) ? snapshot.cervezas : [];
+      if (snapshot.hasAiKey !== undefined) serverHasAiKey = Boolean(snapshot.hasAiKey);
+      if (snapshot.aiModel) serverAiModel = normalizeClientAiModel(snapshot.aiModel);
+
+      await BirappDB.setCache("beers", {
+        cervezas: serverCervezasData,
+        cervecerias: snapshot.cervecerias || [],
+        estilos: snapshot.estilos || [],
+        hasAiKey: serverHasAiKey,
+        aiModel: serverAiModel,
+        updatedAt: Date.now()
+      });
+
+      const queue = await refreshPendingQueueCount();
+      cervezasData = mergePendingIntoBeers(serverCervezasData, queue);
+
+      if (snapshot.cervecerias || snapshot.estilos) {
+        populateDatalists({
+          cervecerias: snapshot.cervecerias || [],
+          estilos: snapshot.estilos || []
+        });
+      }
+      extractSuggestionsFromData(cervezasData);
+      updateAiIndicator();
+      applyFiltersAndRender();
+      renderStats();
+      checkDuplicateBeer();
+      lastSyncAt = Date.now();
+    }
+
+    async function hydrateFromCache() {
+      const cached = await BirappDB.getCache("beers");
+      if (!cached || !Array.isArray(cached.cervezas)) return false;
+
+      serverCervezasData = cached.cervezas;
+      if (cached.hasAiKey !== undefined) serverHasAiKey = Boolean(cached.hasAiKey);
+      if (cached.aiModel) serverAiModel = normalizeClientAiModel(cached.aiModel);
+
+      const queue = await BirappDB.getQueue();
+      pendingQueueCount = queue.length;
+      cervezasData = mergePendingIntoBeers(serverCervezasData, queue);
+
+      document.getElementById("loading").style.display = "none";
+      populateDatalists({
+        cervecerias: cached.cervecerias || [],
+        estilos: cached.estilos || []
+      });
+      extractSuggestionsFromData(cervezasData);
+      updateAiIndicator();
+      applyFiltersAndRender();
+      renderStats();
+      await updateOfflineBanner();
+      return true;
+    }
+
+    async function syncFromServer({ silent = false } = {}) {
+      if (isSyncing || !navigator.onLine) return;
+      isSyncing = true;
+      const syncBtn = document.getElementById("syncBtn");
+      syncBtn.classList.add("syncing");
+      if (!silent && cervezasData.length === 0) {
+        document.getElementById("loading").style.display = "flex";
+      }
+
+      try {
+        let bootstrapData;
+        try {
+          bootstrapData = await apiGet("getBootstrap", 15000);
+        } catch (bootstrapErr) {
+          // Fallback automático para backends Codigo.gs antiguos sin getBootstrap
+          const [cervezas, suggestions] = await Promise.all([
+            apiGet("getCervezas", 15000),
+            apiGet("getSuggestions", 15000).catch(() => ({ cervecerias: [], estilos: [] }))
+          ]);
+          bootstrapData = {
+            cervezas: Array.isArray(cervezas) ? cervezas : [],
+            cervecerias: suggestions.cervecerias || [],
+            estilos: suggestions.estilos || [],
+            hasAiKey: suggestions.hasAiKey,
+            aiModel: suggestions.aiModel
+          };
+        }
+
+        await applyServerSnapshot(bootstrapData);
+        if (!silent) {
+          showToast("🔄 Bodega actualizada");
+        }
+      } catch (err) {
+        console.error("Error syncing:", err);
+        if (!silent) {
+          showToast(cervezasData.length ? "⚠️ No se pudo actualizar ahora (usando copia local)" : "Error al conectar con la planilla");
+        }
+      } finally {
+        document.getElementById("loading").style.display = "none";
+        syncBtn.classList.remove("syncing");
+        isSyncing = false;
+      }
+    }
+
+    async function flushOfflineQueue({ silentIfEmpty = false } = {}) {
+      if (isFlushingQueue || !navigator.onLine) return 0;
+      const queue = await BirappDB.getQueue();
+      if (!queue.length) {
+        pendingQueueCount = 0;
+        await updateOfflineBanner();
+        return 0;
+      }
+
+      isFlushingQueue = true;
+      const syncBtn = document.getElementById("syncBtn");
+      syncBtn.classList.add("syncing");
+      let syncedCount = 0;
+      let latestServerList = null;
+
+      try {
+        for (const item of queue) {
+          if (!navigator.onLine) break;
+          try {
+            const res = await apiPost(item.action, item.body, 22000);
+            if (Array.isArray(res)) {
+              latestServerList = res;
+            }
+            await BirappDB.deleteQueueItem(item.queueId);
+            syncedCount++;
+          } catch (err) {
+            const msg = String(err.message || "").toLowerCase();
+            // Errores transitorios de red, timeout o bloqueo temporal de Sheets: detener y reintentar luego
+            if (isNetworkOrTimeoutError(err) || msg.includes("otro dispositivo") || msg.includes("http 5")) {
+              break;
+            }
+            // Error determinístico (ej. registro ya eliminado en Sheets): descartar de la cola para no atascar los siguientes
+            await BirappDB.deleteQueueItem(item.queueId);
+            showToast(`⚠️ Un cambio pendiente se omitió: ${err.message}`);
+          }
+        }
+
+        if (latestServerList) {
+          serverCervezasData = latestServerList;
+          await BirappDB.setCache("beers", {
+            cervezas: serverCervezasData,
+            cervecerias: knownBreweries,
+            estilos: knownStyles,
+            hasAiKey: serverHasAiKey,
+            aiModel: serverAiModel,
+            updatedAt: Date.now()
+          });
+        }
+
+        const remaining = await refreshPendingQueueCount();
+        cervezasData = mergePendingIntoBeers(serverCervezasData, remaining);
+        extractSuggestionsFromData(cervezasData);
+        applyFiltersAndRender();
+        renderStats();
+
+        if (syncedCount > 0) {
+          showToast(`✅ ${syncedCount} ${syncedCount === 1 ? "cambio subido" : "cambios subidos"} a Google Sheets`);
+        } else if (!silentIfEmpty) {
+          showToast("⏳ Aún sin conexión estable para subir");
+        }
+      } finally {
+        syncBtn.classList.remove("syncing");
+        isFlushingQueue = false;
+      }
+      return syncedCount;
+    }
+
+    async function manualSync() {
+      if (!navigator.onLine) {
+        showToast("📡 Sin internet en este momento");
+        return;
+      }
+      await flushOfflineQueue({ silentIfEmpty: true });
+      await syncFromServer({ silent: false });
+    }
+
+    // =========================================================================
+    // CARGA DE DATOS, SUGERENCIAS, FILTROS Y BODEGA (11 COLUMNAS REALES)
     // =========================================================================
     function getBeerField(beer, candidates) {
       for (const key of candidates) {
@@ -2507,7 +3941,6 @@
           return String(beer[key]).trim();
         }
       }
-      // Búsqueda tolerante a codificación para ° ALC y Cervecería
       for (const k of Object.keys(beer)) {
         const upper = k.toUpperCase();
         if (candidates.includes("° ALC") && upper.includes("ALC") && String(beer[k]).trim() !== "") {
@@ -2520,22 +3953,9 @@
       return "";
     }
 
-    function loadSuggestions() {
-      fetch(`${SCRIPT_URL}?action=getSuggestions`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.hasAiKey) {
-            serverHasAiKey = true;
-            updateAiIndicator();
-          }
-          populateDatalists(data);
-        })
-        .catch(err => console.error("Error loading suggestions:", err));
-    }
-
     function populateDatalists(data) {
-      knownBreweries = data.cervecerias || [];
-      knownStyles = data.estilos || [];
+      knownBreweries = (data.cervecerias || []).filter(Boolean);
+      knownStyles = (data.estilos || []).filter(Boolean);
 
       const listCerv = document.getElementById("cerveceriasList");
       const listEsti = document.getElementById("estilosList");
@@ -2551,45 +3971,22 @@
       filterStyle.innerHTML = `<option value="">🌾 Todos los estilos</option>`;
 
       knownBreweries.forEach(c => {
-        if (c) {
-          listCerv.innerHTML += `<option value="${escapeHtml(c)}">`;
-          filterBrewery.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
-        }
+        listCerv.innerHTML += `<option value="${escapeHtml(c)}">`;
+        filterBrewery.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
       });
 
       knownStyles.forEach(e => {
-        if (e) {
-          listEsti.innerHTML += `<option value="${escapeHtml(e)}">`;
-          filterStyle.innerHTML += `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`;
-        }
+        listEsti.innerHTML += `<option value="${escapeHtml(e)}">`;
+        filterStyle.innerHTML += `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`;
       });
 
-      filterBrewery.value = prevBrew;
-      filterStyle.value = prevStyle;
-    }
-
-    function loadBeers() {
-      document.getElementById("loading").style.display = "flex";
-      document.getElementById("beerList").innerHTML = "";
-      fetch(`${SCRIPT_URL}?action=getCervezas`)
-        .then(res => res.json())
-        .then(data => {
-          cervezasData = Array.isArray(data) ? data : [];
-          document.getElementById("loading").style.display = "none";
-          extractSuggestionsFromData(cervezasData);
-          applyFiltersAndRender();
-          renderStats();
-        })
-        .catch(err => {
-          document.getElementById("loading").style.display = "none";
-          console.error("Error loading beers:", err);
-          showToast("Error al conectar con la planilla");
-        });
+      filterBrewery.value = [...filterBrewery.options].some(o => o.value === prevBrew) ? prevBrew : "";
+      filterStyle.value = [...filterStyle.options].some(o => o.value === prevStyle) ? prevStyle : "";
     }
 
     function extractSuggestionsFromData(data) {
-      const bSet = new Set(knownBreweries);
-      const sSet = new Set(knownStyles);
+      const bSet = new Set();
+      const sSet = new Set();
       data.forEach(beer => {
         const c = getBeerField(beer, ["Cervecería", "cerveceria"]);
         const s = getBeerField(beer, ["Estilo", "estilo"]);
@@ -2597,16 +3994,16 @@
         if (s) sSet.add(s);
       });
       populateDatalists({
-        cervecerias: Array.from(bSet).sort(),
-        estilos: Array.from(sSet).sort()
+        cervecerias: Array.from(bSet).sort((a, b) => a.localeCompare(b, "es")),
+        estilos: Array.from(sSet).sort((a, b) => a.localeCompare(b, "es"))
       });
     }
 
     function computeScores(beer) {
       const nK = getBeerField(beer, ["Nota Karina", "notaKarina"]) || "Sin puntuar";
       const nG = getBeerField(beer, ["Nota Guillermo", "notaGuillermo"]) || "Sin puntuar";
-      const kVal = parseFloat(nK);
-      const gVal = parseFloat(nG);
+      const kVal = parseFloat(nK.replace(",", "."));
+      const gVal = parseFloat(nG.replace(",", "."));
       let avgNum = NaN;
       if (!isNaN(kVal) && !isNaN(gVal)) avgNum = (kVal + gVal) / 2;
       else if (!isNaN(kVal)) avgNum = kVal;
@@ -2621,6 +4018,19 @@
       };
     }
 
+    function onSearchInput() {
+      const val = document.getElementById("searchInput").value;
+      document.getElementById("clearSearchBtn").classList.toggle("visible", Boolean(val));
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(applyFiltersAndRender, 120);
+    }
+
+    function clearSearchInput() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("clearSearchBtn").classList.remove("visible");
+      applyFiltersAndRender();
+    }
+
     function setSortMode(mode, btnEl) {
       currentSortMode = mode;
       document.querySelectorAll(".filter-chips .chip").forEach(c => c.classList.remove("active"));
@@ -2628,8 +4038,17 @@
       applyFiltersAndRender();
     }
 
+    function resetAllFilters() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("clearSearchBtn").classList.remove("visible");
+      document.getElementById("filterBrewery").value = "";
+      document.getElementById("filterStyle").value = "";
+      const recentChip = document.querySelector('.filter-chips .chip[data-sort="recent"]');
+      setSortMode("recent", recentChip);
+    }
+
     function applyFiltersAndRender() {
-      const query = (document.getElementById("searchInput").value || "").toLowerCase().trim();
+      const query = normalizeTextForSearch(document.getElementById("searchInput").value);
       const brewFilter = document.getElementById("filterBrewery").value;
       const styleFilter = document.getElementById("filterStyle").value;
 
@@ -2642,8 +4061,13 @@
         if (brewFilter && cerveceria !== brewFilter) return false;
         if (styleFilter && estilo !== styleFilter) return false;
 
+        if (currentSortMode === "unrated") {
+          const sc = computeScores(beer);
+          if (!isNaN(sc.kVal) && !isNaN(sc.gVal)) return false;
+        }
+
         if (query) {
-          const haystack = `${nombre} ${cerveceria} ${estilo} ${comentario}`.toLowerCase();
+          const haystack = normalizeTextForSearch(`${nombre} ${cerveceria} ${estilo} ${comentario}`);
           if (!haystack.includes(query)) return false;
         }
         return true;
@@ -2662,12 +4086,38 @@
           return (isNaN(sb.gVal) ? -1 : sb.gVal) - (isNaN(sa.gVal) ? -1 : sa.gVal);
         }
         if (currentSortMode === "alc") {
-          const alcA = parseFloat(getBeerField(a, ["° ALC", "alc"]).replace(",", ".")) || -1;
-          const alcB = parseFloat(getBeerField(b, ["° ALC", "alc"]).replace(",", ".")) || -1;
+          const alcA = parseFloat(normalizeAlcInput(getBeerField(a, ["° ALC", "alc"]))) || -1;
+          const alcB = parseFloat(normalizeAlcInput(getBeerField(b, ["° ALC", "alc"]))) || -1;
           return alcB - alcA;
         }
-        return 0; // "recent" mantiene el orden inverso cronológico del servidor
+        if (currentSortMode === "ibu") {
+          const ibuA = parseFloat(normalizeIbuInput(getBeerField(a, ["IBU", "ibu"]))) || -1;
+          const ibuB = parseFloat(normalizeIbuInput(getBeerField(b, ["IBU", "ibu"]))) || -1;
+          return ibuB - ibuA;
+        }
+        if (currentSortMode === "recent") {
+          const tsA = parseFechaToTimestamp(getBeerField(a, ["Fecha", "fecha"]));
+          const tsB = parseFechaToTimestamp(getBeerField(b, ["Fecha", "fecha"]));
+          if (tsB !== tsA) return tsB - tsA;
+          return 0;
+        }
+        return 0;
       });
+
+      const hasFilters = Boolean(query || brewFilter || styleFilter || currentSortMode !== "recent");
+      const summary = document.getElementById("resultsSummary");
+      const summaryText = document.getElementById("resultsSummaryText");
+      const resetBtn = document.getElementById("btnResetFilters");
+
+      if (cervezasData.length > 0) {
+        summary.classList.add("visible");
+        summaryText.textContent = filtered.length === cervezasData.length
+          ? `${cervezasData.length} ${cervezasData.length === 1 ? "cerveza en bodega" : "cervezas en bodega"}`
+          : `Mostrando ${filtered.length} de ${cervezasData.length} cervezas`;
+        resetBtn.style.display = hasFilters ? "inline-block" : "none";
+      } else {
+        summary.classList.remove("visible");
+      }
 
       renderBeerList(filtered);
     }
@@ -2692,18 +4142,19 @@
         const nombre = getBeerField(beer, ["Nombre", "nombre"]) || "Sin Nombre";
         const cerveceria = getBeerField(beer, ["Cervecería", "cerveceria"]) || "-";
         const estilo = getBeerField(beer, ["Estilo", "estilo"]) || "-";
-        const alc = getBeerField(beer, ["° ALC", "alc"]);
-        const ibu = getBeerField(beer, ["IBU", "ibu"]);
+        const alc = normalizeAlcInput(getBeerField(beer, ["° ALC", "alc"]));
+        const ibu = normalizeIbuInput(getBeerField(beer, ["IBU", "ibu"]));
         const fecha = getBeerField(beer, ["Fecha", "fecha"]);
         const imgBase64 = getBeerField(beer, ["Imagen", "imagen"]);
         const scores = computeScores(beer);
 
-        const mediaHtml = imgBase64
-          ? `<img src="${imgBase64}" class="beer-thumb" loading="lazy" alt="${escapeHtml(nombre)}">`
+        const mediaHtml = isSafeImageSrc(imgBase64)
+          ? `<img src="${escapeHtml(imgBase64)}" class="beer-thumb" loading="lazy" alt="${escapeHtml(nombre)}">`
           : `<div class="default-icon-container">${defaultBeerSvg}</div>`;
 
         const alcBadge = alc && alc !== "-" ? `<span class="meta-pill">💧 ${escapeHtml(alc)}°</span>` : "";
         const ibuBadge = ibu && ibu !== "-" ? `<span class="meta-pill hop">🌿 ${escapeHtml(ibu)} IBU</span>` : "";
+        const pendingBadge = beer._pending ? `<span class="meta-pill pending">⏳ Pendiente</span>` : "";
 
         const item = document.createElement("div");
         item.className = "beer-item";
@@ -2716,6 +4167,7 @@
               <h3>${escapeHtml(nombre)}</h3>
               <div class="brewery-line">${escapeHtml(cerveceria)} • ${escapeHtml(estilo)}</div>
               <div class="beer-meta-tags">
+                ${pendingBadge}
                 ${alcBadge}
                 ${ibuBadge}
                 ${fecha ? `<span class="meta-pill">${escapeHtml(fecha)}</span>` : ""}
@@ -2723,7 +4175,7 @@
             </div>
             <div class="beer-score-box">
               <div class="avg-num">${scores.avgText}</div>
-              <div class="sub-scores">👩🏻${ isNaN(scores.kVal) ? "-" : scores.kVal } · 👨🏻${ isNaN(scores.gVal) ? "-" : scores.gVal }</div>
+              <div class="sub-scores">👩🏻${isNaN(scores.kVal) ? "-" : scores.kVal} · 👨🏻${isNaN(scores.gVal) ? "-" : scores.gVal}</div>
             </div>
           </div>
         `;
@@ -2732,33 +4184,33 @@
     }
 
     // =========================================================================
-    // VISTA DETALLE Y LIGHTBOX
+    // VISTA DETALLE, LIGHTBOX Y COMPARTIR FICHA
     // =========================================================================
     function showDetails(beerId) {
       const beer = cervezasData.find(b => String(b.ID) === String(beerId));
       if (!beer) return;
+      currentDetailBeerId = beer.ID;
 
       const nombre = getBeerField(beer, ["Nombre", "nombre"]) || "Sin Nombre";
       const cerveceria = getBeerField(beer, ["Cervecería", "cerveceria"]) || "-";
       const estilo = getBeerField(beer, ["Estilo", "estilo"]) || "-";
-      const alc = getBeerField(beer, ["° ALC", "alc"]) || "-";
-      const ibu = getBeerField(beer, ["IBU", "ibu"]) || "-";
+      const alc = normalizeAlcInput(getBeerField(beer, ["° ALC", "alc"])) || "-";
+      const ibu = normalizeIbuInput(getBeerField(beer, ["IBU", "ibu"])) || "-";
       const fecha = getBeerField(beer, ["Fecha", "fecha"]) || "-";
       const comentario = getBeerField(beer, ["Comentario", "comentario"]);
       const imgBase64 = getBeerField(beer, ["Imagen", "imagen"]);
       const scores = computeScores(beer);
 
-      const heroHtml = imgBase64
-        ? `<div class="detalle-hero" onclick="openLightbox('${ beer.ID }')">
-             <img src="${imgBase64}" class="hero-blur-bg" alt="">
-             <img src="${imgBase64}" class="hero-main-img" alt="${escapeHtml(nombre)}">
+      const safeImg = isSafeImageSrc(imgBase64) ? escapeHtml(imgBase64) : "";
+      const heroHtml = safeImg
+        ? `<div class="detalle-hero" id="detailHeroZoom">
+             <img src="${safeImg}" class="hero-blur-bg" alt="">
+             <img src="${safeImg}" class="hero-main-img" alt="${escapeHtml(nombre)}">
              <span class="zoom-hint-badge">🔍 Toca para ampliar</span>
            </div>`
         : `<div style="height:150px; background:var(--primary-Soft); color:var(--primary); display:flex; align-items:center; justify-content:center;">
              ${defaultBeerSvg}
            </div>`;
-
-      const encodedId = encodeURIComponent(beer.ID);
 
       document.getElementById("detalleCard").innerHTML = `
         ${heroHtml}
@@ -2801,51 +4253,138 @@
           </div>
 
           <h4 style="color:var(--text-muted); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Notas de Cata</h4>
-          <p style="margin-bottom:22px; color:var(--text-main); line-height:1.55; font-size:14.5px; background:var(--surface-alt); padding:14px; border-radius:14px; border:1px solid var(--border);">
-            ${comentario ? escapeHtml(comentario) : "<i style='color:var(--text-muted)'>Sin notas adicionales escritas.</i>"}
-          </p>
+          <p class="detalle-notes">${comentario ? escapeHtml(comentario) : "<i style='color:var(--text-muted)'>Sin notas adicionales escritas.</i>"}</p>
 
-          <div style="display:flex; gap:10px;">
-            <button type="button" class="btn" style="flex:1" onclick="setupEdit('${encodedId}')">✏️ Editar</button>
-            <button type="button" class="btn btn-delete" style="flex:1; margin-top:0;" onclick="deleteBeer('${encodedId}')">🗑 Borrar</button>
+          <div class="detalle-actions-grid">
+            <button type="button" class="btn" id="btnDetailEdit">✏️ Editar</button>
+            <button type="button" class="btn btn-secondary" id="btnDetailShare">📤 Compartir</button>
+            <button type="button" class="btn btn-delete" id="btnDetailDelete" style="margin-top:0;">🗑 Borrar</button>
           </div>
         </div>
       `;
+
+      const zoomEl = document.getElementById("detailHeroZoom");
+      if (zoomEl) zoomEl.onclick = () => openLightbox(beer.ID);
+      document.getElementById("btnDetailEdit").onclick = () => setupEdit(beer.ID);
+      document.getElementById("btnDetailShare").onclick = () => shareBeer(beer.ID);
+      document.getElementById("btnDetailDelete").onclick = () => deleteBeer(beer.ID);
+
       switchTab("detalles");
+    }
+
+    async function shareBeer(beerId) {
+      const beer = cervezasData.find(b => String(b.ID) === String(beerId));
+      if (!beer) return;
+
+      const nombre = getBeerField(beer, ["Nombre", "nombre"]) || "Cerveza";
+      const cerveceria = getBeerField(beer, ["Cervecería", "cerveceria"]);
+      const estilo = getBeerField(beer, ["Estilo", "estilo"]);
+      const alc = normalizeAlcInput(getBeerField(beer, ["° ALC", "alc"]));
+      const ibu = normalizeIbuInput(getBeerField(beer, ["IBU", "ibu"]));
+      const comentario = getBeerField(beer, ["Comentario", "comentario"]);
+      const scores = computeScores(beer);
+
+      const specs = [
+        estilo || "",
+        alc ? `${alc}° ALC` : "",
+        ibu ? `${ibu} IBU` : ""
+      ].filter(Boolean).join(" • ");
+
+      const lines = [
+        `🍺 ${nombre}${cerveceria ? " — " + cerveceria : ""}`,
+        specs ? `📋 ${specs}` : "",
+        `⭐ Nota Birapp: ${scores.avgText}/10 (👩🏻 ${isNaN(scores.kVal) ? "-" : scores.kVal} | 👨🏻 ${isNaN(scores.gVal) ? "-" : scores.gVal})`,
+        comentario ? `📝 "${comentario}"` : ""
+      ].filter(Boolean);
+
+      const shareText = lines.join("\n");
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: `${nombre} — Birapp`, text: shareText });
+          return;
+        } catch (err) {
+          if (err && err.name === "AbortError") return;
+        }
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(shareText);
+          showToast("📋 Ficha copiada para compartir");
+          return;
+        } catch (_) {}
+      }
+
+      showToast("Tu navegador no permite compartir automáticamente");
     }
 
     function openLightbox(beerId) {
       const beer = cervezasData.find(b => String(b.ID) === String(beerId));
       if (!beer) return;
       const img = getBeerField(beer, ["Imagen", "imagen"]);
-      if (!img) return;
+      if (!isSafeImageSrc(img)) return;
       document.getElementById("lightboxImg").src = img;
-      document.getElementById("lightboxModal").classList.add("open");
+      const modal = document.getElementById("lightboxModal");
+      if (!modal.classList.contains("open")) {
+        modal.classList.add("open");
+        pushNavState("lightboxModal");
+      }
     }
 
-    function closeLightbox() {
-      document.getElementById("lightboxModal").classList.remove("open");
+    function closeLightbox(fromPopstate = false) {
+      const modal = document.getElementById("lightboxModal");
+      if (modal.classList.contains("open")) {
+        modal.classList.remove("open");
+        if (!fromPopstate && history.state && history.state.birappNav === "lightboxModal") {
+          try { history.back(); } catch (_) {}
+        }
+      }
     }
 
     // =========================================================================
-    // GUARDAR, EDITAR Y ELIMINAR CERVEZA
+    // GUARDAR, EDITAR Y ELIMINAR CERVEZA (CON SOPORTE OFFLINE EN COLA)
     // =========================================================================
-    function saveBeer(e) {
+    async function enqueueOfflineAction(action, bodyPayload) {
+      const queueId = "q-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+      await BirappDB.putQueueItem({
+        queueId,
+        action,
+        body: bodyPayload,
+        createdAt: Date.now()
+      });
+      const queue = await refreshPendingQueueCount();
+      cervezasData = mergePendingIntoBeers(serverCervezasData, queue);
+      extractSuggestionsFromData(cervezasData);
+      applyFiltersAndRender();
+      renderStats();
+    }
+
+    async function saveBeer(e) {
       e.preventDefault();
       const btn = document.getElementById("btnSubmit");
-      btn.textContent = "⏳ Guardando en Google Sheets...";
+      const existingId = document.getElementById("beerId").value.trim();
+      const isEdit = Boolean(existingId);
+      const restoreLabel = isEdit ? "💾 Guardar Cambios" : "💾 Guardar Cerveza";
+
+      btn.textContent = "⏳ Guardando...";
       btn.disabled = true;
 
+      const alcClean = normalizeAlcInput(document.getElementById("alc").value);
+      const ibuClean = normalizeIbuInput(document.getElementById("ibu").value);
+      const clientId = isEdit ? "" : ("bir-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7));
+
       const data = {
-        id: document.getElementById("beerId").value,
+        id: existingId,
+        clientId,
         fecha: formatearFecha(document.getElementById("fecha").value),
         nombre: document.getElementById("nombre").value.trim(),
         cerveceria: document.getElementById("cerveceria").value.trim(),
         estilo: document.getElementById("estilo").value.trim(),
-        alc: document.getElementById("alc").value.trim(),
-        "° ALC": document.getElementById("alc").value.trim(),
-        ibu: document.getElementById("ibu").value.trim(),
-        "IBU": document.getElementById("ibu").value.trim(),
+        alc: alcClean,
+        "° ALC": alcClean,
+        ibu: ibuClean,
+        "IBU": ibuClean,
         notaKarina: document.getElementById("notaKarina").value,
         notaGuillermo: document.getElementById("notaGuillermo").value,
         comentario: document.getElementById("comentario").value.trim(),
@@ -2853,46 +4392,71 @@
         removeImage: document.getElementById("removeImageFlag").value === "true"
       };
 
-      const action = data.id ? "updateCerveza" : "addCerveza";
+      const action = isEdit ? "updateCerveza" : "addCerveza";
+      const bodyPayload = { data, payload: data };
 
-      apiPost(action, { data: data, payload: data })
-        .then(response => {
-          cervezasData = Array.isArray(response) ? response : cervezasData;
-          extractSuggestionsFromData(cervezasData);
-          applyFiltersAndRender();
-          renderStats();
+      if (!navigator.onLine) {
+        await enqueueOfflineAction(action, bodyPayload);
+        cancelEdit();
+        showToast("📡 Sin señal: guardada en tu teléfono para subir luego");
+        switchTab("historial");
+        return;
+      }
+
+      try {
+        const response = await apiPost(action, bodyPayload, 22000);
+        if (Array.isArray(response)) {
+          serverCervezasData = response;
+          await BirappDB.setCache("beers", {
+            cervezas: serverCervezasData,
+            cervecerias: knownBreweries,
+            estilos: knownStyles,
+            hasAiKey: serverHasAiKey,
+            aiModel: serverAiModel,
+            updatedAt: Date.now()
+          });
+          lastSyncAt = Date.now();
+        }
+        const queue = await refreshPendingQueueCount();
+        cervezasData = mergePendingIntoBeers(serverCervezasData, queue);
+        extractSuggestionsFromData(cervezasData);
+        applyFiltersAndRender();
+        renderStats();
+        cancelEdit();
+        showToast("🍻 ¡Cerveza guardada con éxito!");
+        switchTab("historial");
+      } catch (err) {
+        if (isNetworkOrTimeoutError(err)) {
+          await enqueueOfflineAction(action, bodyPayload);
           cancelEdit();
-          showToast("🍻 ¡Cerveza guardada con éxito!");
+          showToast("📡 Conexión lenta/caída: guardada en cola local");
           switchTab("historial");
-        })
-        .catch(err => {
-          btn.textContent = "💾 Guardar Cerveza";
-          btn.disabled = false;
-          alert("Error al guardar: " + err.message);
-        });
+          return;
+        }
+        btn.textContent = restoreLabel;
+        btn.disabled = false;
+        showToast("Error al guardar: " + err.message);
+      }
     }
 
-    function setupEdit(encodedId) {
-      const id = decodeURIComponent(encodedId);
-      const beer = cervezasData.find(b => String(b.ID) === String(id));
+    function setupEdit(beerId) {
+      const beer = cervezasData.find(b => String(b.ID) === String(beerId));
       if (!beer) return;
 
       document.getElementById("formTitle").textContent = "✏️ Editar Cerveza";
       document.getElementById("beerId").value = beer.ID;
       document.getElementById("removeImageFlag").value = "false";
+      document.getElementById("duplicateAlert").classList.remove("visible");
+      document.getElementById("btnResetDraft").style.display = "none";
 
-      const f = getBeerField(beer, ["Fecha", "fecha"]).split("/");
-      if (f.length === 3) {
-        document.getElementById("fecha").value = `${f[2]}-${f[1].padStart(2, "0")}-${f[0].padStart(2, "0")}`;
-      } else {
-        document.getElementById("fecha").valueAsDate = new Date();
-      }
+      const isoDate = parseFechaToISO(getBeerField(beer, ["Fecha", "fecha"]));
+      document.getElementById("fecha").value = isoDate || getTodayLocalISO();
 
       document.getElementById("nombre").value = getBeerField(beer, ["Nombre", "nombre"]);
       document.getElementById("cerveceria").value = getBeerField(beer, ["Cervecería", "cerveceria"]);
       document.getElementById("estilo").value = getBeerField(beer, ["Estilo", "estilo"]);
-      document.getElementById("alc").value = getBeerField(beer, ["° ALC", "alc"]);
-      document.getElementById("ibu").value = getBeerField(beer, ["IBU", "ibu"]);
+      document.getElementById("alc").value = normalizeAlcInput(getBeerField(beer, ["° ALC", "alc"]));
+      document.getElementById("ibu").value = normalizeIbuInput(getBeerField(beer, ["IBU", "ibu"]));
       document.getElementById("comentario").value = getBeerField(beer, ["Comentario", "comentario"]);
 
       setPersonRatingUI("Karina", getBeerField(beer, ["Nota Karina", "notaKarina"]));
@@ -2900,15 +4464,21 @@
 
       const img = getBeerField(beer, ["Imagen", "imagen"]);
       document.getElementById("imageBase64").value = img;
-      rawImageObj = null;
-      if (img) {
+      committedWorkingCanvas = null;
+      pendingWorkingCanvas = null;
+      committedCropState = null;
+      aiSourceBase64 = "";
+
+      if (isSafeImageSrc(img)) {
         showPhotoPreview(img);
       } else {
         clearPhoto();
         document.getElementById("removeImageFlag").value = "false";
       }
 
-      document.getElementById("btnSubmit").textContent = "💾 Guardar Cambios";
+      const btn = document.getElementById("btnSubmit");
+      btn.textContent = "💾 Guardar Cambios";
+      btn.disabled = false;
       document.getElementById("btnCancelEdit").style.display = "block";
       switchTab("nueva-cata");
     }
@@ -2916,16 +4486,19 @@
     function cancelEdit() {
       document.getElementById("beerForm").reset();
       document.getElementById("formTitle").textContent = "🍺 Registrar Cerveza";
-      document.getElementById("fecha").valueAsDate = new Date();
+      document.getElementById("fecha").value = getTodayLocalISO();
       document.getElementById("beerId").value = "";
       document.getElementById("removeImageFlag").value = "false";
-      document.getElementById("aiResultBanner").classList.remove("visible");
+      document.getElementById("aiResultBanner").classList.remove("visible", "warning");
+      document.getElementById("duplicateAlert").classList.remove("visible");
+      matchedDuplicateBeerId = null;
       document.querySelectorAll(".ai-filled").forEach(el => el.classList.remove("ai-filled"));
 
-      setUnrated("Karina");
-      setUnrated("Guillermo");
+      setUnrated("Karina", true);
+      setUnrated("Guillermo", true);
       clearPhoto();
       document.getElementById("removeImageFlag").value = "false";
+      clearFormDraft();
 
       const btn = document.getElementById("btnSubmit");
       btn.textContent = "💾 Guardar Cerveza";
@@ -2933,27 +4506,98 @@
       document.getElementById("btnCancelEdit").style.display = "none";
     }
 
-    function deleteBeer(encodedId) {
-      const id = decodeURIComponent(encodedId);
-      if (!confirm("¿Seguro que deseas eliminar permanentemente esta cerveza de la planilla?")) return;
+    async function deleteBeer(beerId) {
+      const ok = await askConfirm({
+        title: "Eliminar cerveza",
+        message: "¿Seguro que deseas eliminar permanentemente esta cerveza de la planilla?",
+        okText: "🗑 Eliminar",
+        danger: true
+      });
+      if (!ok) return;
+
+      const delBtn = document.getElementById("btnDetailDelete");
+      if (delBtn) {
+        delBtn.disabled = true;
+        delBtn.textContent = "⏳ Borrando...";
+      }
+
+      if (!navigator.onLine) {
+        await enqueueOfflineAction("deleteCerveza", { id: beerId });
+        showToast("📡 Eliminada en local (se borrará de la nube al volver la señal)");
+        switchTab("historial");
+        return;
+      }
 
       showToast("Eliminando registro...");
-      apiPost("deleteCerveza", { id: id })
-        .then(data => {
-          cervezasData = Array.isArray(data) ? data : [];
-          applyFiltersAndRender();
-          renderStats();
-          showToast("🗑 Registro eliminado");
+      try {
+        const data = await apiPost("deleteCerveza", { id: beerId }, 18000);
+        if (Array.isArray(data)) {
+          serverCervezasData = data;
+          await BirappDB.setCache("beers", {
+            cervezas: serverCervezasData,
+            cervecerias: knownBreweries,
+            estilos: knownStyles,
+            hasAiKey: serverHasAiKey,
+            aiModel: serverAiModel,
+            updatedAt: Date.now()
+          });
+          lastSyncAt = Date.now();
+        }
+        const queue = await refreshPendingQueueCount();
+        cervezasData = mergePendingIntoBeers(serverCervezasData, queue);
+        extractSuggestionsFromData(cervezasData);
+        applyFiltersAndRender();
+        renderStats();
+        showToast("🗑 Registro eliminado");
+        switchTab("historial");
+      } catch (err) {
+        if (isNetworkOrTimeoutError(err)) {
+          await enqueueOfflineAction("deleteCerveza", { id: beerId });
+          showToast("📡 Sin señal: borrado en cola local");
           switchTab("historial");
-        })
-        .catch(err => {
-          alert("Error al borrar: " + err.message);
-        });
+          return;
+        }
+        if (delBtn) {
+          delBtn.disabled = false;
+          delBtn.textContent = "🗑 Borrar";
+        }
+        showToast("Error al borrar: " + err.message);
+      }
     }
 
     // =========================================================================
     // ESTADÍSTICAS Y RANKING (PESTAÑA 3)
     // =========================================================================
+    function normalizeCategoryKey(str) {
+      return normalizeTextForSearch(str);
+    }
+
+    function addCategoryStat(map, rawName, avgNum) {
+      const cleanName = String(rawName || "").trim();
+      const key = normalizeCategoryKey(cleanName);
+      if (!key) return;
+
+      if (!map[key]) {
+        map[key] = {
+          display: cleanName,
+          count: 0,
+          ratedCount: 0,
+          scoreSum: 0,
+          labelFreq: {}
+        };
+      }
+      const entry = map[key];
+      entry.count++;
+      entry.labelFreq[cleanName] = (entry.labelFreq[cleanName] || 0) + 1;
+      if (entry.labelFreq[cleanName] > (entry.labelFreq[entry.display] || 0)) {
+        entry.display = cleanName;
+      }
+      if (!isNaN(avgNum)) {
+        entry.ratedCount++;
+        entry.scoreSum += avgNum;
+      }
+    }
+
     function renderStats() {
       const container = document.getElementById("statsContainer");
       if (!cervezasData || cervezasData.length === 0) {
@@ -2962,30 +4606,33 @@
       }
 
       const total = cervezasData.length;
-      const breweries = new Set();
-      const styles = new Set();
+      const breweryStats = {};
+      const styleStats = {};
       let kSum = 0, kCount = 0;
       let gSum = 0, gCount = 0;
       let alcSum = 0, alcCount = 0;
-      const breweryCounts = {};
-      const styleCounts = {};
+      let last7DaysCount = 0;
+
+      const now = new Date();
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const sevenDaysAgo = todayMidnight - (6 * 24 * 60 * 60 * 1000);
 
       const rankedBeers = [];
 
       cervezasData.forEach(b => {
         const c = getBeerField(b, ["Cervecería", "cerveceria"]);
         const s = getBeerField(b, ["Estilo", "estilo"]);
-        const alc = parseFloat(getBeerField(b, ["° ALC", "alc"]).replace(",", "."));
+        const alc = parseFloat(normalizeAlcInput(getBeerField(b, ["° ALC", "alc"])));
         const sc = computeScores(b);
+        const ts = parseFechaToTimestamp(getBeerField(b, ["Fecha", "fecha"]));
 
-        if (c) {
-          breweries.add(c);
-          breweryCounts[c] = (breweryCounts[c] || 0) + 1;
+        if (ts >= sevenDaysAgo && ts <= todayMidnight) {
+          last7DaysCount++;
         }
-        if (s) {
-          styles.add(s);
-          styleCounts[s] = (styleCounts[s] || 0) + 1;
-        }
+
+        addCategoryStat(breweryStats, c, sc.avgNum);
+        addCategoryStat(styleStats, s, sc.avgNum);
+
         if (!isNaN(alc) && alc > 0) {
           alcSum += alc;
           alcCount++;
@@ -3000,28 +4647,43 @@
       rankedBeers.sort((a, b) => b.avg - a.avg);
       const top5 = rankedBeers.slice(0, 5);
 
-      const topBreweries = Object.entries(breweryCounts).sort((a, b) => b[1] - a[1]).slice(0, 4);
-      const topStyles = Object.entries(styleCounts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+      const breweryEntries = Object.values(breweryStats);
+      const styleEntries = Object.values(styleStats);
+
+      const topBreweriesByCount = [...breweryEntries].sort((a, b) => b.count - a.count).slice(0, 4);
+      const topStylesByCount = [...styleEntries].sort((a, b) => b.count - a.count).slice(0, 4);
+
+      const topBreweriesByAvg = breweryEntries
+        .filter(e => e.ratedCount > 0)
+        .sort((a, b) => (b.scoreSum / b.ratedCount) - (a.scoreSum / a.ratedCount) || b.ratedCount - a.ratedCount)
+        .slice(0, 4);
+
+      const topStylesByAvg = styleEntries
+        .filter(e => e.ratedCount > 0)
+        .sort((a, b) => (b.scoreSum / b.ratedCount) - (a.scoreSum / a.ratedCount) || b.ratedCount - a.ratedCount)
+        .slice(0, 4);
 
       const kAvg = kCount ? (kSum / kCount).toFixed(2) : "-";
       const gAvg = gCount ? (gSum / gCount).toFixed(2) : "-";
       const alcAvg = alcCount ? (alcSum / alcCount).toFixed(1) + "°" : "-";
 
-      const top5Html = top5.map((item, idx) => {
-        const n = getBeerField(item.beer, ["Nombre", "nombre"]);
-        const c = getBeerField(item.beer, ["Cervecería", "cerveceria"]);
-        const medals = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"];
-        return `
-          <div class="beer-item" style="padding:11px 13px; margin-bottom:8px;" onclick="showDetails('${item.beer.ID}')">
-            <div style="font-size:22px; width:32px; text-align:center;">${medals[idx]}</div>
-            <div style="flex:1; min-width:0;">
-              <div style="font-weight:800; font-size:15px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(n)}</div>
-              <div style="font-size:12px; color:var(--text-muted); font-weight:600;">${escapeHtml(c)} • 👩🏻 ${item.k} | 👨🏻 ${item.g}</div>
-            </div>
-            <div class="score-pill-lg">${item.avg.toFixed(1)}</div>
-          </div>
-        `;
-      }).join("");
+      const top5Html = top5.length > 0
+        ? top5.map((item, idx) => {
+            const n = getBeerField(item.beer, ["Nombre", "nombre"]);
+            const c = getBeerField(item.beer, ["Cervecería", "cerveceria"]);
+            const medals = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"];
+            return `
+              <div class="beer-item" style="padding:11px 13px; margin-bottom:8px;" onclick="showDetails('${escapeHtml(item.beer.ID)}')">
+                <div style="font-size:22px; width:32px; text-align:center;">${medals[idx]}</div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-weight:800; font-size:15px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(n)}</div>
+                  <div style="font-size:12px; color:var(--text-muted); font-weight:600;">${escapeHtml(c)} • 👩🏻 ${escapeHtml(item.k)} | 👨🏻 ${escapeHtml(item.g)}</div>
+                </div>
+                <div class="score-pill-lg">${item.avg.toFixed(1)}</div>
+              </div>
+            `;
+          }).join("")
+        : `<p style="font-size:13px; color:var(--text-muted);">Puntúa al menos una cerveza para ver tu Top 5 del tour.</p>`;
 
       container.innerHTML = `
         <div class="stats-kpi-grid">
@@ -3030,16 +4692,16 @@
             <div class="kpi-label">🍺 Cervezas Catadas</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-val">${breweries.size}</div>
-            <div class="kpi-label">🏭 Cervecerías Probadas</div>
+            <div class="kpi-val">${last7DaysCount}</div>
+            <div class="kpi-label">🗓️ Últimos 7 Días</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-val">${styles.size}</div>
-            <div class="kpi-label">🌾 Estilos Distintos</div>
+            <div class="kpi-val">${breweryEntries.length}</div>
+            <div class="kpi-label">🏭 Cervecerías</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-val">${alcAvg}</div>
-            <div class="kpi-label">💧 Graduación Media</div>
+            <div class="kpi-val">${styleEntries.length} <span style="font-size:14px; color:var(--text-muted); font-weight:700;">(${alcAvg})</span></div>
+            <div class="kpi-label">🌾 Estilos • °ALC Medio</div>
           </div>
         </div>
 
@@ -3065,15 +4727,33 @@
         </div>
 
         <div class="card">
-          <h3 class="section-title" style="font-size:17px; margin-bottom:12px;">📊 Cervecerías y Estilos Favoritos</h3>
+          <h3 class="section-title" style="font-size:17px; margin-bottom:12px;">📊 Más Probadas (Cantidad)</h3>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
             <div>
-              <div style="font-size:12px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">MÁS PROBADAS</div>
-              ${topBreweries.map(([name, cnt]) => `<div style="display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border);"><span>${escapeHtml(name)}</span><b>${cnt}</b></div>`).join("")}
+              <div style="font-size:12px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">CERVECERÍAS</div>
+              ${topBreweriesByCount.map(e => `<div style="display:flex; justify-content:space-between; gap:6px; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border);"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(e.display)}</span><b>${e.count}</b></div>`).join("")}
             </div>
             <div>
-              <div style="font-size:12px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">ESTILOS TOP</div>
-              ${topStyles.map(([name, cnt]) => `<div style="display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border);"><span>${escapeHtml(name)}</span><b>${cnt}</b></div>`).join("")}
+              <div style="font-size:12px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">ESTILOS</div>
+              ${topStylesByCount.map(e => `<div style="display:flex; justify-content:space-between; gap:6px; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border);"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(e.display)}</span><b>${e.count}</b></div>`).join("")}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="section-title" style="font-size:17px; margin-bottom:12px;">⭐ Mejor Promedio</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <div style="font-size:12px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">CERVECERÍAS</div>
+              ${topBreweriesByAvg.length
+                ? topBreweriesByAvg.map(e => `<div style="display:flex; justify-content:space-between; gap:6px; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border);"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(e.display)}</span><b>${(e.scoreSum / e.ratedCount).toFixed(1)}</b></div>`).join("")
+                : `<div style="font-size:12px; color:var(--text-muted);">Sin notas aún</div>`}
+            </div>
+            <div>
+              <div style="font-size:12px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">ESTILOS</div>
+              ${topStylesByAvg.length
+                ? topStylesByAvg.map(e => `<div style="display:flex; justify-content:space-between; gap:6px; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border);"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(e.display)}</span><b>${(e.scoreSum / e.ratedCount).toFixed(1)}</b></div>`).join("")
+                : `<div style="font-size:12px; color:var(--text-muted);">Sin notas aún</div>`}
             </div>
           </div>
         </div>
@@ -3081,9 +4761,9 @@
     }
 
     // =========================================================================
-    // NAVEGACIÓN Y UTILIDADES
+    // NAVEGACIÓN Y TOAST
     // =========================================================================
-    function switchTab(tabId) {
+    function switchTab(tabId, options = {}) {
       window.scrollTo({ top: 0, behavior: "smooth" });
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -3096,28 +4776,21 @@
         document.getElementById("tab-estadisticas").classList.add("active");
         renderStats();
       }
+      if (tabId === "detalles" && !options.skipHistory) {
+        pushNavState("detalles");
+      }
     }
 
     function showToast(msg) {
       const toast = document.getElementById("toast");
+      clearTimeout(toastTimer);
       toast.textContent = msg;
-      toast.className = "show";
-      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3100);
-    }
-
-    function formatearFecha(fechaYYYYMMDD) {
-      if (!fechaYYYYMMDD) return "";
-      const parts = fechaYYYYMMDD.split("-");
-      if (parts.length !== 3) return fechaYYYYMMDD;
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-
-    function escapeHtml(str) {
-      return String(str || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+      toast.classList.remove("show");
+      void toast.offsetWidth;
+      toast.classList.add("show");
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3100);
     }
   </script>
 </body>

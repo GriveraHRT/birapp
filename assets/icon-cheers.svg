@@ -1,11 +1,64 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Brindis de cervezas">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Birapp - Jarra cervecera artesanal">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#4F46E5"/>
-      <stop offset="100%" stop-color="#0EA5A4"/>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#231812"/>
+      <stop offset="100%" stop-color="#3A2518"/>
+    </linearGradient>
+    <radialGradient id="amberHalo" cx="50%" cy="50%" r="48%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.34"/>
+      <stop offset="70%" stop-color="#B45309" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#B45309" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="amberBadge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+    <linearGradient id="beerLiquid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#D97706"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
-  <text x="256" y="300" text-anchor="middle" font-size="210">🍻</text>
-  <circle cx="406" cy="116" r="34" fill="#fff" opacity="0.2"/>
+
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <circle cx="256" cy="256" r="210" fill="url(#amberHalo)"/>
+  <circle cx="256" cy="256" r="168" fill="url(#amberBadge)" opacity="0.22"/>
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#F59E0B" stroke-opacity="0.4" stroke-width="4"/>
+
+  <g transform="translate(-14, 6)">
+    <!-- Asa de la jarra -->
+    <path d="M324 238 H356 C377 238 392 254 392 276 V314 C392 336 377 352 356 352 H324"
+          fill="none" stroke="#FFFBEB" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Cuerpo del vaso -->
+    <rect x="156" y="200" width="168" height="190" rx="26" fill="#FFFBEB"/>
+
+    <!-- Cerveza dorada interior -->
+    <rect x="174" y="226" width="132" height="146" rx="16" fill="url(#beerLiquid)"/>
+
+    <!-- Líneas verticales de brillo/cristal -->
+    <line x1="216" y1="248" x2="216" y2="348" stroke="#FFFBEB" stroke-opacity="0.58" stroke-width="14" stroke-linecap="round"/>
+    <line x1="264" y1="248" x2="264" y2="348" stroke="#FFFBEB" stroke-opacity="0.58" stroke-width="14" stroke-linecap="round"/>
+
+    <!-- Espuma cremosa superior -->
+    <path d="M150 214
+             C136 214 128 202 128 188
+             C128 172 140 160 156 160
+             C164 134 190 120 218 124
+             C232 108 260 108 276 124
+             C304 120 330 138 334 164
+             C348 168 356 180 356 194
+             C356 208 344 218 330 218
+             L304 218
+             C294 218 288 228 288 240
+             C288 250 280 256 272 256
+             C264 256 258 250 258 238
+             C258 224 250 218 238 218
+             H150 Z"
+          fill="#FFFBEB"/>
+
+    <!-- Burbujas sutiles en la cerveza -->
+    <circle cx="240" cy="314" r="6" fill="#FFFBEB" opacity="0.65"/>
+    <circle cx="196" cy="292" r="4.5" fill="#FFFBEB" opacity="0.55"/>
+    <circle cx="284" cy="284" r="5" fill="#FFFBEB" opacity="0.55"/>
+  </g>
 </svg>

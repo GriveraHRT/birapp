@@ -2,47 +2,85 @@
 <html lang="es">
 
 <head>
-    <meta charset="utf-8">
-    <title>Birapp — Bodega Cervecera</title>
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Birapp">
-    <meta name="theme-color" content="#1C1410">
+  <meta charset="utf-8">
+  <title>Birapp — Bodega Cervecera</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="refresh" content="0; url=./index.html">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Birapp">
+  <meta name="theme-color" content="#231812">
 
-    <!-- Íconos de la aplicación -->
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063069.png">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3063/3063069.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="./assets/icon-cheers.svg">
+  <link rel="manifest" href="./manifest.json">
 
-    <!-- Manifiesto PWA embebido -->
-    <link rel="manifest"
-        href='data:application/manifest+json,%7B%22name%22%3A%22Birapp%22%2C%22short_name%22%3A%22Birapp%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FAF6F0%22%2C%22theme_color%22%3A%22%231C1410%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F3063%2F3063069.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D'>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: radial-gradient(circle at 50% 0%, #3A2518 0%, #1C1410 100%);
+      color: #FFFBEB;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-align: center;
+    }
 
-    <style>
-        body,
-        html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #FAF6F0;
-        }
+    .card {
+      max-width: 340px;
+      background: rgba(255, 251, 235, 0.06);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 20px;
+      padding: 24px;
+    }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
+    img {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    p {
+      margin: 0 0 18px;
+      font-size: 14px;
+      color: #FDE68A;
+      line-height: 1.45;
+    }
+
+    a {
+      display: inline-block;
+      padding: 12px 20px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+      color: #FFF;
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
+
+  <script>
+    window.location.replace("./index.html");
+  </script>
 </head>
 
 <body>
-    <iframe
-        allow="camera; microphone"
-        src="https://script.google.com/macros/s/AKfycbwosRVbZN3CCzeGJFDruvvvj5Z9aqYHl-36_dTAN7Z03Jxbt6jl0-PfyiObo5FUiPomAA/exec"></iframe>
+  <div class="card">
+    <img src="./assets/icon-192.png" alt="Birapp">
+    <h1>Abriendo Birapp...</h1>
+    <p>Si no redirige automáticamente, toca el botón para abrir tu bodega cervecera.</p>
+    <a href="./index.html">Ir a Birapp</a>
+  </div>
 </body>
 
 </html>

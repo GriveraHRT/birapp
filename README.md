@@ -1,71 +1,42 @@
-# Birapp (GitHub Pages + Google Sheets)
+# Birapp (GitHub Pages + Google Sheets + Gemini IA)
 
-Esta versión está adaptada para ejecutarse en GitHub Pages y conservar sincronización con Google Sheets vía tu Web App de Apps Script.
+Aplicación web progresiva (PWA) móvil diseñada para registrar catas de cerveza entre dos catadores (Karina y Guillermo), con sincronización en Google Sheets vía Google Apps Script, funcionamiento offline con IndexedDB e identificación asistida con Google Gemini + Búsqueda Web.
+
+## Estructura del proyecto
+
+- `index.html`: Aplicación principal (UI móvil, editor táctil de fotos, flujo IA en 2 fases, IndexedDB + cola offline, ranking).
+- `Codigo.gs`: Backend de Google Apps Script (manejo de 11 columnas reales, `LockService`, formato seguro de fechas, configuración y proxy/respaldo de Gemini).
+- `sw.js`: Service Worker (`birapp-static-v6`) con estrategia Network-First con timeout de 2.8 s para redes móviles lentas.
+- `manifest.json` y `assets/`: Manifiesto PWA e íconos (`icon-cheers.svg`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`).
+- `Instalador-Birapp.html`: Redirección de compatibilidad hacia `./index.html`.
+- `Instrucciones.md`: Guía rápida de actualización y uso en tour.
 
 ## Endpoint configurado
 
-`index.html` usa este backend:
+`index.html` usa este backend de Google Apps Script:
 
 - `https://script.google.com/macros/s/AKfycbwosRVbZN3CCzeGJFDruvvvj5Z9aqYHl-36_dTAN7Z03Jxbt6jl0-PfyiObo5FUiPomAA/exec`
 
-## Contrato esperado del backend (Apps Script)
+## Contrato del backend (Apps Script)
 
-El frontend usa `fetch` con `action`:
-
-- `GET ?action=getCervezas`
-- `GET ?action=getSuggestions`
-- `POST` enviando `payload` (form-urlencoded) con JSON interno:
-  - `payload={"action":"addCerveza","data":{...}}`
+- **GET**:
+  - `?action=getBootstrap` *(devuelve `{ cervezas, cervecerias, estilos, hasAiKey, aiModel, serverTime }` en una sola petición)*
+  - `?action=getCervezas`
+  - `?action=getSuggestions`
+  - `?action=getAiStatus`
+- **POST** (`payload` form-urlencoded para evitar preflight CORS):
+  - `payload={"action":"addCerveza","data":{...}}` *(soporta `clientId` para idempotencia)*
   - `payload={"action":"updateCerveza","data":{...}}`
   - `payload={"action":"deleteCerveza","id":"..."}`
+  - `payload={"action":"saveAiConfig","data":{"apiKey":"...","model":"..."}}`
+  - `payload={"action":"analyzeBeerImage","data":{...}}`
+  - `payload={"action":"testAiConfig","data":{"model":"..."}}`
 
-Todas las respuestas deben ser JSON.
+Todas las respuestas se devuelven en JSON (`ContentService.MimeType.JSON`).
 
-## Ejemplo mínimo de enrutador para Apps Script
+## Notas técnicas clave
 
-```javascript
-function doGet(e) {
-  const action = (e.parameter.action || '').trim();
-  let out;
-
-  if (action === 'getCervezas') out = getCervezas();
-  else if (action === 'getSuggestions') out = getSuggestions();
-  else out = { error: 'Acción GET no soportada' };
-
-  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPost(e) {
-  const raw = (e.parameter && e.parameter.payload)
-    ? e.parameter.payload
-    : (e.postData && e.postData.contents) ? e.postData.contents : '{}';
-
-  const payload = JSON.parse(raw);
-  const action = payload.action;
-  let out;
-
-  if (action === 'addCerveza') out = addCerveza(payload.data);
-  else if (action === 'updateCerveza') out = updateCerveza(payload.data);
-  else if (action === 'deleteCerveza') out = deleteCerveza(payload.id);
-  else out = { error: 'Acción POST no soportada' };
-
-  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
-}
-```
-
-## Publicación
-
-1. Subir estos archivos al repo.
-2. Activar GitHub Pages (branch principal, carpeta `/root`).
-3. Re-deploy del Apps Script como Web App con acceso adecuado.
-
-
-## Troubleshooting rápido
-
-- Si al guardar aparece "guardado exitosamente" pero luego el historial queda vacío, normalmente el backend respondió un objeto de error en lugar del arreglo de cervezas.
-- Con este frontend, `POST` debe leer `payload` desde `e.parameter.payload` (form-urlencoded), no solo `e.postData.contents`.
-- Verifica además que el deployment activo sea la versión nueva del script (`Deploy > Manage deployments > Edit > Deploy`).
-- Si ves historial desactualizado, revisa `sw.js`: no debe cachear requests del API (`action=...`) y conviene versionar `CACHE_NAME` cuando cambias lógica de cache.
-
-- Si agregas campos nuevos en el formulario (por ejemplo `° ALC` e `IBU`), actualiza también `HEADERS`, `addCerveza` y `updateCerveza` en Apps Script para guardar/leer esas columnas.
-- Google Sheets tiene límite de 50.000 caracteres por celda: las imágenes base64 deben comprimirse por debajo de ese umbral (el frontend ahora lo intenta automáticamente antes de guardar).
+- **Columnas de la hoja `Cervezas`:** `ID`, `Fecha`, `Nombre`, `Cervecería`, `Estilo`, `° ALC`, `IBU`, `Nota Karina`, `Nota Guillermo`, `Comentario`, `Imagen`.
+- **Límite de celda en Google Sheets:** La compresión adaptativa en `index.html` garantiza imágenes `<= 46.000` caracteres (y `Codigo.gs` valida `<= 49.500`), manteniendo en paralelo una copia nítida en memoria (1024 px) exclusiva para la lectura de etiqueta con IA.
+- **Modelos Gemini recomendados (Free Tier):** `gemini-4-hydrogen` (`thinkingLevel: "LOW"`), con respaldo automático en `gemini-3.8-flash` (`LOW`) y `gemini-3.5-flash-lite` (`MINIMAL`/`LOW`). Las búsquedas con `google_search` se ejecutan en fase separada sin `responseMimeType: "application/json"` para evitar errores `400`.
+- **Re-implementación en Apps Script:** Tras actualizar `Codigo.gs`, recuerda publicar una **Nueva versión** en *Implementar > Administrar implementaciones > Editar > Implementar*.
