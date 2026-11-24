@@ -58,8 +58,10 @@
       --warn-bg: #FEF3C7;
       --warn-border: #F59E0B;
       --warn-text: #78350F;
-      --ai-accent: #7C3AED;
-      --ai-gradient: linear-gradient(135deg, #D97706 0%, #9333EA 100%);
+      --ai-bg: linear-gradient(135deg, #261A14 0%, #3E2719 100%);
+      --ai-border: rgba(245, 158, 11, 0.45);
+      --ai-text: #FEF3C7;
+      --ai-shadow: 0 6px 16px rgba(35, 24, 18, 0.22);
     }
 
     [data-theme="dark"] {
@@ -97,6 +99,10 @@
       --warn-bg: rgba(245, 158, 11, 0.16);
       --warn-border: #D97706;
       --warn-text: #FDE68A;
+      --ai-bg: linear-gradient(135deg, #3A2515 0%, #523218 100%);
+      --ai-border: rgba(251, 191, 36, 0.55);
+      --ai-text: #FFFBEB;
+      --ai-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
     }
 
     * {
@@ -321,30 +327,50 @@
     /* PHOTO CAPTURE & PREVIEW MODULE */
     .photo-module {
       background: var(--surface-alt);
-      border: 1.5px dashed var(--border-strong);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 18px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
       transition: all 0.2s;
     }
 
     .photo-empty-state {
-      text-align: center;
-      padding: 6px 4px;
+      text-align: left;
     }
 
-    .photo-empty-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 4px;
+    .photo-module-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
-    .photo-empty-sub {
-      font-size: 12px;
+    .photo-module-label {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       color: var(--text-muted);
-      margin-bottom: 14px;
-      line-height: 1.4;
+    }
+
+    .live-cam-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .live-cam-pill:active {
+      transform: scale(0.96);
     }
 
     .photo-action-grid {
@@ -356,16 +382,16 @@
     .photo-btn {
       background: var(--surface);
       border: 1px solid var(--border-strong);
-      border-radius: 14px;
-      padding: 13px 10px;
+      border-radius: 12px;
+      padding: 12px 14px;
       font-size: 13.5px;
       font-weight: 700;
       color: var(--text-main);
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 8px;
       cursor: pointer;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
       transition: all 0.18s;
@@ -377,7 +403,7 @@
       background: linear-gradient(135deg, var(--primary) 0%, var(--copper) 100%);
       color: #FFFFFF;
       border-color: transparent;
-      box-shadow: 0 4px 12px rgba(200, 109, 20, 0.3);
+      box-shadow: 0 4px 12px rgba(200, 109, 20, 0.28);
     }
 
     .photo-btn:active {
@@ -391,20 +417,6 @@
       cursor: pointer;
       width: 100%;
       height: 100%;
-    }
-
-    .live-cam-link {
-      margin-top: 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--primary);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: underline;
     }
 
     /* Active Photo Preview Card */
@@ -467,28 +479,44 @@
 
     /* AI MAGIC BANNER / BUTTON */
     .ai-magic-bar {
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn-ai {
       width: 100%;
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: none;
-      background: var(--ai-gradient);
-      color: #FFFFFF;
-      font-size: 14.5px;
+      padding: 13px 16px;
+      border-radius: 13px;
+      border: 1px solid var(--ai-border);
+      background: var(--ai-bg);
+      color: var(--ai-text);
+      font-size: 14px;
       font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 6px 16px rgba(147, 51, 234, 0.25);
+      box-shadow: var(--ai-shadow);
       transition: all 0.2s;
+    }
+
+    .btn-ai svg {
+      color: #FBBF24;
+      flex-shrink: 0;
+    }
+
+    .ai-web-pill {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: rgba(251, 191, 36, 0.16);
+      color: #FCD34D;
+      border: 1px solid rgba(251, 191, 36, 0.32);
     }
 
     .btn-ai:active {
@@ -1591,7 +1619,7 @@
     <div id="nueva-cata" class="section active">
       <div class="card">
         <div class="section-title-row">
-          <h2 class="section-title" id="formTitle">🍺 Registrar Cerveza</h2>
+          <h2 class="section-title" id="formTitle">Registrar Cerveza</h2>
           <button type="button" class="unrated-toggle" id="btnResetDraft" style="display:none;" onclick="confirmClearDraft()">Limpiar</button>
         </div>
 
@@ -1603,33 +1631,37 @@
           <!-- MÓDULO DE FOTOGRAFÍA Y ENCUADRE -->
           <div class="photo-module">
             <div class="photo-empty-state" id="photoEmptyState">
-              <div class="photo-empty-title">Foto de la Etiqueta o Cerveza</div>
-              <div class="photo-empty-sub">Toma una foto con la cámara o súbela de tu galería. Podrás encuadrarla y rellenar los datos con IA.</div>
+              <div class="photo-module-header">
+                <span class="photo-module-label">Foto de la etiqueta</span>
+                <button type="button" class="live-cam-pill" onclick="openLiveCameraModal()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m22 8-6 4 6 4V8Z" />
+                    <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+                  </svg>
+                  Visor en vivo
+                </button>
+              </div>
 
               <div class="photo-action-grid">
                 <label class="photo-btn primary-cam">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
                     <circle cx="12" cy="13" r="3" />
                   </svg>
-                  📸 Tomar Foto
+                  Tomar foto
                   <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleFilePicked(event)">
                 </label>
 
                 <label class="photo-btn">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
                     <circle cx="9" cy="9" r="2" />
                     <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                   </svg>
-                  🖼️ Galería
+                  Galería
                   <input type="file" id="galleryInput" accept="image/*" onchange="handleFilePicked(event)">
                 </label>
               </div>
-
-              <button type="button" class="live-cam-link" onclick="openLiveCameraModal()">
-                📹 ¿Problemas con la cámara? Abrir visor en vivo aquí
-              </button>
             </div>
 
             <!-- Vista previa cuando ya hay imagen cargada -->
@@ -1655,13 +1687,14 @@
           <!-- BARRA DE ESCANEO IA + BÚSQUEDA WEB -->
           <div class="ai-magic-bar">
             <button type="button" class="btn-ai" id="btnAnalyzeAi" onclick="triggerAiAnalysis()">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
               </svg>
-              <span id="btnAnalyzeAiText">✨ Autocompletar con IA + Web</span>
+              <span id="btnAnalyzeAiText">Autocompletar con IA</span>
+              <span class="ai-web-pill">+ Web</span>
             </button>
             <div class="ai-hint-caption">
-              Lee la etiqueta en tu foto o busca sin foto (ideal para <b>barril / schop</b>) el <b>Estilo, °ALC e IBU</b>.
+              Lee tu foto o busca por nombre (ideal para <b>schop</b>): estilo, °ALC e IBU.
             </div>
             <div class="ai-badge-result" id="aiResultBanner">
               <span id="aiResultText">✨ Datos completados con Gemini</span>
@@ -1911,7 +1944,10 @@
 
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
           <button type="button" class="btn-ai" onclick="applyCropAndSave(true)">
-            ✨ Confirmar Foto y Rellenar con IA
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+            </svg>
+            Confirmar foto y analizar con IA
           </button>
           <button type="button" class="btn" onclick="applyCropAndSave(false)">
             ✅ Solo Usar Foto
@@ -3529,7 +3565,7 @@
         showToast("Error IA: " + err.message);
       } finally {
         btn.disabled = false;
-        btnText.textContent = "✨ Autocompletar con IA + Web";
+        btnText.textContent = "Autocompletar con IA";
       }
     }
 
@@ -4535,7 +4571,7 @@
       const beer = cervezasData.find(b => String(b.ID) === String(beerId));
       if (!beer) return;
 
-      document.getElementById("formTitle").textContent = "✏️ Editar Cerveza";
+      document.getElementById("formTitle").textContent = "Editar Cerveza";
       document.getElementById("beerId").value = beer.ID;
       document.getElementById("removeImageFlag").value = "false";
       document.getElementById("duplicateAlert").classList.remove("visible");
@@ -4577,7 +4613,7 @@
 
     function cancelEdit() {
       document.getElementById("beerForm").reset();
-      document.getElementById("formTitle").textContent = "🍺 Registrar Cerveza";
+      document.getElementById("formTitle").textContent = "Registrar Cerveza";
       document.getElementById("fecha").value = getTodayLocalISO();
       document.getElementById("beerId").value = "";
       document.getElementById("removeImageFlag").value = "false";
