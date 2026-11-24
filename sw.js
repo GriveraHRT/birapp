@@ -1,4 +1,4 @@
-const CACHE_NAME = "birapp-static-v6";
+const CACHE_NAME = "birapp-static-v7";
 const NETWORK_TIMEOUT_MS = 2800;
 const APP_SHELL = [
   "./",
